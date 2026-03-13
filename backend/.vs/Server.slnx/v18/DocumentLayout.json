@@ -58,7 +58,8 @@
               "RelativeToolTip": "Server\\Server.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-03-03T06:18:08.865Z"
+              "WhenOpened": "2026-03-03T06:18:08.865Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -83,7 +84,8 @@
               "RelativeToolTip": "Server\\Server.http",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003502|",
-              "WhenOpened": "2026-03-03T06:17:55.022Z"
+              "WhenOpened": "2026-03-03T06:17:55.022Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -93,9 +95,10 @@
               "RelativeDocumentMoniker": "Server\\Program.cs",
               "ToolTip": "D:\\DoAn_CSharp\\backend\\Server\\Program.cs",
               "RelativeToolTip": "Server\\Program.cs",
-              "ViewState": "AgIAACcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAACQAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-03T06:17:48.145Z"
+              "WhenOpened": "2026-03-03T06:17:48.145Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -107,7 +110,8 @@
               "RelativeToolTip": "Server\\Data\\AppDbContext.cs",
               "ViewState": "AgIAACYAAAAAAAAAAAAswAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-03T06:16:00.935Z"
+              "WhenOpened": "2026-03-03T06:16:00.935Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -117,9 +121,10 @@
               "RelativeDocumentMoniker": "Server\\Controllers\\POIsController.cs",
               "ToolTip": "D:\\DoAn_CSharp\\backend\\Server\\Controllers\\POIsController.cs",
               "RelativeToolTip": "Server\\Controllers\\POIsController.cs",
-              "ViewState": "AgIAACoAAAAAAAAAAAAAAEAAAAAkAAAAAAAAAA==",
+              "ViewState": "AgIAACcAAAAAAAAAAIBJwEAAAAAkAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-28T11:31:14.237Z"
+              "WhenOpened": "2026-02-28T11:31:14.237Z",
+              "EditorCaption": ""
             }
           ]
         }
