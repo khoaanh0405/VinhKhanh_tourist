@@ -20,6 +20,8 @@ namespace Server.Models
 
         [Required]
         public double Longitude { get; set; }
+        public double AverageRating { get; set; } = 0.0;
+        public int ReviewCount { get; set; } = 0;
 
         // 1 - N Images
         public virtual ICollection<PoiImage> PoiImages { get; set; } = new List<PoiImage>();
@@ -29,6 +31,7 @@ namespace Server.Models
         public virtual ICollection<Narration> Narrations { get; set; } = new List<Narration>();
         public virtual ICollection<Geofence> Geofences { get; set; } = new List<Geofence>();
         public virtual ICollection<QRCode> QRCodes { get; set; } = new List<QRCode>();
+        public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }

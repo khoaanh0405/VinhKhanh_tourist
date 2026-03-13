@@ -1,0 +1,58 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="client.lib.screens.login.RegisterScreen"
+             BackgroundColor="White"
+             Shell.NavBarIsVisible="False">
+
+    <Grid>
+        <Image Source="vinh_khanh_night.jpg" Aspect="AspectFill" Opacity="0.6"/>
+        <BoxView BackgroundColor="#40000000" />
+
+        <ScrollView>
+            <VerticalStackLayout VerticalOptions="Center" Padding="30" Spacing="20">
+
+                <Label Text="Tạo Tài Khoản" TextColor="White" FontSize="32" FontAttributes="Bold" HorizontalOptions="Center"/>
+                <Label Text="Tham gia cộng đồng ẩm thực Vĩnh Khánh" TextColor="#E0E0E0" FontSize="14" HorizontalOptions="Center" Margin="0,-15,0,20"/>
+
+                <Border StrokeShape="RoundRectangle 16" BackgroundColor="#E6FFFFFF" Padding="20" StrokeThickness="0">
+                    <VerticalStackLayout Spacing="15">
+
+                        <Border StrokeShape="RoundRectangle 8" BackgroundColor="White" Padding="10,0" HeightRequest="50">
+                            <Entry x:Name="DisplayNameEntry" Placeholder="Tên hiển thị (VD: Foodie99)" />
+                        </Border>
+
+                        <Border StrokeShape="RoundRectangle 8" BackgroundColor="White" Padding="10,0" HeightRequest="50">
+                            <Entry x:Name="UsernameEntry" Placeholder="Tên đăng nhập" />
+                        </Border>
+
+                        <Border StrokeShape="RoundRectangle 8" BackgroundColor="White" Padding="10,0" HeightRequest="50">
+                            <Entry x:Name="PasswordEntry" Placeholder="Mật khẩu" IsPassword="True" />
+                        </Border>
+
+                        <Border StrokeShape="RoundRectangle 8" BackgroundColor="White" Padding="10,0" HeightRequest="50">
+                            <Entry x:Name="ConfirmPasswordEntry" Placeholder="Xác nhận mật khẩu" IsPassword="True" />
+                        </Border>
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <Button Text="ĐĂNG KÝ NGAY" 
+        Clicked="OnRegisterClicked"
+        HeightRequest="55" CornerRadius="28" FontAttributes="Bold" FontSize="16" TextColor="White"
+        BackgroundColor="#D63031"/>
+
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="5">
+                    <Label Text="Đã có tài khoản?" TextColor="White" VerticalOptions="Center"/>
+                    <Label Text="Đăng nhập" TextColor="#FF7675" FontAttributes="Bold" TextDecorations="Underline" VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnGoToLoginTapped"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </HorizontalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Button Text="✕" Clicked="OnBackClicked" VerticalOptions="Start" HorizontalOptions="End" Margin="20,40" BackgroundColor="Transparent" TextColor="White" FontSize="24"/>
+    </Grid>
+</ContentPage>

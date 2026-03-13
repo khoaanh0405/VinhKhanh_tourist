@@ -14,8 +14,11 @@ namespace Server.Models
         public int PoiId { get; set; }
 
         [Required]
-        [MaxLength(500)]
+        [MaxLength(1000)] // Cập nhật độ dài để chứa URL Cloudinary dài
         public string ImageUrl { get; set; } = string.Empty;
+
+        [MaxLength(255)]
+        public string? PublicId { get; set; } 
 
         public int DisplayOrder { get; set; } = 0;
 

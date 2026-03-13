@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:client.lib.model"
+             x:Class="client.lib.screens.home.DetailScreen"
+             Title="Chi tiết địa điểm"
+             BackgroundColor="#F5F7FA">
+
+    <Grid RowDefinitions="Auto, *">
+        <BoxView Grid.Row="0" Color="LightGray" HeightRequest="4" WidthRequest="40" 
+                 CornerRadius="2" Margin="0,8" HorizontalOptions="Center"/>
+
+        <ScrollView Grid.Row="1" Padding="16">
+            <VerticalStackLayout Spacing="16">
+                <Border HeightRequest="250" BackgroundColor="#FFF3E0" StrokeShape="RoundRectangle 12" StrokeThickness="0">
+                    <Grid>
+                        <CarouselView x:Name="ImgCarousel"
+                      ItemsSource="{Binding FullImageUrls}"
+                      IndicatorView="IndicatorView"
+                      Loop="False">
+                            <CarouselView.ItemTemplate>
+                                <DataTemplate>
+                                    <Image Source="{Binding .}" 
+                           Aspect="AspectFill" 
+                           HorizontalOptions="Fill" 
+                           VerticalOptions="Fill"/>
+                                </DataTemplate>
+                            </CarouselView.ItemTemplate>
+                        </CarouselView>
+
+                        <IndicatorView x:Name="IndicatorView"
+                       IndicatorColor="LightGray"
+                       SelectedIndicatorColor="#FF4757"
+                       HorizontalOptions="Center"
+                       VerticalOptions="End"
+                       Margin="0,0,0,10" />
+                    </Grid>
+                </Border>
+
+                <Label x:Name="LblName" FontSize="24" FontAttributes="Bold" TextColor="#2D3436"/>
+
+                <HorizontalStackLayout Spacing="6" Margin="0,-5,0,5">
+                    <Label Text="⭐" FontSize="16" TextColor="#FFD700" VerticalOptions="Center"/>
+                    <Label Text="{Binding AverageRating, StringFormat='{0:F1}'}" FontSize="16" FontAttributes="Bold" TextColor="#2D3436" VerticalOptions="Center"/>
+                    <Label Text="{Binding ReviewCount, StringFormat='({0} đánh giá)'}" FontSize="14" TextColor="Gray" VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout Spacing="8">
+                    <Label Text="📍" TextColor="Gray" VerticalOptions="Center"/>
+                    <Label Text="Khu ẩm thực Vĩnh Khánh" TextColor="Gray" VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+
+                <Label x:Name="LblDescription" TextColor="#636E72" LineHeight="1.2" />
+
+                <BoxView HeightRequest="1" Color="#E0E0E0" Margin="0,10"/>
+
+                <Label Text="🍽️ Thực đơn nổi bật" FontSize="18" FontAttributes="Bold" TextColor="#2D3436"/>
+
+                <StackLayout x:Name="ListFoodsContainer" Spacing="10">
+                </StackLayout>
+
+                <BoxView HeightRequest="1" Color="#E0E0E0" Margin="0,10"/>
+
+                <BoxView HeightRequest="1" Color="#E0E0E0" Margin="0,10"/>
+
+                <Label Text="💬 Đánh giá &amp; Bình luận" FontSize="18" FontAttributes="Bold" TextColor="#2D3436" Margin="0,0,0,10"/>
+
+                <Frame x:Name="ReviewInputFrame" CornerRadius="12" Padding="15" BackgroundColor="#FAFBFD" BorderColor="#E0E0E0" IsVisible="False" Margin="0,0,0,15">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Đánh giá của bạn về địa điểm này" FontAttributes="Bold" FontSize="16" TextColor="#2D3436" HorizontalOptions="Center"/>
+
+                        <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Label x:Name="Star1" Text="☆" FontSize="32" TextColor="Gray">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnStarTapped" CommandParameter="1"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label x:Name="Star2" Text="☆" FontSize="32" TextColor="Gray">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnStarTapped" CommandParameter="2"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label x:Name="Star3" Text="☆" FontSize="32" TextColor="Gray">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnStarTapped" CommandParameter="3"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label x:Name="Star4" Text="☆" FontSize="32" TextColor="Gray">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnStarTapped" CommandParameter="4"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label x:Name="Star5" Text="☆" FontSize="32" TextColor="Gray">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnStarTapped" CommandParameter="5"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </HorizontalStackLayout>
+
+                        <Border BackgroundColor="White" Stroke="#E0E0E0" StrokeThickness="1" StrokeShape="RoundRectangle 8">
+                            <Editor x:Name="CommentEditor" 
+            Placeholder="Chia sẻ trải nghiệm của bạn tại đây..." 
+            HeightRequest="80" 
+            BackgroundColor="Transparent" 
+            TextColor="#636E72" 
+            FontSize="14" 
+            AutoSize="TextChanges" 
+            Margin="8,4" />
+                        </Border>
+
+                        <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
+                            <Button Grid.Column="0" Text="Hủy bỏ" BackgroundColor="LightGray" TextColor="Black" CornerRadius="8" Clicked="OnCancelReviewClicked"/>
+                            <Button Grid.Column="1" Text="Gửi đánh giá" BackgroundColor="#E63946" TextColor="White" FontAttributes="Bold" CornerRadius="8" Clicked="OnSubmitReviewClicked"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <Button x:Name="BtnShowReviewInput" Text="✎ Viết đánh giá của bạn" BackgroundColor="#F1FAEE" TextColor="#E63946" FontAttributes="Bold" CornerRadius="8" Margin="0,0,0,15" Clicked="OnShowReviewInputClicked"/>
+
+                <StackLayout x:Name="ListReviewsContainer" Spacing="10" />
+
+                <Button x:Name="BtnFavorite" Text="❤️ Thêm vào yêu thích" 
+                    BackgroundColor="#FF4757" TextColor="White" 
+                    CornerRadius="12" HeightRequest="50" Margin="0,20,0,0"
+                    Clicked="OnFavoriteClicked"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

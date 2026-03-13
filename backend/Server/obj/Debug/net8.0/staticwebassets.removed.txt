@@ -1,0 +1,5 @@
+D:\DoAn_CSharp\backend\Server\wwwroot\images\monanmau.jpg
+D:\DoAn_CSharp\backend\Server\wwwroot\images\placeholder_img.webp
+D:\DoAn_CSharp\backend\Server\wwwroot\images\haisanvk1_space.jpg
+D:\DoAn_CSharp\backend\Server\wwwroot\images\haisanvk1_tank.jpg
+D:\DoAn_CSharp\backend\Server\wwwroot\images\haisanvk1_shrimp.jpg

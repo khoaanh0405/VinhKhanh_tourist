@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<!-- Permissions -->
+	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+	<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+	<uses-permission android:name="android.permission.CAMERA" />
+
+	<!-- Optional camera features -->
+	<uses-feature android:name="android.hardware.camera" android:required="false" />
+	<uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+
+	<application
+    android:allowBackup="true"
+    android:supportsRtl="true"
+    android:usesCleartextTraffic="true">
+
+
+		<!-- Google Maps API -->
+		<meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBG5TZKfx1Qv2icQuFRV856c-dWn3aeNz8" />
+
+	</application>
+
+</manifest>

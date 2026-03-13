@@ -1,0 +1,103 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:maps="http://schemas.microsoft.com/dotnet/2021/maui/maps"
+             x:Class="client.lib.screens.map.MapPage"
+             Shell.NavBarIsVisible="False">
+    <Grid>
+        <maps:Map x:Name="MyMap" IsShowingUser="True" />
+
+        <CollectionView x:Name="RestaurantList" 
+                VerticalOptions="End" 
+                HeightRequest="140" 
+                Margin="0, 0, 0, 30"
+                SelectionMode="None">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="15" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame WidthRequest="320" Margin="15,0,0,0" Padding="10" CornerRadius="15" BackgroundColor="White" BorderColor="Transparent" HasShadow="True">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnRestaurantTapped" CommandParameter="{Binding .}" />
+                        </Frame.GestureRecognizers>
+
+                        <Grid ColumnDefinitions="100, *">
+                            <Frame Grid.Column="0" CornerRadius="10" Padding="0" IsClippedToBounds="True" HasShadow="False">
+                                <Image Source="{Binding ImageUrl}" Aspect="AspectFill" HeightRequest="100" WidthRequest="100"/>
+                            </Frame>
+                            <VerticalStackLayout Grid.Column="1" Margin="10,0,0,0" Spacing="2" VerticalOptions="Center">
+                                <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="16" TextColor="Black" MaxLines="1" LineBreakMode="TailTruncation"/>
+                                <HorizontalStackLayout Spacing="5" VerticalOptions="Center">
+                                    <Label Text="{Binding AverageRating}" TextColor="#F5A623" FontAttributes="Bold" FontSize="13"/>
+                                    <Label Text="⭐" FontSize="12" VerticalOptions="Center"/>
+                                    <Label Text=" • " TextColor="Gray" FontSize="13"/>
+                                    <Label Text="{Binding DistanceStr}" TextColor="#E65100" FontAttributes="Bold" FontSize="13"/>
+                                </HorizontalStackLayout>
+                                <Label Text="{Binding Description}" FontSize="12" TextColor="Gray" MaxLines="2" LineBreakMode="TailTruncation" Margin="0,5,0,0"/>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Button Text="📍" 
+                Clicked="OnGoToMyLocationClicked" 
+                VerticalOptions="Start" 
+                HorizontalOptions="End" 
+                Margin="10, 85, 15, 10" 
+                CornerRadius="25" 
+                HeightRequest="50" 
+                WidthRequest="50"
+                BackgroundColor="White"
+                TextColor="Black"
+                Shadow="{Shadow Brush=Black, Offset='0,2', Opacity=0.2}"/>
+
+        <Frame x:Name="SearchResultsContainer"
+               IsVisible="False"
+               Margin="15, 75, 15, 0"
+               Padding="0"
+               VerticalOptions="Start"
+               CornerRadius="15"
+               BackgroundColor="White"
+               HasShadow="True"
+               BorderColor="LightGray">
+            <CollectionView x:Name="SearchList"
+                            MaximumHeightRequest="250"
+                            SelectionMode="Single"
+                            SelectionChanged="OnSearchResultSelected">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="15,12" ColumnDefinitions="*, Auto" BackgroundColor="Transparent">
+                            <Label Text="{Binding Name}" VerticalOptions="Center" TextColor="Black" FontSize="15" FontAttributes="Bold"/>
+                            <Label Grid.Column="1" Text="{Binding DistanceStr}" VerticalOptions="Center" TextColor="#E65100" FontSize="13" FontAttributes="Bold"/>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Frame>
+
+        <Border Margin="15, 20, 15, 0"
+                VerticalOptions="Start"
+                Stroke="LightGray"
+                StrokeThickness="1"
+                BackgroundColor="White"
+                StrokeShape="RoundRectangle 25">
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,2" Opacity="0.1" />
+            </Border.Shadow>
+            <Grid ColumnDefinitions="40, *, 40" HeightRequest="50">
+                <Label Text="🔍" Grid.Column="0" VerticalOptions="Center" HorizontalOptions="Center" FontSize="18"/>
+                <Entry x:Name="SearchEntry"
+                       Grid.Column="1"
+                       Placeholder="Tìm kiếm quán ăn..."
+                       ClearButtonVisibility="WhileEditing"
+                       TextChanged="OnSearchTextChanged"
+                       BackgroundColor="Transparent"
+                       VerticalOptions="Center"
+                       TextColor="Black"/>
+            </Grid>
+        </Border>
+
+    </Grid>
+</ContentPage>

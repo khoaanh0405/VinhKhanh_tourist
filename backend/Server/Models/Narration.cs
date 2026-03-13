@@ -22,8 +22,18 @@ namespace Server.Models
         [ForeignKey("Language")]
         public string LanguageCode { get; set; }
 
-        // 🔥 Cấu hình TTS cho Flutter
-        public string VoiceName { get; set; }
+        [MaxLength(1000)] 
+        public string? AudioUrl { get; set; }
+
+        [MaxLength(255)]
+        public string? AudioPublicId { get; set; } 
+
+        public int? DurationSeconds { get; set; }
+
+        public bool UseAudioFile { get; set; } = false;
+
+        [MaxLength(100)]
+        public string? VoiceName { get; set; }
 
         public double SpeechRate { get; set; } = 0.5;
 

@@ -12,7 +12,7 @@ namespace Server.Models
         public string LanguageCode { get; set; }
 
         [MaxLength(100)]
-        public string LanguageName { get; set; }
+        public string LanguageName { get; set; } = string.Empty;
 
         // Navigation properties
         public virtual ICollection<Narration> Narrations { get; set; }

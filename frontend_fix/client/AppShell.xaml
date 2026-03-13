@@ -1,0 +1,22 @@
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:screens="clr-namespace:client.lib.screens"
+       xmlns:map="clr-namespace:client.lib.screens.map"
+       xmlns:qr="clr-namespace:client.lib.screens.qr"
+       x:Class="client.AppShell">
+
+    <TabBar>
+        <Tab Title="Trang chủ" Icon="home.png">
+            <ShellContent ContentTemplate="{DataTemplate screens:HomePage}" />
+        </Tab>
+        <Tab Title="Bản đồ" Icon="map.png">
+            <ShellContent ContentTemplate="{DataTemplate map:MapPage}" />
+        </Tab>
+        <Tab Title="QR" Icon="qr.png">
+            <ShellContent ContentTemplate="{DataTemplate qr:QrScannerPage}" />
+        </Tab>
+        <Tab Title="Yêu thích" Icon="heart.png">
+            <ShellContent ContentTemplate="{DataTemplate screens:FavoritesPage}" />
+        </Tab>
+    </TabBar>
+</Shell>

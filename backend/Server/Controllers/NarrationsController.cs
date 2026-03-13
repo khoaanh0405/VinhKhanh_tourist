@@ -11,185 +11,136 @@ namespace Server.Controllers
         private readonly INarrationService _narrationService;
         private readonly ILogger<NarrationsController> _logger;
 
-        public NarrationsController(
-            INarrationService narrationService,
-            ILogger<NarrationsController> logger)
+        private static readonly HashSet<string> AllowedAudioExtensions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ".mp3", ".wav", ".ogg", ".m4a", ".aac"
+        };
+
+        private const long MaxAudioSizeBytes = 50 * 1024 * 1024; // 50 MB
+
+        public NarrationsController(INarrationService narrationService, ILogger<NarrationsController> logger)
         {
             _narrationService = narrationService;
             _logger = logger;
         }
 
-        /// <summary>
-        /// Get all narrations
-        /// </summary>
         [HttpGet]
-        public async Task<ActionResult<List<NarrationDto>>> GetAll()
+        public async Task<ActionResult<List<NarrationDto>>> GetAll() => Ok(await _narrationService.GetAllNarrationsAsync());
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<NarrationDto>> GetById(int id)
         {
+            var narration = await _narrationService.GetNarrationByIdAsync(id);
+            return narration == null ? NotFound($"Narration {id} not found") : Ok(narration);
+        }
+
+        [HttpGet("poi/{poiId}")]
+        public async Task<ActionResult<List<NarrationDto>>> GetByPOI(int poiId) => Ok(await _narrationService.GetNarrationsByPOIAsync(poiId));
+
+        [HttpGet("poi/{poiId}/language/{languageCode}")]
+        public async Task<ActionResult<NarrationDto>> GetByPOIAndLanguage(int poiId, string languageCode)
+        {
+            var narration = await _narrationService.GetNarrationByPOIAndLanguageAsync(poiId, languageCode);
+            return narration == null ? NotFound() : Ok(narration);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<NarrationDto>> Create([FromBody] CreateNarrationDto dto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            try { return CreatedAtAction(nameof(GetById), new { id = (await _narrationService.CreateNarrationAsync(dto)).NarrationId }, dto); }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<NarrationDto>> Update(int id, [FromBody] UpdateNarrationDto dto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            try { return Ok(await _narrationService.UpdateNarrationAsync(id, dto)); }
+            catch (ArgumentException ex) { return NotFound(ex.Message); }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id) => await _narrationService.DeleteNarrationAsync(id) ? NoContent() : NotFound();
+
+        /// <summary>
+        /// Upload file audio lên Cloudinary.
+        /// Server tự động bật UseAudioFile = true sau khi upload thành công.
+        /// (Cần đảm bảo NarrationService xử lý việc lưu AudioPublicId và xóa file cũ trên Cloudinary).
+        /// </summary>
+        [HttpPost("{id}/audio")]
+        [RequestSizeLimit(MaxAudioSizeBytes)]
+        public async Task<ActionResult<NarrationDto>> UploadAudio(int id, [FromForm] IFormFile file, [FromForm] int? durationSeconds)
+        {
+            if (file == null || file.Length == 0) return BadRequest("Vui lòng chọn file audio.");
+            if (file.Length > MaxAudioSizeBytes) return BadRequest($"File vượt quá {MaxAudioSizeBytes / 1024 / 1024} MB.");
+
+            var ext = Path.GetExtension(file.FileName);
+            if (!AllowedAudioExtensions.Contains(ext)) return BadRequest($"Định dạng không hỗ trợ.");
+
             try
             {
-                var narrations = await _narrationService.GetAllNarrationsAsync();
-                return Ok(narrations);
+                var dto = new NarrationAudioUploadDto
+                {
+                    NarrationId = id,
+                    File = file,
+                    DurationSeconds = durationSeconds
+                };
+                return Ok(await _narrationService.UploadAudioAsync(dto));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting all narrations");
-                return StatusCode(500, "Internal server error");
+                _logger.LogError(ex, "Lỗi khi upload audio cho narration {Id}", id);
+                return StatusCode(500, "Lỗi server khi upload audio.");
             }
         }
 
-        /// <summary>
-        /// Get narration by ID
-        /// </summary>
-        [HttpGet("{id}")]
-        public async Task<ActionResult<NarrationDto>> GetById(int id)
+        [HttpPatch("{id}/use-tts")]
+        public async Task<ActionResult<NarrationDto>> SwitchToTts(int id)
         {
             try
             {
                 var narration = await _narrationService.GetNarrationByIdAsync(id);
-                if (narration == null)
+                if (narration == null) return NotFound();
+
+                var dto = new UpdateNarrationDto
                 {
-                    return NotFound($"Narration with ID {id} not found");
-                }
-                return Ok(narration);
+                    Text = narration.Text,
+                    AudioUrl = narration.AudioUrl,
+                    // Thêm property AudioPublicId vào UpdateNarrationDto để khi update không bị mất
+                    DurationSeconds = narration.DurationSeconds,
+                    UseAudioFile = false, // TTS
+                    VoiceName = narration.VoiceName,
+                    SpeechRate = narration.SpeechRate,
+                    Volume = narration.Volume
+                };
+                return Ok(await _narrationService.UpdateNarrationAsync(id, dto));
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error getting narration {id}");
-                return StatusCode(500, "Internal server error");
-            }
+            catch (ArgumentException ex) { return NotFound(ex.Message); }
         }
 
-        /// <summary>
-        /// Get all narrations for a POI
-        /// </summary>
-        [HttpGet("poi/{poiId}")]
-        public async Task<ActionResult<List<NarrationDto>>> GetByPOI(int poiId)
+        [HttpPatch("{id}/use-audio")]
+        public async Task<ActionResult<NarrationDto>> SwitchToAudio(int id)
         {
             try
             {
-                var narrations = await _narrationService.GetNarrationsByPOIAsync(poiId);
-                return Ok(narrations);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error getting narrations for POI {poiId}");
-                return StatusCode(500, "Internal server error");
-            }
-        }
+                var narration = await _narrationService.GetNarrationByIdAsync(id);
+                if (narration == null) return NotFound();
+                if (string.IsNullOrEmpty(narration.AudioUrl)) return BadRequest("Chưa có audio file.");
 
-        /// <summary>
-        /// Get narration by POI and language
-        /// </summary>
-        [HttpGet("poi/{poiId}/language/{languageCode}")]
-        public async Task<ActionResult<NarrationDto>> GetByPOIAndLanguage(
-            int poiId,
-            string languageCode)
-        {
-            try
-            {
-                var narration = await _narrationService
-                    .GetNarrationByPOIAndLanguageAsync(poiId, languageCode);
-
-                if (narration == null)
+                var dto = new UpdateNarrationDto
                 {
-                    return NotFound(
-                        $"Narration not found for POI {poiId} and language {languageCode}");
-                }
-
-                return Ok(narration);
+                    Text = narration.Text,
+                    AudioUrl = narration.AudioUrl,
+                    DurationSeconds = narration.DurationSeconds,
+                    UseAudioFile = true, // Audio Cloudinary
+                    VoiceName = narration.VoiceName,
+                    SpeechRate = narration.SpeechRate,
+                    Volume = narration.Volume
+                };
+                return Ok(await _narrationService.UpdateNarrationAsync(id, dto));
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex,
-                    $"Error getting narration for POI {poiId} and language {languageCode}");
-                return StatusCode(500, "Internal server error");
-            }
-        }
-
-        /// <summary>
-        /// Create new narration
-        /// </summary>
-        [HttpPost]
-        public async Task<ActionResult<NarrationDto>> Create(
-            [FromBody] CreateNarrationDto dto)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                var narration = await _narrationService.CreateNarrationAsync(dto);
-                return CreatedAtAction(
-                    nameof(GetById),
-                    new { id = narration.NarrationId },
-                    narration);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return Conflict(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error creating narration");
-                return StatusCode(500, "Internal server error");
-            }
-        }
-
-        /// <summary>
-        /// Update narration
-        /// </summary>
-        [HttpPut("{id}")]
-        public async Task<ActionResult<NarrationDto>> Update(
-            int id,
-            [FromBody] UpdateNarrationDto dto)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                var narration = await _narrationService.UpdateNarrationAsync(id, dto);
-                return Ok(narration);
-            }
-            catch (ArgumentException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error updating narration {id}");
-                return StatusCode(500, "Internal server error");
-            }
-        }
-
-        /// <summary>
-        /// Delete narration
-        /// </summary>
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
-        {
-            try
-            {
-                var result = await _narrationService.DeleteNarrationAsync(id);
-                if (!result)
-                {
-                    return NotFound($"Narration with ID {id} not found");
-                }
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error deleting narration {id}");
-                return StatusCode(500, "Internal server error");
-            }
+            catch (ArgumentException ex) { return NotFound(ex.Message); }
         }
     }
 }

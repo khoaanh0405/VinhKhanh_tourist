@@ -40,16 +40,15 @@ namespace Server.Controllers
         [HttpPost]
         public async Task<ActionResult<QRCode>> PostQRCode(QRCode qrCode)
         {
-            // 1. Kiểm tra xem POI có tồn tại không
-            if (qrCode.PoiId.HasValue)
+            // Thay vì qrCode.PoiId.HasValue
+            if (qrCode.PoiId > 0)
             {
                 var poiExists = await _context.POIs.AnyAsync(p => p.PoiId == qrCode.PoiId);
                 if (!poiExists) return BadRequest("POI ID không tồn tại.");
             }
 
-            // 2. Tạo nội dung mã QR tự động nếu người dùng chưa nhập
-            // Ví dụ: https://vinhkhanhtourism.com/poi/{poiId}
-            if (string.IsNullOrEmpty(qrCode.CodeValue) && qrCode.PoiId.HasValue)
+            // Thay đổi điều kiện tạo nội dung tự động tương ứng
+            if (string.IsNullOrEmpty(qrCode.CodeValue) && qrCode.PoiId > 0)
             {
                 qrCode.CodeValue = $"https://myapp.com/poi/{qrCode.PoiId}";
             }

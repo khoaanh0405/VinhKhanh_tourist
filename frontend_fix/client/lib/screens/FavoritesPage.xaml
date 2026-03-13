@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:client.lib.model"
+             xmlns:vm="clr-namespace:client.lib.services"
+             x:Class="client.lib.screens.FavoritesPage"
+             Title="Yêu thích"
+             BackgroundColor="#F5F7FA"
+             x:DataType="vm:AppViewModel">
+
+    <Grid Padding="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Margin="0,0,0,10" StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="White" Shadow="{Shadow Brush=Black, Opacity=0.1, Radius=4}">
+            <SearchBar x:Name="FavoriteSearchBar" 
+                       Placeholder="Tìm trong mục yêu thích..." 
+                       TextChanged="OnFavoriteSearchTextChanged"
+                       BackgroundColor="Transparent" />
+        </Border>
+
+        <CollectionView Grid.Row="1" x:Name="FavoriteCollectionView" ItemsSource="{Binding FavoritePOIs}">
+
+            <CollectionView.EmptyView>
+                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
+                    <Image Source="heart_outline.png" HeightRequest="64" Opacity="0.5"/>
+                    <Label Text="Chưa có địa điểm yêu thích nào" TextColor="Gray" FontSize="16"/>
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:POI">
+                    <Frame Margin="0,0,0,10" Padding="0" HeightRequest="100" CornerRadius="12" HasShadow="True" IsClippedToBounds="True">
+                        <Grid ColumnDefinitions="100, *">
+                            <Image Grid.Column="0" Source="{Binding ImageUrl}" Aspect="AspectFill"/>
+
+                            <VerticalStackLayout Grid.Column="1" Padding="12" Spacing="4" VerticalOptions="Center">
+                                <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="16" TextColor="#2D3436" MaxLines="1"/>
+
+                                <HorizontalStackLayout Spacing="4">
+                                    <Label Text="⭐" FontSize="12" TextColor="#FFD700" VerticalOptions="Center"/>
+                                    <Label Text="{Binding AverageRating, StringFormat='{0:F1}'}" FontSize="13" FontAttributes="Bold" VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+        </CollectionView>
+    </Grid>
+</ContentPage>

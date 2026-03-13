@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="client.lib.screens.login.LoginScreen"
+             BackgroundColor="White"
+             Shell.NavBarIsVisible="False">
+
+    <Grid>
+        <Image Source="vinh_khanh_night.jpg" Aspect="AspectFill" Opacity="0.6"/>
+        <BoxView BackgroundColor="#40000000" />
+
+        <ScrollView>
+            <VerticalStackLayout VerticalOptions="Center" Padding="30" Spacing="20">
+
+                <Border WidthRequest="90" HeightRequest="90" StrokeShape="RoundRectangle 45"
+                        HorizontalOptions="Center" BackgroundColor="White" Padding="15">
+                    <Label Text="🍱" FontSize="45" HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Border>
+
+                <Label Text="Chào mừng trở lại!" TextColor="White" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center"/>
+                <Label Text="Đăng nhập để trải nghiệm trọn vẹn" TextColor="#E0E0E0" FontSize="14" HorizontalOptions="Center" Margin="0,-15,0,20"/>
+
+                <Border StrokeShape="RoundRectangle 16" BackgroundColor="#E6FFFFFF" Padding="20" StrokeThickness="0">
+                    <VerticalStackLayout Spacing="15">
+
+                        <Border StrokeShape="RoundRectangle 8" BackgroundColor="White" Padding="10,0" HeightRequest="50">
+                            <Grid ColumnDefinitions="30, *">
+                                <Label Text="👤" VerticalOptions="Center"/>
+                                <Entry x:Name="UsernameEntry" Grid.Column="1" Placeholder="Tên đăng nhập" VerticalOptions="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <Border StrokeShape="RoundRectangle 8" BackgroundColor="White" Padding="10,0" HeightRequest="50">
+                            <Grid ColumnDefinitions="30, *">
+                                <Label Text="🔒" VerticalOptions="Center"/>
+                                <Entry x:Name="PasswordEntry" Grid.Column="1" Placeholder="Mật khẩu" IsPassword="True" VerticalOptions="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <Label Text="Quên mật khẩu?" TextColor="#D63031" HorizontalOptions="End" FontSize="13" FontAttributes="Bold"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Button Text="ĐĂNG NHẬP" 
+                        Clicked="OnLoginClicked"
+                        HeightRequest="55" CornerRadius="28" FontAttributes="Bold" FontSize="16" TextColor="White"
+                        BackgroundColor="#D63031"/>
+
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="5" Margin="0, 15, 0, 0">
+                    <Label Text="Chưa có tài khoản?" TextColor="White" VerticalOptions="Center"/>
+                    <Label Text="Đăng ký ngay" TextColor="#FF7675" FontAttributes="Bold" TextDecorations="Underline" VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnGoToRegisterTapped"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </HorizontalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Button Text="✕" 
+                Clicked="OnCloseClicked"
+                VerticalOptions="Start" HorizontalOptions="End" 
+                Margin="20,40" BackgroundColor="Transparent" TextColor="White" FontSize="24"/>
+    </Grid>
+</ContentPage>

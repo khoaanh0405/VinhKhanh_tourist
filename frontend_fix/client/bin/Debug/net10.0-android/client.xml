@@ -1,0 +1,425 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>client</name>
+    </assembly>
+    <members>
+        <member name="T:client.lib.model.POI">
+            <inheritdoc/>
+        </member>
+        <member name="P:client.lib.model.POI.DistanceDisplay">
+            <inheritdoc cref="F:client.lib.model.POI._distanceDisplay"/>
+        </member>
+        <member name="P:client.lib.model.POI.DistanceInMeters">
+            <inheritdoc cref="F:client.lib.model.POI._distanceInMeters"/>
+        </member>
+        <member name="T:client.lib.screens.home.HomeViewModel">
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="P:client.lib.screens.home.HomeViewModel.IsLoading">
+            <inheritdoc cref="F:client.lib.screens.home.HomeViewModel._isLoading"/>
+        </member>
+        <member name="P:client.lib.screens.home.HomeViewModel.Pois">
+            <inheritdoc cref="F:client.lib.screens.home.HomeViewModel._pois"/>
+        </member>
+        <member name="P:client.lib.screens.home.HomeViewModel.FilteredPois">
+            <inheritdoc cref="F:client.lib.screens.home.HomeViewModel._filteredPois"/>
+        </member>
+        <member name="P:client.lib.screens.home.HomeViewModel.IsSearching">
+            <inheritdoc cref="F:client.lib.screens.home.HomeViewModel._isSearching"/>
+        </member>
+        <member name="P:client.lib.screens.home.HomeViewModel.FeaturedPois">
+            <inheritdoc cref="F:client.lib.screens.home.HomeViewModel._featuredPois"/>
+        </member>
+        <member name="P:client.lib.screens.home.HomeViewModel.SearchText">
+            <inheritdoc cref="F:client.lib.screens.home.HomeViewModel._searchText"/>
+        </member>
+        <member name="M:client.lib.screens.home.HomeViewModel.OnSearchTextChanged(System.String)">
+            <summary>Executes the logic for when <see cref="P:client.lib.screens.home.HomeViewModel.SearchText"/> just changed.</summary>
+            <param name="value">The new property value that was set.</param>
+            <remarks>This method is invoked right after the value of <see cref="P:client.lib.screens.home.HomeViewModel.SearchText"/> is changed.</remarks>
+        </member>
+        <member name="F:client.lib.screens.home.HomeViewModel.navigateToActivePOICommand">
+            <summary>The backing field for <see cref="P:client.lib.screens.home.HomeViewModel.NavigateToActivePOICommand"/>.</summary>
+        </member>
+        <member name="P:client.lib.screens.home.HomeViewModel.NavigateToActivePOICommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:client.lib.screens.home.HomeViewModel.NavigateToActivePOIAsync"/>.</summary>
+        </member>
+        <member name="F:client.lib.screens.home.HomeViewModel.loadDataCommand">
+            <summary>The backing field for <see cref="P:client.lib.screens.home.HomeViewModel.LoadDataCommand"/>.</summary>
+        </member>
+        <member name="P:client.lib.screens.home.HomeViewModel.LoadDataCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IAsyncRelayCommand"/> instance wrapping <see cref="M:client.lib.screens.home.HomeViewModel.LoadDataAsync"/>.</summary>
+        </member>
+        <member name="T:client.lib.services.AppViewModel">
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="P:client.lib.services.AppViewModel.CurrentLanguageCode">
+            <inheritdoc cref="F:client.lib.services.AppViewModel._currentLanguageCode"/>
+        </member>
+        <member name="F:client.lib.services.AppViewModel.togglePOIFavoriteCommand">
+            <summary>The backing field for <see cref="P:client.lib.services.AppViewModel.TogglePOIFavoriteCommand"/>.</summary>
+        </member>
+        <member name="P:client.lib.services.AppViewModel.TogglePOIFavoriteCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand`1"/> instance wrapping <see cref="M:client.lib.services.AppViewModel.TogglePOIFavorite(client.lib.model.POI)"/>.</summary>
+        </member>
+        <member name="F:client.lib.services.AppViewModel.toggleRestaurantFavoriteCommand">
+            <summary>The backing field for <see cref="P:client.lib.services.AppViewModel.ToggleRestaurantFavoriteCommand"/>.</summary>
+        </member>
+        <member name="P:client.lib.services.AppViewModel.ToggleRestaurantFavoriteCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand`1"/> instance wrapping <see cref="M:client.lib.services.AppViewModel.ToggleRestaurantFavorite(client.lib.model.Restaurant)"/>.</summary>
+        </member>
+        <member name="F:client.lib.services.AppViewModel.changeLanguageCommand">
+            <summary>The backing field for <see cref="P:client.lib.services.AppViewModel.ChangeLanguageCommand"/>.</summary>
+        </member>
+        <member name="P:client.lib.services.AppViewModel.ChangeLanguageCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand`1"/> instance wrapping <see cref="M:client.lib.services.AppViewModel.ChangeLanguage(System.String)"/>.</summary>
+        </member>
+        <member name="T:client.lib.services.AudioService">
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="P:client.lib.services.AudioService.IsSpeaking">
+            <inheritdoc cref="F:client.lib.services.AudioService._isSpeaking"/>
+        </member>
+        <member name="P:client.lib.services.AudioService.IsPaused">
+            <inheritdoc cref="F:client.lib.services.AudioService._isPaused"/>
+        </member>
+        <member name="P:client.lib.services.AudioService.CurrentTrackTitle">
+            <inheritdoc cref="F:client.lib.services.AudioService._currentTrackTitle"/>
+        </member>
+        <member name="F:client.lib.services.AudioService.togglePauseCommand">
+            <summary>The backing field for <see cref="P:client.lib.services.AudioService.TogglePauseCommand"/>.</summary>
+        </member>
+        <member name="P:client.lib.services.AudioService.TogglePauseCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand"/> instance wrapping <see cref="M:client.lib.services.AudioService.TogglePause"/>.</summary>
+        </member>
+        <member name="F:client.lib.services.AudioService.stopCommand">
+            <summary>The backing field for <see cref="P:client.lib.services.AudioService.StopCommand"/>.</summary>
+        </member>
+        <member name="P:client.lib.services.AudioService.StopCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand"/> instance wrapping <see cref="M:client.lib.services.AudioService.Stop"/>.</summary>
+        </member>
+        <member name="T:client.lib.services.GeofenceService">
+            <inheritdoc/>
+        </member>
+        <member name="P:client.lib.services.GeofenceService.CurrentLocation">
+            <inheritdoc cref="F:client.lib.services.GeofenceService._currentLocation"/>
+        </member>
+        <member name="P:client.lib.services.GeofenceService.CurrentActivePOI">
+            <inheritdoc cref="F:client.lib.services.GeofenceService._currentActivePOI"/>
+        </member>
+        <member name="T:client.Resource">
+            <summary>
+            Android Resource Designer class.
+            Exposes the Android Resource designer assembly into the project Namespace.
+            </summary>
+        </member>
+        <member name="T:MapViewModel">
+            <inheritdoc/>
+        </member>
+        <member name="P:MapViewModel.Pois">
+            <inheritdoc cref="F:MapViewModel._pois"/>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_Button.TextColorTo(Microsoft.Maui.Controls.Button,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing,System.Threading.CancellationToken)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <param name = "token"><see cref = "T:System.Threading.CancellationToken"/></param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_DatePicker.TextColorTo(Microsoft.Maui.Controls.DatePicker,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing,System.Threading.CancellationToken)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <param name = "token"><see cref = "T:System.Threading.CancellationToken"/></param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_Editor.TextColorTo(Microsoft.Maui.Controls.Editor,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing,System.Threading.CancellationToken)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <param name = "token"><see cref = "T:System.Threading.CancellationToken"/></param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_Entry.TextColorTo(Microsoft.Maui.Controls.Entry,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing,System.Threading.CancellationToken)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <param name = "token"><see cref = "T:System.Threading.CancellationToken"/></param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_InputView.TextColorTo(Microsoft.Maui.Controls.InputView,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing,System.Threading.CancellationToken)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <param name = "token"><see cref = "T:System.Threading.CancellationToken"/></param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_Label.TextColorTo(Microsoft.Maui.Controls.Label,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing,System.Threading.CancellationToken)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <param name = "token"><see cref = "T:System.Threading.CancellationToken"/></param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_Picker.TextColorTo(Microsoft.Maui.Controls.Picker,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing,System.Threading.CancellationToken)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <param name = "token"><see cref = "T:System.Threading.CancellationToken"/></param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_RadioButton.TextColorTo(Microsoft.Maui.Controls.RadioButton,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing,System.Threading.CancellationToken)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <param name = "token"><see cref = "T:System.Threading.CancellationToken"/></param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_SearchBar.TextColorTo(Microsoft.Maui.Controls.SearchBar,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing,System.Threading.CancellationToken)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <param name = "token"><see cref = "T:System.Threading.CancellationToken"/></param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_TimePicker.TextColorTo(Microsoft.Maui.Controls.TimePicker,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing,System.Threading.CancellationToken)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <param name = "token"><see cref = "T:System.Threading.CancellationToken"/></param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="P:CommunityToolkit.Maui.AttachedBindablePropertyAttribute`1.PropertyName">
+            <summary>Name of the Attached Property</summary>
+        </member>
+        <member name="P:CommunityToolkit.Maui.AttachedBindablePropertyAttribute`1.IsNullable">
+            <summary>Should generate a nullable type for T</summary>
+        </member>
+        <member name="P:CommunityToolkit.Maui.AttachedBindablePropertyAttribute`1.DefaultValue">
+            <summary>The default value for the property</summary>
+        </member>
+        <member name="P:CommunityToolkit.Maui.AttachedBindablePropertyAttribute`1.DefaultBindingMode">
+            <summary>The BindingMode to use on SetBinding() if no BindingMode is given. Default is <see cref="!:Microsoft.Maui.Controls.BindableProperty.Default"/></summary>
+        </member>
+        <member name="P:CommunityToolkit.Maui.AttachedBindablePropertyAttribute`1.ValidateValueMethodName">
+            <summary>Method name for <see cref="!:Microsoft.Maui.Controls.ValidateValueDelegate"/> to be run when a value is set. Default value is null</summary>
+            <remarks>The referenced method must be <see cref="!:Microsoft.Maui.Controls.ValidateValueDelegate"/></remarks>
+        </member>
+        <member name="P:CommunityToolkit.Maui.AttachedBindablePropertyAttribute`1.PropertyChangedMethodName">
+            <summary>Method name for <see cref="!:Microsoft.Maui.Controls.BindingPropertyChangedDelegate"/> to be run when a value has changed. Default value is null</summary>
+            <remarks>The referenced method must be <see cref="!:Microsoft.Maui.Controls.BindingPropertyChangedDelegate"/></remarks>
+        </member>
+        <member name="P:CommunityToolkit.Maui.AttachedBindablePropertyAttribute`1.PropertyChangingMethodName">
+            <summary>Method name for <see cref="!:Microsoft.Maui.Controls.BindingPropertyChangingDelegate"/> to be run when a value is set. Default value is null</summary>
+            <remarks>The referenced method must be <see cref="!:Microsoft.Maui.Controls.BindingPropertyChangingDelegate"/></remarks>
+        </member>
+        <member name="P:CommunityToolkit.Maui.AttachedBindablePropertyAttribute`1.CoerceValueMethodName">
+            <summary>Method name for <see cref="!:Microsoft.Maui.Controls.CoerceValueDelegate"/> used to coerce the range of a value. Default value is null</summary>
+            <remarks>The referenced method must be <see cref="!:Microsoft.Maui.Controls.CoerceValueDelegate"/></remarks>
+        </member>
+        <member name="P:CommunityToolkit.Maui.AttachedBindablePropertyAttribute`1.DefaultValueCreatorMethodName">
+            <summary>Method name for <see cref="!:Microsoft.Maui.Controls.CreateDefaultValueDelegate"/> used to initialize default value for reference types. Default value is null</summary>
+            <remarks>The referenced method must be <see cref="!:Microsoft.Maui.Controls.CreateDefaultValueDelegate"/></remarks>
+        </member>
+        <member name="P:CommunityToolkit.Maui.AttachedBindablePropertyAttribute`1.BindablePropertyXmlDocumentation">
+            <summary>Custom XML Comments added to BindableProperty</summary>
+            <remarks>Must be the entire XML string, including <c>///</c>
+            </remarks>
+        </member>
+        <member name="P:CommunityToolkit.Maui.AttachedBindablePropertyAttribute`1.GetterMethodXmlDocumentation">
+            <summary>Custom XML Comments added to <c>Get{PropertyName}(BindableProperty bindable)</c></summary>
+            <remarks>Must be the entire XML string, including <c>///</c></remarks>
+        </member>
+        <member name="P:CommunityToolkit.Maui.AttachedBindablePropertyAttribute`1.SetterMethodXmlDocumentation">
+            <summary>Custom XML Comments added to <c>Set{PropertyName}(BindableProperty bindable, T value)</c></summary>
+            <remarks>Must be the entire XML string, including <c>///</c></remarks>
+        </member>
+        <member name="P:CommunityToolkit.Maui.AttachedBindablePropertyAttribute`1.BindablePropertyAccessibility">
+            <summary>The access modifier applied to the generated field <see cref="T:Microsoft.Maui.Controls.BindableProperty"/></summary>
+        </member>
+        <member name="P:CommunityToolkit.Maui.AttachedBindablePropertyAttribute`1.GetterAccessibility">
+            <summary>The access modifier applied to the generated method <c>Get{PropertyName}(BindableProperty bindable)</c></summary>
+        </member>
+        <member name="P:CommunityToolkit.Maui.AttachedBindablePropertyAttribute`1.SetterAccessibility">
+            <summary>The access modifier applied to the generated method <c>Set{PropertyName}(BindableProperty bindable, T value)</c></summary>
+        </member>
+        <member name="T:CommunityToolkit.Maui.AccessModifier">
+            <summary>Used by CommunityToolkit.Maui source generators to define access modifiers for generated code</summary>
+        </member>
+        <member name="F:CommunityToolkit.Maui.AccessModifier.Public">
+            <summary>Generates <see langword="public"/> access modifier</summary>
+        </member>
+        <member name="F:CommunityToolkit.Maui.AccessModifier.Internal">
+            <summary>Generates <see langword="internal"/> access modifier</summary>
+        </member>
+        <member name="F:CommunityToolkit.Maui.AccessModifier.ProtectedInternal">
+            <summary>Generates <see langword="protected"/> <see langword="internal"/> access modifier</summary>
+        </member>
+        <member name="F:CommunityToolkit.Maui.AccessModifier.Protected">
+            <summary>Generates <see langword="protected"/> access modifier</summary>
+        </member>
+        <member name="F:CommunityToolkit.Maui.AccessModifier.PrivateProtected">
+            <summary>Generates <see langword="private"/> <see langword="protected"/> access modifier</summary>
+        </member>
+        <member name="F:CommunityToolkit.Maui.AccessModifier.Private">
+            <summary>Generates <see langword="private"/> access modifier</summary>
+        </member>
+        <member name="F:CommunityToolkit.Maui.AccessModifier.None">
+            <summary>Generates no code</summary>
+        </member>
+        <member name="T:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs">
+            <summary>
+            A helper type providing cached, reusable <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instances
+            for all properties generated with <see cref="T:CommunityToolkit.Mvvm.ComponentModel.ObservablePropertyAttribute"/>.
+            </summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.DistanceDisplay">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "DistanceDisplay" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.DistanceInMeters">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "DistanceInMeters" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsLoading">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsLoading" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.Pois">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "Pois" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.FilteredPois">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "FilteredPois" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsSearching">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsSearching" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.FeaturedPois">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "FeaturedPois" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.SearchText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "SearchText" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.CurrentLanguageCode">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "CurrentLanguageCode" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsSpeaking">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsSpeaking" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsPaused">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsPaused" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.CurrentTrackTitle">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "CurrentTrackTitle" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.CurrentLocation">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "CurrentLocation" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.CurrentActivePOI">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "CurrentActivePOI" generated properties.</summary>
+        </member>
+        <member name="T:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs">
+            <summary>
+            A helper type providing cached, reusable <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instances
+            for all properties generated with <see cref="T:CommunityToolkit.Mvvm.ComponentModel.ObservablePropertyAttribute"/>.
+            </summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.DistanceDisplay">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "DistanceDisplay" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.DistanceInMeters">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "DistanceInMeters" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsLoading">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsLoading" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.Pois">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "Pois" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.FilteredPois">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "FilteredPois" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsSearching">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsSearching" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.FeaturedPois">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "FeaturedPois" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.SearchText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "SearchText" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.CurrentLanguageCode">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "CurrentLanguageCode" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsSpeaking">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsSpeaking" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsPaused">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsPaused" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.CurrentTrackTitle">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "CurrentTrackTitle" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.CurrentLocation">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "CurrentLocation" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.CurrentActivePOI">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "CurrentActivePOI" generated properties.</summary>
+        </member>
+    </members>
+</doc>

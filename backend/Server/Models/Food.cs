@@ -17,7 +17,7 @@ namespace Server.Models
         public decimal? Price { get; set; }
 
         [MaxLength(500)]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [Required]
         [ForeignKey("Restaurant")]

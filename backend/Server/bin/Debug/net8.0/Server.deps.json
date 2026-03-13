@@ -9,6 +9,7 @@
       "Server/1.0.0": {
         "dependencies": {
           "BCrypt.Net-Next": "4.0.3",
+          "CloudinaryDotNet": "1.28.0",
           "Google.Cloud.TextToSpeech.V1": "3.4.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.0",
           "Microsoft.AspNetCore.OpenApi": "8.0.0",
@@ -56,6 +57,17 @@
           "lib/net6.0/BCrypt.Net-Next.dll": {
             "assemblyVersion": "4.0.3.0",
             "fileVersion": "4.0.3.0"
+          }
+        }
+      },
+      "CloudinaryDotNet/1.28.0": {
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.3"
+        },
+        "runtime": {
+          "lib/netstandard2.0/CloudinaryDotNet.dll": {
+            "assemblyVersion": "1.28.0.0",
+            "fileVersion": "1.28.0.0"
           }
         }
       },
@@ -1499,6 +1511,13 @@
       "sha512": "sha512-W+U9WvmZQgi5cX6FS5GDtDoPzUCV4LkBLkywq/kRZhuDwcbavOzcDAr3LXJFqHUi952Yj3LEYoWW0jbEUQChsA==",
       "path": "bcrypt.net-next/4.0.3",
       "hashPath": "bcrypt.net-next.4.0.3.nupkg.sha512"
+    },
+    "CloudinaryDotNet/1.28.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-o5Dfp5DrpF69s8qjlh4dxzXuJUCRxt7KQaweU8wMDxd1cPFONCVNZsgFQZ3v0PZDN76fLonZ5vFDjVTA3UTjCA==",
+      "path": "cloudinarydotnet/1.28.0",
+      "hashPath": "cloudinarydotnet.1.28.0.nupkg.sha512"
     },
     "Google.Api.CommonProtos/2.14.0": {
       "type": "package",

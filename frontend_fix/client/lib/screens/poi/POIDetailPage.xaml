@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="client.lib.screens.poi.POIDetailPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="{Binding Poi.Name}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="15">
+
+            <Image Source="{Binding Poi.ImageUrl}"
+                   HeightRequest="250"
+                   Aspect="AspectFill" />
+
+            <HorizontalStackLayout Spacing="20"
+                                   HorizontalOptions="Center">
+
+                <Button Text="Phát thuyết minh"
+                        Command="{Binding PlayAudioCommand}" />
+
+                <Button Text="Yêu thích"
+                        Command="{Binding ToggleFavoriteCommand}"
+                        BackgroundColor="{Binding IsFavorite,
+                        Converter={StaticResource BoolToColorConverter}}" />
+            </HorizontalStackLayout>
+
+            <Label Text="{Binding CurrentNarration.Text}"
+                   FontSize="16"
+                   LineHeight="1.5" />
+
+            <Label Text="Quán ăn gần đây"
+                   FontAttributes="Bold"
+                   FontSize="18" />
+
+            <CollectionView ItemsSource="{Binding Poi.Restaurants}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Margin="0,5">
+                            <HorizontalStackLayout Spacing="10">
+                                <Label Text="{Binding Name}"
+                                       VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

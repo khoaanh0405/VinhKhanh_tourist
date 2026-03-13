@@ -11,7 +11,7 @@ namespace Server.Models
         public int QRCodeId { get; set; }
 
         [ForeignKey("POI")]
-        public int? PoiId { get; set; }
+        public int PoiId { get; set; }
 
         [MaxLength(200)]
         public string CodeValue { get; set; }

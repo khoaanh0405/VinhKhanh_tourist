@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="client.lib.widgets.AudioPlayerMiniView">
+
+    <Border IsVisible="{Binding Audio.IsSpeaking}"
+            Margin="16,0,16,20"
+            Padding="12,8,12,8"
+            BackgroundColor="#EBFFFFFF" 
+            StrokeShape="RoundRectangle 20"
+            StrokeThickness="1"
+            Stroke="#40FFFFFF"
+            Shadow="{Shadow Brush=Black, Offset='0,4', Opacity=0.15, Radius=12}">
+
+        <Grid ColumnDefinitions="*, Auto, Auto" VerticalOptions="Center">
+
+            <Grid Grid.Column="0" ColumnDefinitions="48, 12, *" BackgroundColor="Transparent">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding NavigateToActivePOICommand}" />
+                </Grid.GestureRecognizers>
+
+                <Frame Grid.Column="0" HeightRequest="48" WidthRequest="48" CornerRadius="12" Padding="0" HasShadow="False" IsClippedToBounds="True" BackgroundColor="#F0F0F0">
+                    <Image Source="{Binding CurrentActivePOIImageUrl, TargetNullValue='placeholder_img.webp'}" Aspect="AspectFill" HorizontalOptions="Fill" VerticalOptions="Fill"/>
+                </Frame>
+
+                <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2">
+                    <Label Text="{Binding Audio.CurrentTrackTitle, TargetNullValue='Đang thuyết minh'}" TextColor="#2D3436" FontAttributes="Bold" FontSize="15" LineBreakMode="TailTruncation"/>
+                    <Label Text="Chạm để xem chi tiết" TextColor="#636E72" FontSize="12"/>
+                </VerticalStackLayout>
+            </Grid>
+
+            <Border Grid.Column="1" HeightRequest="36" WidthRequest="36" StrokeShape="RoundRectangle 18" BackgroundColor="#E3F2FD" StrokeThickness="0" Margin="10,0,5,0" VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding Audio.TogglePauseCommand}" />
+                </Border.GestureRecognizers>
+
+                <Label TextColor="#1E88E5" FontSize="16" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding Audio.IsPaused}" Value="False">
+                            <Setter Property="Text" Value="⏸" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Label" Binding="{Binding Audio.IsPaused}" Value="True">
+                            <Setter Property="Text" Value="▶" />
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+            </Border>
+
+            <Border Grid.Column="2" HeightRequest="36" WidthRequest="36" StrokeShape="RoundRectangle 18" BackgroundColor="#FFEBEE" StrokeThickness="0" VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding Audio.StopCommand}" />
+                </Border.GestureRecognizers>
+
+                <Label Text="✕" TextColor="#E63946" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
+            </Border>
+
+        </Grid>
+    </Border>
+</ContentView>

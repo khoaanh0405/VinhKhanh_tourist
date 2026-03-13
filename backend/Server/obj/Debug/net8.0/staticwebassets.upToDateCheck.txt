@@ -1,0 +1,5 @@
+wwwroot\images\monanmau.jpg
+wwwroot\images\placeholder_img.webp
+wwwroot\images\haisanvk1_space.jpg
+wwwroot\images\haisanvk1_tank.jpg
+wwwroot\images\haisanvk1_shrimp.jpg

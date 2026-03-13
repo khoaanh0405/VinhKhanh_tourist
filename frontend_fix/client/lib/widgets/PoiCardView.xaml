@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:client.lib.model"
+             x:Class="client.lib.widgets.PoiCardView"
+             x:DataType="models:POI">
+
+    <Border Margin="0,0,0,16"
+            StrokeShape="RoundRectangle 12"
+            StrokeThickness="0"
+            BackgroundColor="White"
+            Shadow="{Shadow Brush=Black, Opacity=0.2, Radius=2}">
+
+        <Grid RowDefinitions="160, Auto">
+            <Image Grid.Row="0"
+                   Source="{Binding ImageUrl}"
+                   Aspect="AspectFill"
+                   BackgroundColor="#FFC107"/>
+
+            <VerticalStackLayout Grid.Row="1" Padding="12" Spacing="4">
+
+                <Grid ColumnDefinitions="*, Auto">
+                    <Label Grid.Column="0" 
+                           Text="{Binding Name}" 
+                           FontSize="18" 
+                           FontAttributes="Bold"/>
+
+                    <ImageButton Grid.Column="1"
+                                 HeightRequest="30" WidthRequest="30">
+                        <ImageButton.Source>
+                            <FontImageSource Glyph="♥" Color="Gray"/>
+                        </ImageButton.Source>
+                    </ImageButton>
+                </Grid>
+
+                <HorizontalStackLayout Spacing="4">
+                    <Label Text="📍" FontSize="12" TextColor="Gray"/>
+                    <Label Text="{Binding Latitude, StringFormat='{0:F4}'}" FontSize="12" TextColor="Gray"/>
+                    <Label Text="," FontSize="12" TextColor="Gray"/>
+                    <Label Text="{Binding Longitude, StringFormat='{0:F4}'}" FontSize="12" TextColor="Gray"/>
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout Spacing="8" Margin="0,4,0,0">
+                    <Border IsVisible="{Binding Narrations.Count, Converter={StaticResource IntToBoolConverter}}"
+                            BackgroundColor="#EEEEEE" StrokeShape="RoundRectangle 16" Padding="8,4">
+                        <Label Text="{Binding Narrations.Count, StringFormat='{0} thuyết minh'}" FontSize="12"/>
+                    </Border>
+
+                    <Border IsVisible="{Binding Restaurants.Count, Converter={StaticResource IntToBoolConverter}}"
+                            BackgroundColor="#EEEEEE" StrokeShape="RoundRectangle 16" Padding="8,4">
+                        <Label Text="{Binding Restaurants.Count, StringFormat='{0} quán ăn'}" FontSize="12"/>
+                    </Border>
+                </HorizontalStackLayout>
+
+            </VerticalStackLayout>
+        </Grid>
+
+        <Border.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding NavigateToDetailCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}" 
+                                  CommandParameter="{Binding .}"/>
+        </Border.GestureRecognizers>
+    </Border>
+</ContentView>

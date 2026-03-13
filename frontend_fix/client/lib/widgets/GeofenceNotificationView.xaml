@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:client.lib.model"
+             x:Class="VinhKhanhTourism.Views.Components.GeofenceNotificationView">
+
+    <Border IsVisible="{Binding IsMonitoringAndNear}"
+            Margin="16"
+            Padding="16"
+            StrokeShape="RoundRectangle 16"
+            StrokeThickness="0">
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                <GradientStop Color="#FF5722" Offset="0.1"/>
+                <GradientStop Color="#E64A19" Offset="1.0"/>
+            </LinearGradientBrush>
+        </Border.Background>
+
+        <VerticalStackLayout Spacing="12">
+            <Grid ColumnDefinitions="Auto, *, Auto">
+                <Border Grid.Column="0" BackgroundColor="#33FFFFFF" Padding="8" StrokeShape="RoundRectangle 8">
+                    <Label Text="📍" TextColor="White" FontSize="24"/>
+                </Border>
+
+                <VerticalStackLayout Grid.Column="1" Margin="12,0,0,0">
+                    <Label Text="Bạn đang ở gần" TextColor="#B3FFFFFF" FontSize="12"/>
+                    <Label Text="{Binding CurrentActivePOI.Name}" TextColor="White" FontSize="18" FontAttributes="Bold"/>
+                </VerticalStackLayout>
+
+                <ImageButton Grid.Column="2" Source="close_icon.png" Command="{Binding CloseNotificationCommand}" HeightRequest="24"/>
+            </Grid>
+
+            <Label Text="{Binding DistanceText, StringFormat='Khoảng cách: {0}'}" TextColor="#B3FFFFFF" FontSize="14"/>
+
+            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8">
+                <Button Grid.Column="0"
+                        Text="Nghe thuyết minh"
+                        ImageSource="play_arrow.png"
+                        BackgroundColor="White"
+                        TextColor="#FF5722"
+                        Command="{Binding PlayNarrationCommand}"/>
+
+                <Button Grid.Column="1"
+                        Text="Xem"
+                        BackgroundColor="#33FFFFFF"
+                        TextColor="White"
+                        Command="{Binding ViewDetailCommand}"/>
+            </Grid>
+        </VerticalStackLayout>
+    </Border>
+</ContentView>
