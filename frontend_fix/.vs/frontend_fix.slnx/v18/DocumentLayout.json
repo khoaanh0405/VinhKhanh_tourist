@@ -3,12 +3,24 @@
   "WorkspaceRootPath": "D:\\DoAn_CSharp\\frontend_fix\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{595C4FFE-2966-D530-09A1-6F4C179A7DF4}|client\\client.csproj|d:\\doan_csharp\\frontend_fix\\client\\lib\\screens\\login\\profilescreen.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{595C4FFE-2966-D530-09A1-6F4C179A7DF4}|client\\client.csproj|solutionrelative:client\\lib\\screens\\login\\profilescreen.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{595C4FFE-2966-D530-09A1-6F4C179A7DF4}|client\\client.csproj|d:\\doan_csharp\\frontend_fix\\client\\lib\\screens\\login\\registerscreen.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{595C4FFE-2966-D530-09A1-6F4C179A7DF4}|client\\client.csproj|solutionrelative:client\\lib\\screens\\login\\registerscreen.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{595C4FFE-2966-D530-09A1-6F4C179A7DF4}|client\\client.csproj|d:\\doan_csharp\\frontend_fix\\client\\lib\\screens\\login\\registerscreen.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{595C4FFE-2966-D530-09A1-6F4C179A7DF4}|client\\client.csproj|solutionrelative:client\\lib\\screens\\login\\registerscreen.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{595C4FFE-2966-D530-09A1-6F4C179A7DF4}|client\\client.csproj|d:\\doan_csharp\\frontend_fix\\client\\lib\\screens\\homepage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{595C4FFE-2966-D530-09A1-6F4C179A7DF4}|client\\client.csproj|solutionrelative:client\\lib\\screens\\homepage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{595C4FFE-2966-D530-09A1-6F4C179A7DF4}|client\\client.csproj|d:\\doan_csharp\\frontend_fix\\client\\lib\\services\\audioservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{595C4FFE-2966-D530-09A1-6F4C179A7DF4}|client\\client.csproj|solutionrelative:client\\lib\\services\\audioservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{595C4FFE-2966-D530-09A1-6F4C179A7DF4}|client\\client.csproj|d:\\doan_csharp\\frontend_fix\\client\\appshell.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{595C4FFE-2966-D530-09A1-6F4C179A7DF4}|client\\client.csproj|solutionrelative:client\\appshell.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,8 +30,21 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 0,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ProfileScreen.xaml.cs",
+              "DocumentMoniker": "D:\\DoAn_CSharp\\frontend_fix\\client\\lib\\screens\\login\\ProfileScreen.xaml.cs",
+              "RelativeDocumentMoniker": "client\\lib\\screens\\login\\ProfileScreen.xaml.cs",
+              "ToolTip": "D:\\DoAn_CSharp\\frontend_fix\\client\\lib\\screens\\login\\ProfileScreen.xaml.cs",
+              "RelativeToolTip": "client\\lib\\screens\\login\\ProfileScreen.xaml.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAAA1wCAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-14T06:35:06.26Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
@@ -34,28 +59,55 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "RegisterScreen.xaml.cs",
               "DocumentMoniker": "D:\\DoAn_CSharp\\frontend_fix\\client\\lib\\screens\\login\\RegisterScreen.xaml.cs",
               "RelativeDocumentMoniker": "client\\lib\\screens\\login\\RegisterScreen.xaml.cs",
               "ToolTip": "D:\\DoAn_CSharp\\frontend_fix\\client\\lib\\screens\\login\\RegisterScreen.xaml.cs",
               "RelativeToolTip": "client\\lib\\screens\\login\\RegisterScreen.xaml.cs",
-              "ViewState": "AgIAAB4AAAAAAAAAAAAowDgAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T07:50:51.055Z",
+              "WhenOpened": "2026-03-14T06:34:51.255Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "RegisterScreen.xaml",
-              "DocumentMoniker": "D:\\DoAn_CSharp\\frontend_fix\\client\\lib\\screens\\login\\RegisterScreen.xaml",
-              "RelativeDocumentMoniker": "client\\lib\\screens\\login\\RegisterScreen.xaml",
-              "ToolTip": "D:\\DoAn_CSharp\\frontend_fix\\client\\lib\\screens\\login\\RegisterScreen.xaml",
-              "RelativeToolTip": "client\\lib\\screens\\login\\RegisterScreen.xaml",
-              "ViewState": "AgIAACQAAAAAAAAAAAAowDIAAAAoAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-03-04T07:15:30.578Z"
+              "DocumentIndex": 2,
+              "Title": "HomePage.xaml.cs",
+              "DocumentMoniker": "D:\\DoAn_CSharp\\frontend_fix\\client\\lib\\screens\\HomePage.xaml.cs",
+              "RelativeDocumentMoniker": "client\\lib\\screens\\HomePage.xaml.cs",
+              "ToolTip": "D:\\DoAn_CSharp\\frontend_fix\\client\\lib\\screens\\HomePage.xaml.cs",
+              "RelativeToolTip": "client\\lib\\screens\\HomePage.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-14T06:31:04.695Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "AudioService.cs",
+              "DocumentMoniker": "D:\\DoAn_CSharp\\frontend_fix\\client\\lib\\services\\AudioService.cs",
+              "RelativeDocumentMoniker": "client\\lib\\services\\AudioService.cs",
+              "ToolTip": "D:\\DoAn_CSharp\\frontend_fix\\client\\lib\\services\\AudioService.cs",
+              "RelativeToolTip": "client\\lib\\services\\AudioService.cs",
+              "ViewState": "AgIAAFsAAAAAAAAAAAAowG0AAABQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-14T06:14:51.764Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "AppShell.xaml.cs",
+              "DocumentMoniker": "D:\\DoAn_CSharp\\frontend_fix\\client\\AppShell.xaml.cs",
+              "RelativeDocumentMoniker": "client\\AppShell.xaml.cs",
+              "ToolTip": "D:\\DoAn_CSharp\\frontend_fix\\client\\AppShell.xaml.cs",
+              "RelativeToolTip": "client\\AppShell.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-14T06:04:52.59Z",
+              "EditorCaption": ""
             }
           ]
         }

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="client.lib.screens.login.ProfileScreen"
+             BackgroundColor="White"
+             Title="Tài khoản của tôi">
+
+    <Grid>
+        <Image Source="vinh_khanh_night.jpg" Aspect="AspectFill" Opacity="0.6"/>
+        <BoxView BackgroundColor="#90000000" />
+        <ScrollView>
+            <VerticalStackLayout VerticalOptions="Center" Padding="30" Spacing="20">
+
+                <Border WidthRequest="120" HeightRequest="120" StrokeShape="RoundRectangle 60"
+                        HorizontalOptions="Center" BackgroundColor="White" Padding="20">
+                    <Label Text="👤" FontSize="60" HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Border>
+
+                <Label x:Name="WelcomeLabel" 
+                       Text="Đang tải..." 
+                       TextColor="White" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center"/>
+
+                <Label Text="Thành viên cộng đồng ẩm thực Vĩnh Khánh" 
+                       TextColor="#E0E0E0" FontSize="14" HorizontalOptions="Center" Margin="0,-15,0,30"/>
+
+                <Border StrokeShape="RoundRectangle 16" BackgroundColor="#E6FFFFFF" Padding="20" StrokeThickness="0">
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="Thông tin tài khoản" FontSize="18" FontAttributes="Bold" TextColor="#333333"/>
+                        <BoxView HeightRequest="1" BackgroundColor="#CCCCCC" />
+
+                        <HorizontalStackLayout Spacing="10">
+                            <Label Text="Tên đăng nhập:" FontAttributes="Bold" TextColor="#555555" VerticalOptions="Center"/>
+                            <Label x:Name="UsernameLabel" Text="..." TextColor="#333333" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+
+                        <HorizontalStackLayout Spacing="10">
+                            <Label Text="Ngôn ngữ:" FontAttributes="Bold" TextColor="#555555" VerticalOptions="Center"/>
+                            <Label Text="Tiếng Việt (Mặc định)" TextColor="#333333" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Button Text="ĐĂNG XUẤT" 
+                        Clicked="OnLogoutClicked"
+                        HeightRequest="55" CornerRadius="28" FontAttributes="Bold" FontSize="16" TextColor="White"
+                        BackgroundColor="#D63031" Margin="0, 20, 0, 0"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

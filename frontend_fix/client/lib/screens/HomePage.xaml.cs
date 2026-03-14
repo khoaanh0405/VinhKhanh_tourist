@@ -22,8 +22,8 @@ namespace client.lib.screens
 
             if (isLoggedIn)
             {
-                // Nếu đã đăng nhập, mở trang Quản lý tài khoản (Profile)
-                await Shell.Current.GoToAsync("ProfilePage");
+                // [ĐÃ SỬA] Thay "ProfilePage" thành "ProfileScreen" cho khớp với Route ở AppShell
+                await Shell.Current.GoToAsync("ProfileScreen");
             }
             else
             {

@@ -2,7 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Media;
 using Plugin.Maui.Audio;
-using System.Text.RegularExpressions; // THÊM THƯ VIỆN REGEX
+using System.Text.RegularExpressions; 
 
 namespace client.lib.services
 {
@@ -96,20 +96,30 @@ namespace client.lib.services
         private async Task PlayTtsLoopAsync()
         {
             _cts = new CancellationTokenSource();
+
+            // Tạo một biến tạm để giữ reference, tránh bị crash nếu _cts bị set thành null từ luồng khác
+            var localCts = _cts;
+
             try
             {
                 while (_currentSentenceIndex < _ttsSentences.Count)
                 {
-                    if (IsPaused) return;
+                    if (IsPaused || localCts.IsCancellationRequested) return;
 
                     string sentence = _ttsSentences[_currentSentenceIndex];
                     var settings = new SpeechOptions { Locale = _cachedLocale };
 
-                    await TextToSpeech.Default.SpeakAsync(sentence, settings, cancelToken: _cts.Token);
+                    await TextToSpeech.Default.SpeakAsync(sentence, settings, cancelToken: localCts.Token);
 
-                    if (!IsPaused && !_cts.IsCancellationRequested)
+                    // [ĐÃ SỬA] Kiểm tra _cts != null trước khi truy cập thuộc tính của nó
+                    if (!IsPaused && _cts != null && !_cts.IsCancellationRequested)
                     {
                         _currentSentenceIndex++;
+                    }
+                    else
+                    {
+                        // Nếu bị ấn Stop (_cts bị null) hoặc bị Pause thì thoát vòng lặp
+                        break;
                     }
                 }
             }
