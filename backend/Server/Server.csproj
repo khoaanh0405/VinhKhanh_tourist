@@ -33,8 +33,6 @@
 		<!-- Google Cloud Text-to-Speech -->
 		<PackageReference Include="Google.Cloud.TextToSpeech.V1" Version="3.4.0" />
 
-		<!-- AWS Polly (Optional) -->
-		<!-- <PackageReference Include="AWSSDK.Polly" Version="3.7.300" /> -->
 
 		<!-- Logging -->
 		<PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />

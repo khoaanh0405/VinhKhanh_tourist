@@ -56,7 +56,7 @@
               "RelativeDocumentMoniker": "Server\\Server.csproj",
               "ToolTip": "D:\\DoAn_CSharp\\backend\\Server\\Server.csproj",
               "RelativeToolTip": "Server\\Server.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
               "WhenOpened": "2026-03-03T06:18:08.865Z",
               "EditorCaption": ""
@@ -71,8 +71,7 @@
               "RelativeToolTip": "Server\\appsettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-03-03T06:17:58.994Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-03T06:17:58.994Z"
             },
             {
               "$type": "Document",

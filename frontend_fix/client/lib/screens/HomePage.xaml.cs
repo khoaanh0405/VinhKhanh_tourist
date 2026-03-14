@@ -32,27 +32,49 @@ namespace client.lib.screens
             }
         }
 
-        // Cập nhật lại Icon mỗi khi trang chủ xuất hiện (để đổi icon nếu user vừa đăng nhập xong)
-        protected override async void OnAppearing()
+        // Cập nhật lại giao diện mỗi khi trang chủ xuất hiện
+        protected override void OnAppearing() // Bỏ chữ async đi cho an toàn
         {
             base.OnAppearing();
 
-            // 1. Cập nhật icon đăng nhập (Code cũ của bạn)
             bool isLoggedIn = Preferences.Get("IsLoggedIn", false);
-            ProfileIconLabel.Text = isLoggedIn ? "🟢" : "👤";
 
-            // 2. BỔ SUNG: Tự động gọi API tải dữ liệu ngay khi vào trang (nếu dữ liệu đang trống)
-            if (_viewModel.Pois == null || !_viewModel.Pois.Any())
+            if (isLoggedIn)
             {
-                await _viewModel.LoadDataAsync();
+                ProfileIconBorder.BackgroundColor = Color.FromArgb("#2ECC71");
+                if (_viewModel != null)
+                {
+                    _viewModel.IsAutoNarrationEnabled = Preferences.Get("AutoNarration", false);
+                }
+            }
+            else
+            {
+                ProfileIconBorder.BackgroundColor = Color.FromArgb("#E74C3C");
+                if (_viewModel != null)
+                {
+                    _viewModel.IsAutoNarrationEnabled = false;
+                    Preferences.Set("AutoNarration", false);
+                }
+            }
+
+            // [ĐÃ SỬA]: Dùng Task.Run để đẩy việc tải dữ liệu xuống chạy ngầm,
+            // giúp màn hình giao diện không bị đơ chờ đợi.
+            if (_viewModel != null && (_viewModel.Pois == null || !_viewModel.Pois.Any()))
+            {
+                Task.Run(async () =>
+                {
+                    await _viewModel.LoadDataAsync();
+                });
             }
         }
 
         private async Task NavigateToDetailAsync(object sender)
         {
-            var frame = sender as Frame;
-            var selectedPOI = (frame?.GestureRecognizers.FirstOrDefault() as TapGestureRecognizer)?.CommandParameter as POI
-                              ?? frame?.BindingContext as POI;
+            // SỬA Ở ĐÂY: Dùng View thay vì Frame để bắt được cả click từ Border (Banner) và Frame (Danh sách dưới)
+            var element = sender as View;
+
+            var selectedPOI = (element?.GestureRecognizers.FirstOrDefault() as TapGestureRecognizer)?.CommandParameter as POI
+                              ?? element?.BindingContext as POI;
 
             if (selectedPOI != null)
             {

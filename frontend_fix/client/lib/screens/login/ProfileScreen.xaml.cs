@@ -42,6 +42,8 @@ public partial class ProfileScreen : ContentPage
             Preferences.Remove("IsLoggedIn");
             Preferences.Remove("CurrentUsername");
 
+            Preferences.Set("AutoNarration", false);
+
             // 2. Chuyển hướng về Trang chủ bằng lệnh lùi lại (..)
             await Shell.Current.GoToAsync("..");
         }

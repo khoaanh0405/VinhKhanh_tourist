@@ -38,6 +38,9 @@ namespace client.lib.screens.home
         [ObservableProperty]
         private string _searchText = string.Empty;
 
+        [ObservableProperty]
+        private bool _isAutoNarrationEnabled;
+
         public POI? CurrentActivePOI => _geofenceService.CurrentActivePOI;
         public bool IsPlaying => CurrentActivePOI != null;
         public AudioService Audio => _audioService;
@@ -55,6 +58,9 @@ namespace client.lib.screens.home
             _apiService = apiService;
             _appViewModel = appViewModel;
 
+            // Đọc trạng thái Bật/Tắt thuyết minh từ bộ nhớ (mặc định là tắt)
+            _isAutoNarrationEnabled = Preferences.Get("AutoNarration", false);
+
             _geofenceService.PropertyChanged += async (s, e) =>
             {
                 if (e.PropertyName == nameof(GeofenceService.CurrentActivePOI))
@@ -62,9 +68,16 @@ namespace client.lib.screens.home
                     OnPropertyChanged(nameof(CurrentActivePOI));
                     OnPropertyChanged(nameof(IsPlaying));
                     OnPropertyChanged(nameof(CurrentActivePOIImageUrl));
+
                     if (CurrentActivePOI != null)
                     {
-                        await PlayNarrationAsync(CurrentActivePOI);
+                        // --- SỬA Ở ĐÂY: Chỉ đọc khi ĐÃ ĐĂNG NHẬP và ĐÃ BẬT TÍNH NĂNG ---
+                        bool isLoggedIn = Preferences.Get("IsLoggedIn", false);
+
+                        if (isLoggedIn && IsAutoNarrationEnabled)
+                        {
+                            await PlayNarrationAsync(CurrentActivePOI);
+                        }
                     }
                 }
             };
@@ -224,6 +237,68 @@ namespace client.lib.screens.home
                     // 2. Nếu log chạy đến đây mà vẫn không có tiếng -> Lỗi do bộ TTS của máy ảo
                     System.Diagnostics.Debug.WriteLine("[AUDIO TEST] Đang dùng Text-to-Speech để đọc chữ...");
                     await _audioService.SpeakAsync(narration.Text, poi.Name);
+                }
+            }
+        }
+
+        [RelayCommand]
+        public async Task ToggleAutoNarrationAsync()
+        {
+            // 1. Kiểm tra đăng nhập
+            bool isLoggedIn = Preferences.Get("IsLoggedIn", false);
+            if (!isLoggedIn)
+            {
+                bool wantToLogin = await Application.Current.MainPage.DisplayAlert(
+                    "Tính năng giới hạn",
+                    "Bạn cần đăng nhập để sử dụng tính năng tự động thuyết minh khu vực. Đăng nhập ngay?",
+                    "Đồng ý", "Để sau");
+
+                if (wantToLogin)
+                {
+                    await Shell.Current.GoToAsync("LoginScreen");
+                }
+                return; // Dừng lại, không xử lý tiếp
+            }
+
+            // 2. Nếu đã đăng nhập, tiến hành bật/tắt
+            if (!IsAutoNarrationEnabled)
+            {
+                bool confirm = await Application.Current.MainPage.DisplayAlert(
+                    "Bật tự động thuyết minh",
+                    "Ứng dụng sẽ tự động phát âm thanh giới thiệu chi tiết khi bạn đi ngang qua các địa điểm. Bạn có muốn kích hoạt?",
+                    "Bật", "Hủy");
+
+                if (confirm)
+                {
+                    IsAutoNarrationEnabled = true;
+                    Preferences.Set("AutoNarration", true); // Lưu vào bộ nhớ máy
+
+                    // [ĐÃ SỬA]: Hiện thông báo thành công TRƯỚC tiên
+                    await Application.Current.MainPage.DisplayAlert("Thành công", "Đã BẬT thuyết minh tự động 🎧", "OK");
+
+                    // Kích hoạt thuyết minh SAU KHI người dùng đã bấm "OK" ở thông báo trên
+                    if (CurrentActivePOI != null)
+                    {
+                        await PlayNarrationAsync(CurrentActivePOI);
+                    }
+                }
+            }
+            else
+            {
+                bool confirm = await Application.Current.MainPage.DisplayAlert(
+                    "Tắt tự động thuyết minh",
+                    "Bạn có muốn tắt tính năng tự động phát âm thanh giới thiệu không?",
+                    "Tắt", "Hủy");
+
+                if (confirm)
+                {
+                    IsAutoNarrationEnabled = false;
+                    Preferences.Set("AutoNarration", false); // Lưu vào bộ nhớ máy
+
+                    // Tắt luôn âm thanh đang phát nếu có
+                    if (Audio.IsSpeaking) Audio.Stop();
+
+                    await Application.Current.MainPage.DisplayAlert("Thành công", "Đã TẮT thuyết minh tự động 🔇", "OK");
                 }
             }
         }

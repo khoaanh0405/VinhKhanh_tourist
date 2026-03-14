@@ -122,6 +122,20 @@ public partial class DetailScreen : ContentPage
 
     private async void OnFavoriteClicked(object sender, EventArgs e)
     {
+        // --- 1. KIỂM TRA ĐĂNG NHẬP TRƯỚC TIÊN ---
+        bool isLoggedIn = Preferences.Get("IsLoggedIn", false);
+        if (!isLoggedIn)
+        {
+            // Hiển thị thông báo và điều hướng nếu người dùng đồng ý
+            bool wantToLogin = await DisplayAlert("Yêu cầu đăng nhập", "Bạn cần đăng nhập để có thể lưu địa điểm yêu thích. Đăng nhập ngay?", "Đồng ý", "Để sau");
+            if (wantToLogin)
+            {
+                await Shell.Current.GoToAsync("LoginScreen");
+            }
+            return; // Chặn không cho chạy các lệnh thêm yêu thích bên dưới
+        }
+        // ----------------------------------------
+
         if (_appViewModel == null) return;
 
         // Lưu hoặc Xóa khỏi danh sách
@@ -177,8 +191,21 @@ public partial class DetailScreen : ContentPage
     }
 
     // Hàm để hiện khung nhập liệu
-    private void OnShowReviewInputClicked(object sender, EventArgs e)
+    private async void OnShowReviewInputClicked(object sender, EventArgs e)
     {
+        // --- 1. KIỂM TRA ĐĂNG NHẬP TRƯỚC TIÊN ---
+        bool isLoggedIn = Preferences.Get("IsLoggedIn", false);
+        if (!isLoggedIn)
+        {
+            bool wantToLogin = await DisplayAlert("Yêu cầu đăng nhập", "Bạn cần đăng nhập để viết đánh giá và bình luận. Đăng nhập ngay?", "Đồng ý", "Để sau");
+            if (wantToLogin)
+            {
+                await Shell.Current.GoToAsync("LoginScreen");
+            }
+            return; // Chặn không cho hiện khung nhập liệu
+        }
+        // ----------------------------------------
+
         ReviewInputFrame.IsVisible = true;
         BtnShowReviewInput.IsVisible = false; // Ẩn nút bấm đi
     }

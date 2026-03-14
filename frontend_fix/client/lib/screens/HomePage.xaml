@@ -13,15 +13,48 @@
 
     <Grid RowDefinitions="Auto, Auto, *">
 
-        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="15,10,15,10" BackgroundColor="White">
-            <Label Text="Khám Phá Vĩnh Khánh 🍜" FontSize="22" FontAttributes="Bold" TextColor="#D63031" VerticalOptions="Center"/>
+        <Grid Grid.Row="0" ColumnDefinitions="*, Auto, Auto" Padding="15,10,15,10" BackgroundColor="White" ColumnSpacing="10">
+            <Label Grid.Column="0" Text="Khám Phá Vĩnh Khánh 🍜" FontSize="20" FontAttributes="Bold" TextColor="#D63031" VerticalOptions="Center"/>
 
-            <Frame Grid.Column="1" WidthRequest="40" HeightRequest="40" CornerRadius="20" Padding="0" BorderColor="LightGray" HasShadow="False" IsClippedToBounds="True">
-                <Frame.GestureRecognizers>
+            <Border Grid.Column="1" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 20" StrokeThickness="0">
+                <Border.Triggers>
+                    <DataTrigger TargetType="Border" Binding="{Binding IsAutoNarrationEnabled}" Value="True">
+                        <Setter Property="BackgroundColor" Value="#E8F8F5" />
+                    </DataTrigger>
+                    <DataTrigger TargetType="Border" Binding="{Binding IsAutoNarrationEnabled}" Value="False">
+                        <Setter Property="BackgroundColor" Value="#FDEDEC" />
+                    </DataTrigger>
+                </Border.Triggers>
+
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ToggleAutoNarrationCommand}"/>
+                </Border.GestureRecognizers>
+
+                <Label HorizontalOptions="Center" VerticalOptions="Center" FontSize="18">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding IsAutoNarrationEnabled}" Value="True">
+                            <Setter Property="Text" Value="🎧" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Label" Binding="{Binding IsAutoNarrationEnabled}" Value="False">
+                            <Setter Property="Text" Value="🔇" />
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+            </Border>
+
+            <Border x:Name="ProfileIconBorder" Grid.Column="2" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 20" StrokeThickness="0">
+                <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnProfileIconTapped"/>
-                </Frame.GestureRecognizers>
-                <Label x:Name="ProfileIconLabel" Text="👤" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
-            </Frame>
+                </Border.GestureRecognizers>
+
+                <Path Data="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+                      Fill="Black"
+                      HorizontalOptions="Center" 
+                      VerticalOptions="Center"
+                      Aspect="Uniform"
+                      HeightRequest="24"
+                      WidthRequest="24" />
+            </Border>
         </Grid>
 
         <Border Grid.Row="1" VerticalOptions="Center" Margin="15,10,15,5" HeightRequest="50" StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="White" Shadow="{Shadow Brush=Black, Opacity=0.08, Radius=4}">
