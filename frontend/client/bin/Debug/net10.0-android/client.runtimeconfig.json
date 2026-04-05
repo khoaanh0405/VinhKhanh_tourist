@@ -27,6 +27,7 @@
       "System.Net.SocketsHttpHandler.Http3Support": false,
       "System.Runtime.InteropServices.BuiltInComInterop.IsSupported": false,
       "System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization": false,
+      "System.StartupHookProvider.IsSupported": false,
       "System.Text.Encoding.EnableUnsafeUTF7Encoding": false,
       "System.Text.Json.JsonSerializer.IsReflectionEnabledByDefault": true,
       "Xamarin.Android.Net.UseNegotiateAuthentication": false,

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRD - Hệ thống Thuyết minh Phố Ẩm thực Vĩnh Khánh</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'base', 
+            themeVariables: { 
+                primaryColor: '#f1f5f9', 
+                primaryBorderColor: '#0284c7', 
+                primaryTextColor: '#1e293b', 
+                fontSize: '16px', /* Tăng kích thước chữ của sơ đồ */
+                fontFamily: 'Segoe UI, sans-serif'
+            } 
+        });
+    </script>
+
+    <style>
+        :root {
+            --primary-color: #0284c7; 
+            --secondary-color: #0369a1;
+            --accent-color: #ea580c; 
+            --bg-color: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --sidebar-width: 320px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            line-height: 1.6;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: #0f172a;
+            color: #f1f5f9;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            background-color: #020617;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .sidebar-header h2 { margin: 0; font-size: 1.2rem; color: var(--primary-color); }
+        .sidebar-header p { margin: 5px 0 0; font-size: 0.85rem; color: #94a3b8; }
+
+        .nav-links { list-style: none; padding: 0; margin: 20px 0; }
+        .nav-links li { margin-bottom: 5px; }
+        .nav-links a {
+            display: block;
+            padding: 10px 20px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            font-size: 0.95rem;
+        }
+        .nav-links a:hover {
+            background-color: #1e293b;
+            color: #fff;
+            border-left-color: var(--primary-color);
+        }
+        .nav-links .sub-nav { font-size: 0.85rem; padding-left: 35px; color: #94a3b8; }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 40px 60px;
+            width: calc(100% - var(--sidebar-width));
+            box-sizing: border-box;
+        }
+
+        .document-container {
+            max-width: 1100px;
+            background: #fff;
+            padding: 50px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        h1 { color: var(--primary-color); font-size: 2.3rem; margin-top: 0; border-bottom: 3px solid var(--border-color); padding-bottom: 15px; }
+        h2 { color: #0f172a; font-size: 1.6rem; margin-top: 40px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
+        h3 { color: var(--secondary-color); font-size: 1.2rem; margin-top: 25px; border-left: 4px solid var(--primary-color); padding-left: 10px;}
+        
+        .meta-info {
+            background: #f1f5f9; padding: 20px; border-radius: 8px; margin-bottom: 30px; display: flex; flex-wrap: wrap; gap: 20px;
+        }
+        .meta-item { flex: 1; min-width: 200px; }
+        .meta-item strong { display: block; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-size: 0.95rem; }
+        th, td { padding: 12px; text-align: left; border: 1px solid var(--border-color); }
+        th { background-color: #f8fafc; font-weight: 600; color: #334155; }
+        tr:nth-child(even) { background-color: #fbfbfc; }
+
+        .highlight-box {
+            background-color: #eff6ff; border-left: 4px solid var(--primary-color); padding: 20px; border-radius: 0 8px 8px 0; margin: 20px 0;
+        }
+        .highlight-box.warning { background-color: #fff7ed; border-left-color: var(--accent-color); }
+        .highlight-box.success { background-color: #f0fdf4; border-left-color: #22c55e; }
+        .highlight-box h4 { margin-top: 0; margin-bottom: 10px; color: var(--primary-color); font-size: 1.1rem;}
+        .highlight-box.warning h4 { color: var(--accent-color); }
+        .highlight-box.success h4 { color: #22c55e; }
+
+        .badge {
+            display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; margin-right: 5px;
+        }
+        .badge-poc { background: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+        .badge-mvp { background: #dcfce7; color: #166534; border: 1px solid #4ade80; }
+        .badge-tech { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
+        
+        code { background-color: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: Consolas, monospace; color: #e11d48; font-size: 0.9em; }
+
+        /* Style cho khối Sơ đồ Mermaid (ĐÃ SỬA ĐỂ PHÓNG TO) */
+        .mermaid-container { 
+            background: #ffffff; 
+            padding: 25px; 
+            border-radius: 8px; 
+            border: 1px solid var(--border-color); 
+            margin: 20px 0; 
+            overflow-x: auto; /* Cho phép cuộn ngang nếu sơ đồ quá to */
+        }
+        
+        .mermaid {
+            min-width: 850px; /* Ép chiều rộng tối thiểu để sơ đồ không bị bóp méo */
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>ĐỒ ÁN MÔN HỌC C#</h2>
+            <p>Đại học Sài Gòn (SGU)</p>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#tong-quan">1. Tổng quan Dự án</a></li>
+            <li><a href="#kien-truc">2. Biện luận Kiến trúc CSDL</a></li>
+            <li><a href="#tech-stack">3. Đặc tả Công nghệ (C#)</a></li>
+            <li><a href="#uml-diagrams">4. Sơ đồ UML Hệ thống</a></li>
+            <li><a href="#poc" style="color: #38bdf8; font-weight: bold;">5. GIAI ĐOẠN 1: ĐẶC TẢ POC</a></li>
+            <li><a href="#poc-gps" class="sub-nav">- 5.1 GPS Tracking & Map</a></li>
+            <li><a href="#poc-geofence" class="sub-nav">- 5.2 Geofencing Engine</a></li>
+            <li><a href="#poc-audio" class="sub-nav">- 5.3 Audio Player & Queue</a></li>
+            <li><a href="#mvp" style="color: #4ade80; font-weight: bold;">6. GIAI ĐOẠN 2: MỞ RỘNG MVP</a></li>
+            <li><a href="#nghiep-vu">7. Quy tắc Nghiệp vụ (Core)</a></li>
+            <li><a href="#mo-hinh-du-lieu">8. Mô hình Dữ liệu</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="document-container">
+            <h1>PRD: Hệ Thống Thuyết Minh Đa Ngôn Ngữ Phố Ẩm Thực Vĩnh Khánh</h1>
+            
+            <div class="meta-info">
+                <div class="meta-item">
+                    <strong>Sinh viên thực hiện</strong>
+                    Nguyễn Đức Tài <br> Nguyễn Hữu Anh Khoa
+                </div>
+                <div class="meta-item">
+                    <strong>Phân bổ Giai đoạn</strong>
+                    Phase 1: POC (Tính năng Cốt lõi) <br> Phase 2: MVP (Mở rộng & Hoàn thiện)
+                </div>
+                <div class="meta-item">
+                    <strong>Công nghệ</strong>
+                    C#, .NET MAUI, ASP.NET Core API, SQL Server, SQLite
+                </div>
+            </div>
+
+            <section id="tong-quan">
+                <h2>1. Bối cảnh & Mục tiêu</h2>
+                <p>Hệ thống hướng tới việc số hóa trải nghiệm du lịch tại Phố ẩm thực Vĩnh Khánh. Ứng dụng đóng vai trò như một "hướng dẫn viên ảo", tự động phát các thông tin lịch sử và nét đặc trưng của từng gian hàng qua giọng nói khi du khách di chuyển thực tế trên phố.</p>
+            </section>
+
+            <section id="kien-truc">
+                <h2>2. Giải pháp Kiến trúc & Biện luận Cơ sở dữ liệu</h2>
+                <div class="highlight-box">
+                    <h4>Tại sao sử dụng Hybrid Database (SQLite + SQL Server)?</h4>
+                    <p>Vì đây là ứng dụng di động yêu cầu <strong>vị trí theo thời gian thực (Location-based)</strong>, việc tối ưu pin và data là yếu tố sống còn:</p>
+                    <ul>
+                        <li><strong>Dữ liệu dung lượng nhỏ (Tọa độ, Bán kính, Text ngắn):</strong> Bắt buộc dùng <code>SQLite</code> để lưu offline trên thiết bị. Thuật toán quét GPS sẽ lấy data từ SQLite để tính toán nội bộ. Việc này giúp điện thoại không cần gọi API Internet liên tục, không gây hao pin và hoạt động tốt ngay cả khi mạng chập chờn.</li>
+                        <li><strong>Dữ liệu dung lượng lớn (Audio MP3, CMS System):</strong> Dùng <code>SQL Server</code> trên backend. Chỉ khi App xác nhận khách đã vào đúng quán và cần phát nhạc chất lượng cao, nó mới truy xuất Internet để tải/stream Audio, hoặc dùng cho Web Admin lưu trữ lịch sử, hình ảnh nặng.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tech-stack">
+                <h2>3. Đặc tả Công nghệ (C# .NET Tech Stack)</h2>
+                <p>Hệ thống được phát triển đồng nhất bằng ngôn ngữ C#, tận dụng tối đa hệ sinh thái .NET để dễ dàng chia sẻ Model giữa Client và Server.</p>
+                <table>
+                    <tr><th width="20%">Thành phần</th><th width="30%">Công nghệ / Pattern</th><th>Thư viện / Packages sử dụng</th></tr>
+                    <tr>
+                        <td><strong>Mobile App</strong></td>
+                        <td>.NET MAUI (MVVM Pattern)</td>
+                        <td>
+                            <span class="badge badge-tech">CommunityToolkit.Mvvm</span> Ràng buộc dữ liệu UI<br>
+                            <span class="badge badge-tech">Microsoft.Maui.Devices.Sensors</span> Truy xuất GPS ngầm<br>
+                            <span class="badge badge-tech">Plugin.Maui.Audio</span> Quản lý & phát Audio<br>
+                            <span class="badge badge-tech">ZXing.Net.Maui</span> Quét mã QR offline
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Local DB (Offline)</strong></td>
+                        <td>SQLite (Repository Pattern)</td>
+                        <td><span class="badge badge-tech">sqlite-net-pcl</span> Truy vấn tọa độ cục bộ siêu tốc độ.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Web API & CMS</strong></td>
+                        <td>ASP.NET Core Web API 8.0</td>
+                        <td>
+                            <span class="badge badge-tech">EF Core SQLServer</span> Quản trị CSDL trung tâm<br>
+                            <span class="badge badge-tech">JWT Bearer</span> Xác thực Admin
+                        </td>
+                    </tr>
+                </table>
+            </section>
+
+            <section id="uml-diagrams">
+                <h2>4. Sơ đồ UML Hệ thống </h2>
+                
+                <h3>4.1. Sơ đồ Kiến trúc luồng dữ liệu (Data Flow)</h3>
+                <p>Mô tả cách ứng dụng Mobile hoạt động độc lập (Offline-first) và chỉ kết nối Server khi cần thiết.</p>
+                <div class="mermaid-container">
+                    <div class="mermaid">
+                        graph TD
+                            subgraph "CLIENT (.NET MAUI Mobile App)"
+                                GPS[GPS Sensor]
+                                UI[Map & Player UI]
+                                Logic[Geofencing Service]
+                                SQLITE[(SQLite Local DB)]
+                            end
+
+                            subgraph "SERVER (ASP.NET Core)"
+                                API{REST API}
+                                CMS[Web Admin Dashboard]
+                                SQL[(SQL Server)]
+                                STORAGE[Audio Storage]
+                            end
+
+                            GPS -->|Tọa độ Lat/Lng| Logic
+                            SQLITE -->|Danh sách POI| Logic
+                            Logic -->|Kích hoạt| UI
+                            Logic -.->|Khi có 4G, Request Audio| API
+                            
+                            CMS -->|CRUD| API
+                            API <--> SQL
+                            API -.->|Trả về URL| STORAGE
+                            STORAGE -.->|Stream MP3| UI
+
+                            classDef mobile fill:#f0f9ff,stroke:#0284c7,stroke-width:2px;
+                            classDef server fill:#f0fdf4,stroke:#16a34a,stroke-width:2px;
+                            class GPS,UI,Logic,SQLITE mobile;
+                            class API,CMS,SQL,STORAGE server;
+                    </div>
+                </div>
+
+                <h3>4.2. Sơ đồ Tuần tự: Thuật toán Chống Spam (Debounce/Cooldown)</h3>
+                <p>Mô phỏng chi tiết kịch bản kỹ thuật quan trọng nhất của hệ thống: Đảm bảo không phát âm thanh rác do nhiễu sóng GPS.</p>
+                <div class="mermaid-container">
+                    <div class="mermaid">
+                        sequenceDiagram
+                            autonumber
+                            actor U as Khách du lịch (GPS)
+                            participant G as Geofence Engine (C#)
+                            participant DB as SQLite DB
+                            participant A as Audio Manager
+                        
+                            U->>G: Cập nhật Vị trí (Background Task)
+                            G->>DB: Tính Haversine đến các điểm POI
+                            DB-->>G: Gần [Ốc Oanh] 12m (Bán kính = 15m)
+                            
+                            rect rgb(254, 242, 242)
+                                Note right of G: BƯỚC 1: DEBOUNCE (Chống nhiễu)
+                                G->>G: Task.Delay(3000) - Chờ 3 giây
+                                G->>U: Kiểm tra lại GPS
+                                U-->>G: Vẫn ở khoảng cách 14m (Khách đã dừng lại)
+                            end
+                        
+                            rect rgb(240, 253, 244)
+                                Note right of G: BƯỚC 2: COOLDOWN (Chống lặp)
+                                G->>DB: Kiểm tra LastTriggered
+                                alt Mới phát < 5 phút
+                                    DB-->>G: Đang khóa (Cooldown)
+                                    G-->>U: Bỏ qua hành động
+                                else Đã qua 5 phút
+                                    DB-->>G: Trạng thái: Sẵn sàng
+                                    G->>A: Đưa [Audio Ốc Oanh] vào Hàng chờ
+                                    A->>U: Tự động phát âm thanh
+                                    A->>DB: Update LastTriggered = Now()
+                                end
+                            end
+                    </div>
+                </div>
+            </section>
+
+            <section id="poc">
+                <h2 style="color: var(--primary-color); border-bottom-color: var(--primary-color);">5. GIAI ĐOẠN 1: ĐẶC TẢ POC (Cốt lõi kỹ thuật)</h2>
+                <p>Mục tiêu của POC là chứng minh bộ máy (Engine) định vị và phát âm thanh hoạt động trơn tru, chính xác, không spam lỗi.</p>
+
+                <h3 id="poc-gps"><span class="badge badge-poc">POC</span> 5.1. GPS Tracking & Map View</h3>
+                <table>
+                    <tr><th width="30%">Tính năng</th><th>Mô tả chi tiết</th></tr>
+                    <tr>
+                        <td><strong>Lấy vị trí liên tục</strong></td>
+                        <td>- Dùng API Location của thiết bị.<br>- Khi mở App (Foreground): Cập nhật vị trí thời gian thực liên tục.<br>- Khi tắt màn hình (Background): Giảm tần suất quét (Traditional background tracking) để tối ưu pin.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Map View (Giao diện Bản đồ)</strong></td>
+                        <td>- Hiển thị người dùng (User Location) trên bản đồ.<br>- Hiển thị tất cả các điểm POI (Gian hàng) bằng Pin/Marker.<br>- Thuật toán quét và <strong>Highlight (Đổi màu/phóng to)</strong> điểm POI đang gần người dùng nhất.<br>- Cho phép bấm vào POI để xem chi tiết.</td>
+                    </tr>
+                </table>
+
+                <h3 id="poc-geofence"><span class="badge badge-poc">POC</span> 5.2. Geofencing Engine (Vùng kích hoạt ảo)</h3>
+                <table>
+                    <tr><th width="30%">Tính năng</th><th>Mô tả chi tiết</th></tr>
+                    <tr>
+                        <td><strong>Nhận diện vùng</strong></td>
+                        <td>Hệ thống liên tục tính khoảng cách từ User đến POI gần nhất. Tự động Trigger (phát lệnh) khi người dùng: <em>Đi vào vùng bán kính</em> hoặc <em>Đến rất gần điểm</em>.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Chống Spam (Debounce & Cooldown)</strong></td>
+                        <td>Đây là thuật toán sống còn của POC để tránh app phát âm thanh loạn xạ do nhiễu sóng GPS (GPS Jitter). <em>(Xem sơ đồ 4.2 ở trên)</em>.</td>
+                    </tr>
+                </table>
+
+                <h3 id="poc-audio"><span class="badge badge-poc">POC</span> 5.3. Thuyết minh Tự động & Audio Manager</h3>
+                <table>
+                    <tr><th width="30%">Tính năng</th><th>Mô tả chi tiết</th></tr>
+                    <tr>
+                        <td><strong>Nguồn Audio linh hoạt</strong></td>
+                        <td>- <strong>Text-to-Speech (TTS):</strong> Đọc trực tiếp từ Text script (Dung lượng siêu nhẹ, đa ngôn ngữ linh hoạt).<br>- <strong>File Audio thu sẵn:</strong> Play file MP3 (Giọng tự nhiên, chuyên nghiệp, chất lượng cao nhưng tốn data tải).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Audio Queue (Quản lý hàng chờ)</strong></td>
+                        <td>- Khi user đi ngang ngã tư (vùng giao của nhiều quán), các Audio không được phép phát đè lên nhau. Quán ưu tiên cao phát trước, quán kia đưa vào hàng chờ (Queue).<br>- Không phát trùng lặp.<br>- Tự động dừng/Tạm dừng (Pause) khi điện thoại có cuộc gọi hoặc thông báo khác.</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section id="mvp">
+                <h2 style="color: #16a34a; border-bottom-color: #16a34a;">6. GIAI ĐOẠN 2: MỞ RỘNG MVP </h2>
+                <p>Sau khi POC hoạt động ổn định, dự án tiến hành mở rộng các tính năng Hệ thống (System) phục vụ quản trị và các trường hợp sử dụng nâng cao.</p>
+
+                <table>
+                    <tr><th width="30%">Module</th><th>Mô tả chi tiết</th></tr>
+                    <tr>
+                        <td><span class="badge badge-mvp">MVP</span> <strong>QR Code (Kích hoạt Offline)</strong></td>
+                        <td>- In mã QR dán tại các trạm chờ xe buýt (Phường Khánh Hội, Vĩnh Hội, Xóm Chiếu).<br>- Khách hàng quét mã -> Bỏ qua bước kiểm tra GPS -> Nghe ngay thuyết minh khu vực đó. Hữu ích khi mất sóng GPS.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-mvp">MVP</span> <strong>Hệ thống CMS Nâng cao</strong></td>
+                        <td>- Xây dựng Web Dashboard hoàn chỉnh quản lý: POI, File Audio, Bản dịch đa ngôn ngữ.<br>- Tính năng <strong>Quản lý Tour</strong>: Gom nhiều POI lại thành một tuyến đường ẩm thực.<br>- Lưu trữ lịch sử sử dụng của người dùng.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-mvp">MVP</span> <strong>Phân tích Dữ liệu (Analytics)</strong></td>
+                        <td>- Thu thập ẩn danh tuyến đường di chuyển của khách.<br>- Thống kê Top địa điểm được nghe nhiều nhất.<br>- Tính toán Thời gian trung bình nghe tại 1 POI.<br>- Vẽ <strong>Heatmap</strong> (Bản đồ nhiệt) vị trí người dùng hay tụ tập nhất trên phố.</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section id="nghiep-vu">
+                <h2>7. Quy tắc Nghiệp vụ Cốt lõi (Business Rules)</h2>
+                
+                <div class="highlight-box warning">
+                    <h4>Thuật toán xử lý rác không gian (Spatial Noise)</h4>
+                    <p>Trong thực tế, khách có thể chạy xe máy vèo qua quán, hoặc đứng ở ranh giới khiến khoảng cách GPS nhảy 14m -> 16m -> 14m liên tục. Hệ thống sử dụng 2 quy tắc sau để làm sạch tín hiệu:</p>
+                </div>
+
+                <table>
+                    <tr>
+                        <th width="15%">Rule ID</th>
+                        <th>Điều kiện (Condition)</th>
+                        <th>Hành động (Action / Result)</th>
+                    </tr>
+                    <tr>
+                        <td><strong>BR-01 (Debounce)</strong></td>
+                        <td>Khoảng cách User -> POI ≤ Bán kính.</td>
+                        <td>Bắt đầu đếm ngược <strong>Timer = 3 giây</strong>. Nếu sau 3s User vẫn ở trong vùng -> Mới xác nhận "Đã vào" và kích hoạt Audio. (Chống kích hoạt giả do đi ngang qua quá nhanh).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BR-02 (Cooldown)</strong></td>
+                        <td>Audio của POI [A] đã được phát xong.</td>
+                        <td>Gắn cờ <code>Cooldown</code> cho POI [A] trong vòng <strong>5 - 10 phút</strong>. Trong thời gian này, dù user có đi ra đi vào ranh giới quán, App sẽ im lặng, không phát lại lời chào gây phiền phức.</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section id="mo-hinh-du-lieu">
+                <h2>8. Mô hình Dữ liệu (Dùng chung cho SQLite & SQL Server)</h2>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <h3>Bảng POI (Gian hàng)</h3>
+                        <table>
+                            <tr><th>Trường</th><th>Kiểu DL</th><th>Ghi chú</th></tr>
+                            <tr><td><code>PoiId</code></td><td>Guid (PK)</td><td></td></tr>
+                            <tr><td><code>Name</code></td><td>String</td><td>Tên quán</td></tr>
+                            <tr><td><code>Latitude</code></td><td>Double</td><td>Vĩ độ</td></tr>
+                            <tr><td><code>Longitude</code></td><td>Double</td><td>Kinh độ</td></tr>
+                            <tr><td><code>Radius</code></td><td>Int</td><td>Bán kính kích hoạt (m)</td></tr>
+                            <tr><td><code>Priority</code></td><td>Int</td><td>Ưu tiên (1: Cao nhất)</td></tr>
+                            <tr><td><code>MapLink</code></td><td>String</td><td>Link Google Maps</td></tr>
+                        </table>
+                    </div>
+                    <div style="flex: 1; min-width: 300px;">
+                        <h3>Bảng Audio/Content</h3>
+                        <table>
+                            <tr><th>Trường</th><th>Kiểu DL</th><th>Ghi chú</th></tr>
+                            <tr><td><code>AudioId</code></td><td>Guid (PK)</td><td></td></tr>
+                            <tr><td><code>PoiId</code></td><td>Guid (FK)</td><td>Thuộc quán nào</td></tr>
+                            <tr><td><code>LangCode</code></td><td>String</td><td>'vi', 'en', 'ko'</td></tr>
+                            <tr><td><code>AudioUrl</code></td><td>String</td><td>Link MP3 gốc</td></tr>
+                            <tr><td><code>ScriptText</code></td><td>Text</td><td>Script để chạy TTS</td></tr>
+                            <tr><td><code>ImageUrl</code></td><td>String</td><td>Ảnh hiển thị khi phát</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+</body>
+</html>

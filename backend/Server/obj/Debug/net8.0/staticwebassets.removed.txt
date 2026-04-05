@@ -1,5 +1,0 @@
-D:\phoAmThuc\VinhKhanh_tourist\backend\Server\wwwroot\images\monanmau.jpg
-D:\phoAmThuc\VinhKhanh_tourist\backend\Server\wwwroot\images\placeholder_img.webp
-D:\phoAmThuc\VinhKhanh_tourist\backend\Server\wwwroot\images\haisanvk1_space.jpg
-D:\phoAmThuc\VinhKhanh_tourist\backend\Server\wwwroot\images\haisanvk1_tank.jpg
-D:\phoAmThuc\VinhKhanh_tourist\backend\Server\wwwroot\images\haisanvk1_shrimp.jpg

@@ -24805,24 +24805,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Khoa\\.nuget\\packages\\": {},
+    "C:\\Users\\ADMIN\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\DoAn_CSharp\\frontend\\client\\client.csproj",
+      "projectUniqueName": "D:\\phoAmThuc\\VinhKhanh_tourist\\frontend\\client\\client.csproj",
       "projectName": "client",
-      "projectPath": "D:\\DoAn_CSharp\\frontend\\client\\client.csproj",
-      "packagesPath": "C:\\Users\\Khoa\\.nuget\\packages\\",
-      "outputPath": "D:\\DoAn_CSharp\\frontend\\client\\obj\\",
+      "projectPath": "D:\\phoAmThuc\\VinhKhanh_tourist\\frontend\\client\\client.csproj",
+      "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
+      "outputPath": "D:\\phoAmThuc\\VinhKhanh_tourist\\frontend\\client\\obj\\",
       "projectStyle": "PackageReference",
       "crossTargeting": true,
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Khoa\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],

@@ -1,14 +1,14 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\DoAn_CSharp\\frontend_fix\\",
+  "WorkspaceRootPath": "D:\\phoAmThuc\\VinhKhanh_tourist\\frontend\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{595C4FFE-2966-D530-09A1-6F4C179A7DF4}|client\\client.csproj|d:\\doan_csharp\\frontend_fix\\client\\lib\\screens\\homepage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{595C4FFE-2966-D530-09A1-6F4C179A7DF4}|client\\client.csproj|solutionrelative:client\\lib\\screens\\homepage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{AE7EEA74-2FE0-136F-D797-854FD87E022A}|client\\client.csproj|d:\\phoamthuc\\vinhkhanh_tourist\\frontend\\client\\lib\\screens\\homepage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AE7EEA74-2FE0-136F-D797-854FD87E022A}|client\\client.csproj|solutionrelative:client\\lib\\screens\\homepage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{595C4FFE-2966-D530-09A1-6F4C179A7DF4}|client\\client.csproj|d:\\doan_csharp\\frontend_fix\\client\\lib\\screens\\homepage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{595C4FFE-2966-D530-09A1-6F4C179A7DF4}|client\\client.csproj|solutionrelative:client\\lib\\screens\\homepage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{AE7EEA74-2FE0-136F-D797-854FD87E022A}|client\\client.csproj|d:\\phoamthuc\\vinhkhanh_tourist\\frontend\\client\\lib\\screens\\homepage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{AE7EEA74-2FE0-136F-D797-854FD87E022A}|client\\client.csproj|solutionrelative:client\\lib\\screens\\homepage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,6 +22,10 @@
           "Children": [
             {
               "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
               "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
             },
             {
@@ -29,18 +33,14 @@
               "Name": "ST:0:0:{b1e99781-ab81-11d0-b683-00aa00a3ee26}"
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
-            },
-            {
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "HomePage.xaml.cs",
-              "DocumentMoniker": "D:\\DoAn_CSharp\\frontend_fix\\client\\lib\\screens\\HomePage.xaml.cs",
+              "DocumentMoniker": "D:\\phoAmThuc\\VinhKhanh_tourist\\frontend\\client\\lib\\screens\\HomePage.xaml.cs",
               "RelativeDocumentMoniker": "client\\lib\\screens\\HomePage.xaml.cs",
-              "ToolTip": "D:\\DoAn_CSharp\\frontend_fix\\client\\lib\\screens\\HomePage.xaml.cs",
+              "ToolTip": "D:\\phoAmThuc\\VinhKhanh_tourist\\frontend\\client\\lib\\screens\\HomePage.xaml.cs",
               "RelativeToolTip": "client\\lib\\screens\\HomePage.xaml.cs",
-              "ViewState": "AgIAAB0AAAAAAAAAAAAAAFIAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAAACEAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-14T10:42:50.562Z",
               "EditorCaption": ""
@@ -49,14 +49,13 @@
               "$type": "Document",
               "DocumentIndex": 1,
               "Title": "HomePage.xaml",
-              "DocumentMoniker": "D:\\DoAn_CSharp\\frontend_fix\\client\\lib\\screens\\HomePage.xaml",
+              "DocumentMoniker": "D:\\phoAmThuc\\VinhKhanh_tourist\\frontend\\client\\lib\\screens\\HomePage.xaml",
               "RelativeDocumentMoniker": "client\\lib\\screens\\HomePage.xaml",
-              "ToolTip": "D:\\DoAn_CSharp\\frontend_fix\\client\\lib\\screens\\HomePage.xaml",
+              "ToolTip": "D:\\phoAmThuc\\VinhKhanh_tourist\\frontend\\client\\lib\\screens\\HomePage.xaml",
               "RelativeToolTip": "client\\lib\\screens\\HomePage.xaml",
               "ViewState": "AgIAAH8AAAAAAAAAAAAAALQAAAAOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-03-14T10:38:05.138Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-14T10:38:05.138Z"
             }
           ]
         }
