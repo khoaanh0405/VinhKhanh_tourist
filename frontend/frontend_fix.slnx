@@ -1,6 +1,7 @@
 <Solution>
-  <Folder Name="/Solution Items/" />
-  <Project Path="D:/DoAn_CSharp/frontend_fix/client/client.csproj">
-    <Deploy Solution="Debug|*" />
-  </Project>
+  <Folder Name="/Solution Items/">
+    <Project Path="client/client.csproj">
+      <Deploy Solution="Debug|*" />
+    </Project>
+  </Folder>
 </Solution>
