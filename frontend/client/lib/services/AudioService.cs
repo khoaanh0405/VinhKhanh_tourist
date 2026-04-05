@@ -65,24 +65,25 @@ namespace client.lib.services
             catch (Exception) { IsSpeaking = false; }
         }
 
-        public async Task SpeakAsync(string text, string title)
+        // Thêm tham số languageCode (VD: "vi", "en", "ko")
+        public async Task SpeakAsync(string text, string title, string languageCode = "vi")
         {
-            if (!_isInitialized || _cachedLocale == null) await InitializeAsync();
+            if (!_isInitialized) await InitializeAsync();
             Stop();
+
+            // Cập nhật lại Locale theo ngôn ngữ được truyền vào
+            var locales = await TextToSpeech.Default.GetLocalesAsync();
+            _cachedLocale = locales.FirstOrDefault(l => l.Language.StartsWith(languageCode, StringComparison.OrdinalIgnoreCase))
+                            ?? locales.FirstOrDefault(); // Fallback về mặc định nếu không tìm thấy
 
             _isUsingTts = true;
             CurrentTrackTitle = title;
             IsSpeaking = true;
             IsPaused = false;
 
-            // 1. Dọn dẹp khoảng trắng thừa và dấu xuống dòng
             string cleanText = text.Replace("\r", " ").Replace("\n", " ");
-
-            // 2. [SỬA Ở ĐÂY] Thêm dấu phẩy (,), chấm phẩy (;), hai chấm (:) vào Regex
-            // Lệnh này nghìa là: Cắt câu ở bất kỳ dấu ngắt quãng nào, MIỄN LÀ sau đó có dấu cách (để không cắt nát số 10,000 hay 4.8)
             var rawChunks = Regex.Split(cleanText, @"(?<=[.,?!;:])\s+");
 
-            // 3. Lọc bỏ các đoạn rỗng
             _ttsSentences = rawChunks
                 .Where(s => !string.IsNullOrWhiteSpace(s))
                 .Select(s => s.Trim())

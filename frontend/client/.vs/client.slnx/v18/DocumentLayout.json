@@ -1,7 +1,40 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\DoAn_CSharp\\frontend\\client\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{25F0B25F-3DF7-7766-8EBD-22B1BEA02508}|client.csproj|d:\\doan_csharp\\frontend\\client\\lib\\screens\\homepage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{25F0B25F-3DF7-7766-8EBD-22B1BEA02508}|client.csproj|solutionrelative:lib\\screens\\homepage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{25F0B25F-3DF7-7766-8EBD-22B1BEA02508}|client.csproj|d:\\doan_csharp\\frontend\\client\\lib\\screens\\search\\searchpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{25F0B25F-3DF7-7766-8EBD-22B1BEA02508}|client.csproj|solutionrelative:lib\\screens\\search\\searchpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{25F0B25F-3DF7-7766-8EBD-22B1BEA02508}|client.csproj|d:\\doan_csharp\\frontend\\client\\lib\\screens\\search\\searchviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{25F0B25F-3DF7-7766-8EBD-22B1BEA02508}|client.csproj|solutionrelative:lib\\screens\\search\\searchviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{25F0B25F-3DF7-7766-8EBD-22B1BEA02508}|client.csproj|d:\\doan_csharp\\frontend\\client\\lib\\screens\\search\\searchpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{25F0B25F-3DF7-7766-8EBD-22B1BEA02508}|client.csproj|solutionrelative:lib\\screens\\search\\searchpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{25F0B25F-3DF7-7766-8EBD-22B1BEA02508}|client.csproj|d:\\doan_csharp\\frontend\\client\\lib\\screens\\homepage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{25F0B25F-3DF7-7766-8EBD-22B1BEA02508}|client.csproj|solutionrelative:lib\\screens\\homepage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{25F0B25F-3DF7-7766-8EBD-22B1BEA02508}|client.csproj|d:\\doan_csharp\\frontend\\client\\resources\\string\\appresources.ko.resx||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{25F0B25F-3DF7-7766-8EBD-22B1BEA02508}|client.csproj|solutionrelative:resources\\string\\appresources.ko.resx||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{25F0B25F-3DF7-7766-8EBD-22B1BEA02508}|client.csproj|d:\\doan_csharp\\frontend\\client\\resources\\string\\appresources.en.resx||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{25F0B25F-3DF7-7766-8EBD-22B1BEA02508}|client.csproj|solutionrelative:resources\\string\\appresources.en.resx||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{25F0B25F-3DF7-7766-8EBD-22B1BEA02508}|client.csproj|d:\\doan_csharp\\frontend\\client\\resources\\string\\appresources.resx||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{25F0B25F-3DF7-7766-8EBD-22B1BEA02508}|client.csproj|solutionrelative:resources\\string\\appresources.resx||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +42,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -22,6 +55,105 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "SearchPage.xaml.cs",
+              "DocumentMoniker": "D:\\DoAn_CSharp\\frontend\\client\\lib\\screens\\search\\SearchPage.xaml.cs",
+              "RelativeDocumentMoniker": "lib\\screens\\search\\SearchPage.xaml.cs",
+              "ToolTip": "D:\\DoAn_CSharp\\frontend\\client\\lib\\screens\\search\\SearchPage.xaml.cs",
+              "RelativeToolTip": "lib\\screens\\search\\SearchPage.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-05T07:58:24.55Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "SearchPage.xaml",
+              "DocumentMoniker": "D:\\DoAn_CSharp\\frontend\\client\\lib\\screens\\search\\SearchPage.xaml",
+              "RelativeDocumentMoniker": "lib\\screens\\search\\SearchPage.xaml",
+              "ToolTip": "D:\\DoAn_CSharp\\frontend\\client\\lib\\screens\\search\\SearchPage.xaml",
+              "RelativeToolTip": "lib\\screens\\search\\SearchPage.xaml",
+              "ViewState": "AgIAAIEAAAAAAAAAAAAhwI8AAAAOAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-04-05T07:58:14.189Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "SearchViewModel.cs",
+              "DocumentMoniker": "D:\\DoAn_CSharp\\frontend\\client\\lib\\screens\\search\\SearchViewModel.cs",
+              "RelativeDocumentMoniker": "lib\\screens\\search\\SearchViewModel.cs",
+              "ToolTip": "D:\\DoAn_CSharp\\frontend\\client\\lib\\screens\\search\\SearchViewModel.cs",
+              "RelativeToolTip": "lib\\screens\\search\\SearchViewModel.cs",
+              "ViewState": "AgIAAJUAAAAAAAAAAAAQwKsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-05T07:57:47.843Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "HomePage.xaml.cs",
+              "DocumentMoniker": "D:\\DoAn_CSharp\\frontend\\client\\lib\\screens\\HomePage.xaml.cs",
+              "RelativeDocumentMoniker": "lib\\screens\\HomePage.xaml.cs",
+              "ToolTip": "D:\\DoAn_CSharp\\frontend\\client\\lib\\screens\\HomePage.xaml.cs",
+              "RelativeToolTip": "lib\\screens\\HomePage.xaml.cs",
+              "ViewState": "AgIAAE4AAAAAAAAAAAAAAF8AAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-05T07:57:05.805Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "HomePage.xaml",
+              "DocumentMoniker": "D:\\DoAn_CSharp\\frontend\\client\\lib\\screens\\HomePage.xaml",
+              "RelativeDocumentMoniker": "lib\\screens\\HomePage.xaml",
+              "ToolTip": "D:\\DoAn_CSharp\\frontend\\client\\lib\\screens\\HomePage.xaml",
+              "RelativeToolTip": "lib\\screens\\HomePage.xaml",
+              "ViewState": "AgIAACEAAAAAAAAAAAAYwEcAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-04-05T07:23:50.611Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "AppResources.ko.resx",
+              "DocumentMoniker": "D:\\DoAn_CSharp\\frontend\\client\\Resources\\String\\AppResources.ko.resx",
+              "RelativeDocumentMoniker": "Resources\\String\\AppResources.ko.resx",
+              "ToolTip": "D:\\DoAn_CSharp\\frontend\\client\\Resources\\String\\AppResources.ko.resx",
+              "RelativeToolTip": "Resources\\String\\AppResources.ko.resx",
+              "ViewState": "AgIAAHwAAAAAAAAAAADgv54AAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001005|",
+              "WhenOpened": "2026-04-05T07:20:28.313Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "AppResources.en.resx",
+              "DocumentMoniker": "D:\\DoAn_CSharp\\frontend\\client\\Resources\\String\\AppResources.en.resx",
+              "RelativeDocumentMoniker": "Resources\\String\\AppResources.en.resx",
+              "ToolTip": "D:\\DoAn_CSharp\\frontend\\client\\Resources\\String\\AppResources.en.resx",
+              "RelativeToolTip": "Resources\\String\\AppResources.en.resx",
+              "ViewState": "AgIAAIoAAAAAAAAAAADgv54AAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001005|",
+              "WhenOpened": "2026-04-05T07:20:09.953Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "AppResources.resx",
+              "DocumentMoniker": "D:\\DoAn_CSharp\\frontend\\client\\Resources\\String\\AppResources.resx",
+              "RelativeDocumentMoniker": "Resources\\String\\AppResources.resx",
+              "ToolTip": "D:\\DoAn_CSharp\\frontend\\client\\Resources\\String\\AppResources.resx",
+              "RelativeToolTip": "Resources\\String\\AppResources.resx",
+              "ViewState": "AgIAAHsAAAAAAAAAAADwv54AAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001005|",
+              "WhenOpened": "2026-04-05T07:19:47.222Z"
             }
           ]
         }

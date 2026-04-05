@@ -48,4 +48,8 @@ public partial class ProfileScreen : ContentPage
             await Shell.Current.GoToAsync("..");
         }
     }
+    private async void OnBackButtonClicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("..");
+    }
 }

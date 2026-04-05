@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRD v1.0 — Web Admin Dashboard · Vĩnh Khánh Tourism</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --ink-2: #3a3830;
+    --ink-3: #787060;
+    --ink-4: #b0a89a;
+    --paper: #f5f2ec;
+    --paper-2: #edeae2;
+    --paper-3: #e3dfd5;
+    --accent: #c8440a;
+    --accent-2: #e8662a;
+    --accent-light: #fdf0ea;
+    --teal: #0f6e56;
+    --teal-light: #e1f5ee;
+    --blue: #185fa5;
+    --blue-light: #e6f1fb;
+    --amber: #854f0b;
+    --amber-light: #faeeda;
+    --red: #a32d2d;
+    --red-light: #fcebeb;
+    --rule: #d4cfc6;
+    --mono: 'DM Mono', monospace;
+    --serif: 'DM Serif Display', serif;
+    --sans: 'Instrument Sans', sans-serif;
+    --radius: 4px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.75;
+    min-height: 100vh;
+  }
+
+  /* ── LAYOUT ── */
+  .layout { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0;
+    display: flex; flex-direction: column;
+    border-right: 1px solid #1e1d1a;
+  }
+  .sidebar-header {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid #2a2924;
+  }
+  .sidebar-logo {
+    font-family: var(--serif);
+    font-size: 17px;
+    color: var(--paper);
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+  }
+  .sidebar-logo span { color: var(--accent-2); }
+  .sidebar-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-3);
+    margin-top: 6px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .sidebar-nav { padding: 16px 0; flex: 1; }
+  .nav-section {
+    padding: 6px 24px 2px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #4a4840;
+    margin-top: 8px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 24px;
+    color: #9a9488;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 400;
+    transition: color 0.15s, background 0.15s;
+    cursor: pointer;
+  }
+  .nav-item:hover { color: var(--paper); background: #1e1d1a; }
+  .nav-item.active { color: var(--accent-2); }
+  .nav-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: #4a4840;
+    margin-left: auto;
+  }
+  .sidebar-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #1e1d1a;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: #4a4840;
+    letter-spacing: 0.05em;
+  }
+  .version-badge {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 2px;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main { padding: 0; max-width: 900px; }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 64px 64px 48px;
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: 'PRD';
+    position: absolute;
+    right: -20px; top: -10px;
+    font-family: var(--serif);
+    font-size: 180px;
+    color: var(--paper-2);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .hero-title {
+    font-family: var(--serif);
+    font-size: 52px;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+  .hero-title em { color: var(--accent); font-style: italic; }
+  .hero-desc {
+    font-size: 16px;
+    color: var(--ink-2);
+    max-width: 540px;
+    line-height: 1.7;
+    margin-bottom: 32px;
+  }
+  .hero-chips { display: flex; gap: 10px; flex-wrap: wrap; }
+  .chip {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 5px 12px;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    color: var(--ink-2);
+    letter-spacing: 0.05em;
+  }
+  .chip.status { background: var(--teal-light); border-color: var(--teal); color: var(--teal); }
+
+  /* ── SECTIONS ── */
+  .section { padding: 52px 64px; border-bottom: 1px solid var(--rule); }
+  .section:last-child { border-bottom: none; }
+
+  .section-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-family: var(--serif);
+    font-size: 32px;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 28px;
+    line-height: 1.15;
+  }
+
+  h3 {
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-top: 32px;
+    margin-bottom: 12px;
+  }
+  h4 {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 24px;
+    margin-bottom: 10px;
+  }
+
+  p { color: var(--ink-2); margin-bottom: 14px; }
+
+  /* ── GOAL CARDS ── */
+  .goal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .goal-card {
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    border-left: 3px solid var(--accent);
+  }
+  .goal-card h4 { margin-top: 0; color: var(--accent); }
+  .goal-card p { margin-bottom: 0; font-size: 13.5px; }
+
+  /* ── PERSONA ── */
+  .persona-card {
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 28px 28px 24px;
+    display: grid; grid-template-columns: auto 1fr; gap: 20px;
+    margin-top: 20px;
+  }
+  .persona-avatar {
+    width: 56px; height: 56px;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif);
+    font-size: 22px;
+  }
+  .persona-name { font-weight: 600; font-size: 16px; margin-bottom: 2px; }
+  .persona-role {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .persona-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+  .tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 8px;
+    background: var(--paper-3);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    color: var(--ink-2);
+    letter-spacing: 0.04em;
+  }
+
+  /* ── USER STORIES ── */
+  .story-group { margin-bottom: 28px; }
+  .story-group-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+  }
+  .story {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--paper-3);
+    align-items: start;
+  }
+  .story:last-child { border-bottom: none; }
+  .story-id {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-4);
+    padding-top: 2px;
+  }
+  .story-text { font-size: 13.5px; color: var(--ink-2); }
+  .story-text strong { color: var(--ink); font-weight: 500; }
+  .story-priority {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    margin-left: 8px;
+    letter-spacing: 0.06em;
+    vertical-align: middle;
+  }
+  .p-high { background: var(--red-light); color: var(--red); }
+  .p-med { background: var(--amber-light); color: var(--amber); }
+  .p-low { background: var(--teal-light); color: var(--teal); }
+
+  /* ── SCREEN CARDS ── */
+  .screen-card {
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .screen-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 20px;
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .screen-icon {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+  }
+  .screen-name { font-weight: 500; font-size: 14px; }
+  .screen-route {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: #6a6860;
+    margin-left: auto;
+  }
+  .screen-body { padding: 20px 20px; }
+  .screen-body ul { padding-left: 0; list-style: none; }
+  .screen-body li {
+    padding: 6px 0 6px 16px;
+    font-size: 13.5px;
+    color: var(--ink-2);
+    border-bottom: 1px solid var(--paper-3);
+    position: relative;
+  }
+  .screen-body li::before {
+    content: '—';
+    position: absolute; left: 0;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .screen-body li:last-child { border-bottom: none; }
+
+  /* ── STATE PILLS ── */
+  .states { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+  .state-pill {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 4px 12px;
+    border-radius: 100px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .s-loading { background: var(--blue-light); color: var(--blue); }
+  .s-empty { background: var(--amber-light); color: var(--amber); }
+  .s-error { background: var(--red-light); color: var(--red); }
+  .s-success { background: var(--teal-light); color: var(--teal); }
+  .s-default { background: var(--paper-3); color: var(--ink-2); }
+
+  /* ── DATA FIELDS TABLE ── */
+  .field-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  .field-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    text-align: left;
+    padding: 8px 14px;
+    background: var(--paper-3);
+    border-bottom: 1px solid var(--rule);
+  }
+  .field-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--paper-3);
+    color: var(--ink-2);
+    vertical-align: top;
+  }
+  .field-table tr:last-child td { border-bottom: none; }
+  .field-table tr:hover td { background: var(--paper-2); }
+  .field-name { font-family: var(--mono); font-size: 11.5px; color: var(--ink); }
+  .field-req { font-family: var(--mono); font-size: 10px; }
+  .req-yes { color: var(--red); }
+  .req-no { color: var(--ink-4); }
+  .field-source {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--blue);
+    background: var(--blue-light);
+    padding: 1px 6px;
+    border-radius: 2px;
+  }
+  .field-derived {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--amber);
+    background: var(--amber-light);
+    padding: 1px 6px;
+    border-radius: 2px;
+  }
+
+  /* ── AC BLOCKS ── */
+  .ac-block {
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .ac-header {
+    padding: 12px 16px;
+    background: var(--paper-3);
+    font-weight: 600;
+    font-size: 13.5px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .gwt { padding: 0; }
+  .gwt-row {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    border-bottom: 1px solid var(--paper-3);
+  }
+  .gwt-row:last-child { border-bottom: none; }
+  .gwt-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 11px 16px;
+    display: flex; align-items: flex-start;
+    border-right: 1px solid var(--rule);
+    background: var(--paper-2);
+  }
+  .gwt-label.given { color: var(--blue); }
+  .gwt-label.when { color: var(--amber); }
+  .gwt-label.then { color: var(--teal); }
+  .gwt-text { padding: 10px 16px; font-size: 13px; color: var(--ink-2); }
+
+  /* ── API MAPPING ── */
+  .api-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 12.5px; }
+  .api-table th {
+    font-family: var(--mono); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--ink-3); text-align: left;
+    padding: 8px 12px;
+    background: var(--paper-3);
+    border-bottom: 1px solid var(--rule);
+  }
+  .api-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--paper-3);
+    color: var(--ink-2);
+    vertical-align: middle;
+  }
+  .api-table tr:last-child td { border-bottom: none; }
+  .http-method {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .get { background: var(--teal-light); color: var(--teal); }
+  .post { background: var(--blue-light); color: var(--blue); }
+  .put { background: var(--amber-light); color: var(--amber); }
+  .delete { background: var(--red-light); color: var(--red); }
+  .patch { background: #f3e8ff; color: #6b21a8; }
+  .endpoint { font-family: var(--mono); font-size: 11px; color: var(--ink); }
+  .missing-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    background: var(--red-light);
+    color: var(--red);
+    padding: 2px 7px;
+    border-radius: 2px;
+  }
+  .available-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    background: var(--teal-light);
+    color: var(--teal);
+    padding: 2px 7px;
+    border-radius: 2px;
+  }
+
+  /* ── CALLOUT BOXES ── */
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-light);
+    padding: 14px 18px;
+    margin: 20px 0;
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+  .callout.info { border-color: var(--blue); background: var(--blue-light); }
+  .callout.warning { border-color: var(--amber); background: var(--amber-light); }
+  .callout.success { border-color: var(--teal); background: var(--teal-light); }
+  .callout-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .callout.info .callout-label { color: var(--blue); }
+  .callout.warning .callout-label { color: var(--amber); }
+  .callout.success .callout-label { color: var(--teal); }
+  .callout p { margin: 0; font-size: 13.5px; }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow-diagram {
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 16px 0;
+    overflow-x: auto;
+  }
+  .flow-steps {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: nowrap;
+    min-width: max-content;
+  }
+  .flow-step {
+    display: flex; flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+  }
+  .flow-step-box {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    font-size: 12.5px;
+    font-weight: 500;
+    white-space: nowrap;
+    position: relative;
+  }
+  .flow-step-sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-3);
+    white-space: nowrap;
+  }
+  .flow-arrow {
+    color: var(--accent);
+    font-size: 18px;
+    padding: 0 8px;
+    padding-bottom: 20px;
+    flex-shrink: 0;
+  }
+  .flow-step-box.highlight { background: var(--accent); }
+  .flow-step-box.teal-bg { background: var(--teal); }
+
+  /* ── NFR GRID ── */
+  .nfr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
+  .nfr-card {
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+  }
+  .nfr-title {
+    font-weight: 600;
+    font-size: 13.5px;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .nfr-title .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .nfr-card ul { padding-left: 0; list-style: none; }
+  .nfr-card li { padding: 4px 0 4px 14px; font-size: 12.5px; color: var(--ink-2); position: relative; }
+  .nfr-card li::before { content: '·'; position: absolute; left: 0; color: var(--ink-4); font-weight: bold; }
+
+  /* ── OPEN QUESTIONS ── */
+  .oq-list { margin: 0; padding: 0; list-style: none; }
+  .oq-item {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--rule);
+    align-items: start;
+  }
+  .oq-item:last-child { border-bottom: none; }
+  .oq-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--accent);
+    padding-top: 2px;
+  }
+  .oq-q { font-size: 13.5px; color: var(--ink); font-weight: 500; margin-bottom: 4px; }
+  .oq-a { font-size: 12.5px; color: var(--ink-2); }
+
+  /* ── MISSING API TABLE ── */
+  .missing-api-card {
+    background: var(--red-light);
+    border: 1px solid #f7c1c1;
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 12px;
+  }
+  .missing-api-name { font-weight: 600; font-size: 13.5px; margin-bottom: 6px; }
+  .missing-api-desc { font-size: 12.5px; color: var(--ink-2); }
+  .missing-api-suggest {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--red);
+    margin-top: 6px;
+    background: white;
+    padding: 4px 10px;
+    border-radius: 2px;
+    display: inline-block;
+  }
+
+  /* ── SEPARATOR ── */
+  .rule { border: none; border-top: 1px solid var(--rule); margin: 0; }
+
+  /* ── PRINT ── */
+  @media print {
+    .sidebar { display: none; }
+    .layout { display: block; }
+    .hero::before { display: none; }
+    .section { padding: 36px 48px; }
+    .hero { padding: 48px; }
+  }
+
+  /* ── SCROLLBAR ── */
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: #1a1916; }
+  .sidebar::-webkit-scrollbar-thumb { background: #3a3830; border-radius: 2px; }
+
+  /* ── FOOTNOTE ── */
+  .footnote {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-4);
+    letter-spacing: 0.06em;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">Web Admin<br><span>PRD</span> v1.0</div>
+      <div class="sidebar-meta">Vĩnh Khánh Tourism · 2025</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Document</div>
+      <a class="nav-item active" href="#overview">Overview & Goals <span class="nav-num">§1</span></a>
+      <a class="nav-item" href="#personas">User Personas <span class="nav-num">§2</span></a>
+      <a class="nav-item" href="#stories">User Stories <span class="nav-num">§3</span></a>
+
+      <div class="nav-section">Functional</div>
+      <a class="nav-item" href="#screens">Screens & UI <span class="nav-num">§4</span></a>
+      <a class="nav-item" href="#flows">Flows & Interactions <span class="nav-num">§5</span></a>
+      <a class="nav-item" href="#states">State Management <span class="nav-num">§6</span></a>
+
+      <div class="nav-section">Technical</div>
+      <a class="nav-item" href="#data">Data Requirements <span class="nav-num">§7</span></a>
+      <a class="nav-item" href="#ac">Acceptance Criteria <span class="nav-num">§8</span></a>
+      <a class="nav-item" href="#nfr">Non-Functional Req. <span class="nav-num">§9</span></a>
+      <a class="nav-item" href="#api">API Mapping <span class="nav-num">§10</span></a>
+      <a class="nav-item" href="#missing">Missing APIs <span class="nav-num">§11</span></a>
+      <a class="nav-item" href="#openq">Open Questions <span class="nav-num">§12</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="version-badge">DRAFT</div><br>
+      Status: In Review<br>
+      Author: Senior BA<br>
+      Last updated: 2025-07
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-eyebrow">Product Requirement Document · MVP Scope</div>
+      <h1 class="hero-title">Web Admin<br><em>Dashboard</em></h1>
+      <p class="hero-desc">Tài liệu yêu cầu sản phẩm cho hệ thống quản trị (Back-office) phục vụ vận hành nội dung POI, Tour và Narration cho App Mobile Vĩnh Khánh Tourism thông qua các REST API hiện có.</p>
+      <div class="hero-chips">
+        <span class="chip">v1.0 MVP</span>
+        <span class="chip status">Active</span>
+        <span class="chip">Backend: ASP.NET Core</span>
+        <span class="chip">App: .NET MAUI</span>
+        <span class="chip">Admin: React / Next.js đề xuất</span>
+      </div>
+    </div>
+
+    <!-- § 1 OVERVIEW -->
+    <section class="section" id="overview">
+      <div class="section-num">§ 01</div>
+      <h2 class="section-title">Overview & Goals</h2>
+
+      <p>Hiện tại, dữ liệu POI (điểm tham quan) trong hệ thống Vĩnh Khánh Tourism chỉ có thể được quản lý trực tiếp qua database hoặc Swagger UI. Điều này tạo rủi ro cao (không có validation, không audit log) và không thể giao cho nhân viên vận hành phi kỹ thuật. <strong>Web Admin Dashboard</strong> là giải pháp back-office cho phép Admin quản lý toàn bộ nội dung qua giao diện thân thiện, tương tác trực tiếp với các REST API hiện có.</p>
+
+      <div class="goal-grid">
+        <div class="goal-card">
+          <h4>Mục tiêu vận hành</h4>
+          <p>Cho phép Admin thêm, sửa, xóa POI và Tour mà không cần can thiệp kỹ thuật vào database hoặc code.</p>
+        </div>
+        <div class="goal-card">
+          <h4>Mục tiêu nội dung</h4>
+          <p>Quản lý đa ngôn ngữ (Narration), ảnh Cloudinary, Geofence và QR Code cho từng điểm tham quan.</p>
+        </div>
+        <div class="goal-card">
+          <h4>Mục tiêu an toàn dữ liệu</h4>
+          <p>Mọi thay đổi phải qua xác thực JWT với phân quyền Admin/Manager. Không có action destructive nào được thực thi mà không có confirmation step.</p>
+        </div>
+        <div class="goal-card">
+          <h4>Mục tiêu tốc độ triển khai</h4>
+          <p>MVP tập trung tối đa vào các endpoint API <em>đã có sẵn</em> để rút ngắn thời gian dev. Không build thêm API mới trong Sprint 1.</p>
+        </div>
+      </div>
+
+      <h3>Phạm vi MVP (In-scope)</h3>
+      <ul style="padding-left:20px; color: var(--ink-2); font-size: 13.5px; line-height: 2;">
+        <li>Module Auth: Login / Logout với JWT</li>
+        <li>Module POI: CRUD + gán tọa độ trên bản đồ + phân loại Major/Minor</li>
+        <li>Module POI Images: Upload đơn/nhiều ảnh, reorder, xóa (Cloudinary)</li>
+        <li>Module Narrations: CRUD narration text, upload audio file, switch TTS/Audio</li>
+        <li>Module Restaurant & Food: CRUD nhà hàng và menu món ăn theo POI</li>
+        <li>Module Geofence: Cấu hình bán kính geofence cho từng POI</li>
+        <li>Module QR Code: Tạo và quản lý QR Code cho POI</li>
+        <li>Module Language: Thêm/xóa ngôn ngữ hỗ trợ</li>
+        <li>Module Tour: Tạo tour bằng cách chọn và sắp xếp các POI có sẵn</li>
+      </ul>
+
+      <div class="callout warning">
+        <div class="callout-label">Out of scope (v1.0)</div>
+        <p>Analytics dashboard, user management của Tourist, push notification, export báo cáo, multi-tenant, và dark mode. Sẽ xem xét tại v2.0.</p>
+      </div>
+    </section>
+
+    <!-- § 2 PERSONAS -->
+    <section class="section" id="personas">
+      <div class="section-num">§ 02</div>
+      <h2 class="section-title">User Personas</h2>
+
+      <div class="persona-card">
+        <div class="persona-avatar">A</div>
+        <div>
+          <div class="persona-name">Anh Minh — Admin Hệ Thống</div>
+          <div class="persona-role">Role: Admin</div>
+          <p style="font-size:13.5px; margin-bottom:8px;">Quản trị viên kỹ thuật, có quyền toàn bộ hệ thống. Chịu trách nhiệm cấu hình ngôn ngữ, xóa dữ liệu nhạy cảm, và quản lý tài khoản Manager. Sử dụng Web Admin hằng ngày.</p>
+          <div class="persona-tags">
+            <span class="tag">Toàn quyền CRUD</span>
+            <span class="tag">Xóa ngôn ngữ</span>
+            <span class="tag">Quản lý Geofence</span>
+            <span class="tag">Tạo QR Code</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="persona-card" style="margin-top:14px;">
+        <div class="persona-avatar" style="background: var(--teal);">M</div>
+        <div>
+          <div class="persona-name">Chị Lan — Content Manager</div>
+          <div class="persona-role" style="color: var(--teal);">Role: Manager</div>
+          <p style="font-size:13.5px; margin-bottom:8px;">Nhân viên vận hành nội dung, không có nền tảng kỹ thuật. Chịu trách nhiệm cập nhật thông tin POI, upload ảnh và audio, tạo Tour. Không có quyền xóa ngôn ngữ hoặc xóa POI đang trong tour đang hoạt động.</p>
+          <div class="persona-tags">
+            <span class="tag">Thêm/Sửa POI</span>
+            <span class="tag">Upload ảnh & audio</span>
+            <span class="tag">Tạo & sửa Tour</span>
+            <span class="tag">Quản lý Restaurant</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout info" style="margin-top:20px;">
+        <div class="callout-label">Phân quyền API hiện có</div>
+        <p>Backend <code>LanguageController</code> đã implement <code>[Authorize(Roles = "Admin,Manager")]</code> cho POST và <code>[Authorize(Roles = "Admin")]</code> cho DELETE. Web Admin cần phản ánh đúng phân quyền này trên UI (ẩn/vô hiệu hóa nút theo role từ JWT payload).</p>
+      </div>
+    </section>
+
+    <!-- § 3 USER STORIES -->
+    <section class="section" id="stories">
+      <div class="section-num">§ 03</div>
+      <h2 class="section-title">User Stories</h2>
+
+      <!-- Auth -->
+      <div class="story-group">
+        <div class="story-group-title">Module AUTH</div>
+        <div class="story">
+          <span class="story-id">US-01</span>
+          <span class="story-text"><strong>Là Admin/Manager,</strong> tôi muốn đăng nhập bằng username và password để truy cập vào hệ thống quản trị một cách bảo mật. <span class="story-priority p-high">P0</span></span>
+        </div>
+        <div class="story">
+          <span class="story-id">US-02</span>
+          <span class="story-text"><strong>Là Admin/Manager,</strong> tôi muốn hệ thống tự động đăng xuất sau 24 giờ để bảo vệ tài khoản khi quên đăng xuất. <span class="story-priority p-high">P0</span></span>
+        </div>
+        <div class="story">
+          <span class="story-id">US-03</span>
+          <span class="story-text"><strong>Là Admin/Manager,</strong> tôi muốn thấy rõ tên và role của mình trên header để biết mình đang thao tác với quyền hạn nào. <span class="story-priority p-med">P1</span></span>
+        </div>
+      </div>
+
+      <!-- POI -->
+      <div class="story-group">
+        <div class="story-group-title">Module POI</div>
+        <div class="story">
+          <span class="story-id">US-04</span>
+          <span class="story-text"><strong>Là Admin,</strong> tôi muốn thêm một POI mới bằng cách click trực tiếp lên bản đồ để lấy tọa độ thay vì nhập tay latitude/longitude. <span class="story-priority p-high">P0</span></span>
+        </div>
+        <div class="story">
+          <span class="story-id">US-05</span>
+          <span class="story-text"><strong>Là Admin,</strong> tôi muốn phân loại POI là <em>Major</em> (địa điểm chính) hoặc <em>Minor</em> (WC / Bán vé / Gửi xe / Bến thuyền) để App Mobile hiển thị đúng icon và ưu tiên. <span class="story-priority p-high">P0</span></span>
+        </div>
+        <div class="story">
+          <span class="story-id">US-06</span>
+          <span class="story-text"><strong>Là Manager,</strong> tôi muốn xem danh sách tất cả POI kèm ảnh thumbnail, đánh giá trung bình và số lượt review để nhanh chóng nắm tình trạng nội dung. <span class="story-priority p-high">P0</span></span>
+        </div>
+        <div class="story">
+          <span class="story-id">US-07</span>
+          <span class="story-text"><strong>Là Manager,</strong> tôi muốn upload nhiều ảnh cùng lúc cho một POI và kéo thả để sắp xếp thứ tự hiển thị, ảnh đầu tiên sẽ là ảnh bìa. <span class="story-priority p-high">P0</span></span>
+        </div>
+        <div class="story">
+          <span class="story-id">US-08</span>
+          <span class="story-text"><strong>Là Admin,</strong> tôi muốn cấu hình Geofence (bán kính tính bằng mét) cho từng POI để điều chỉnh vùng trigger tự động thuyết minh trên App Mobile. <span class="story-priority p-med">P1</span></span>
+        </div>
+        <div class="story">
+          <span class="story-id">US-09</span>
+          <span class="story-text"><strong>Là Admin,</strong> tôi muốn tạo QR Code cho POI để khách scan bằng App và truy cập chi tiết địa điểm. <span class="story-priority p-med">P1</span></span>
+        </div>
+      </div>
+
+      <!-- Narration -->
+      <div class="story-group">
+        <div class="story-group-title">Module NARRATION</div>
+        <div class="story">
+          <span class="story-id">US-10</span>
+          <span class="story-text"><strong>Là Manager,</strong> tôi muốn nhập bài thuyết minh (text) theo từng ngôn ngữ cho mỗi POI để hỗ trợ khách quốc tế. <span class="story-priority p-high">P0</span></span>
+        </div>
+        <div class="story">
+          <span class="story-id">US-11</span>
+          <span class="story-text"><strong>Là Manager,</strong> tôi muốn upload file audio (MP3/WAV) thay thế cho TTS để nội dung thuyết minh có giọng đọc chuyên nghiệp hơn. <span class="story-priority p-med">P1</span></span>
+        </div>
+        <div class="story">
+          <span class="story-id">US-12</span>
+          <span class="story-text"><strong>Là Manager,</strong> tôi muốn toggle switch giữa chế độ "Dùng TTS" và "Dùng Audio file" trên từng narration để linh hoạt A/B test. <span class="story-priority p-med">P1</span></span>
+        </div>
+      </div>
+
+      <!-- Restaurant -->
+      <div class="story-group">
+        <div class="story-group-title">Module RESTAURANT & FOOD</div>
+        <div class="story">
+          <span class="story-id">US-13</span>
+          <span class="story-text"><strong>Là Manager,</strong> tôi muốn thêm nhà hàng/quán ăn vào POI và nhập menu với giá để khách xem trước khi đến. <span class="story-priority p-med">P1</span></span>
+        </div>
+        <div class="story">
+          <span class="story-id">US-14</span>
+          <span class="story-text"><strong>Là Manager,</strong> tôi muốn cập nhật giá món ăn khi có thay đổi mà không cần sửa toàn bộ POI. <span class="story-priority p-med">P1</span></span>
+        </div>
+      </div>
+
+      <!-- Tour -->
+      <div class="story-group">
+        <div class="story-group-title">Module TOUR</div>
+        <div class="story">
+          <span class="story-id">US-15</span>
+          <span class="story-text"><strong>Là Admin,</strong> tôi muốn tạo Tour bằng cách chọn POIs từ danh sách có sẵn và kéo thả để sắp xếp thứ tự di chuyển, hệ thống tự cập nhật lộ trình trên bản đồ. <span class="story-priority p-high">P0</span></span>
+        </div>
+        <div class="story">
+          <span class="story-id">US-16</span>
+          <span class="story-text"><strong>Là Admin,</strong> tôi muốn hệ thống không cho tạo Tour nếu chưa có ít nhất 2 POI, đồng thời hiển thị lỗi rõ ràng. <span class="story-priority p-high">P0</span></span>
+        </div>
+        <div class="story">
+          <span class="story-id">US-17</span>
+          <span class="story-text"><strong>Là Manager,</strong> tôi muốn xem preview lộ trình Tour trên bản đồ với đường nối giữa các POI theo đúng thứ tự đã đặt. <span class="story-priority p-med">P1</span></span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- § 4 SCREENS -->
+    <section class="section" id="screens">
+      <div class="section-num">§ 04</div>
+      <h2 class="section-title">Screens & UI</h2>
+
+      <!-- Login -->
+      <div class="screen-card">
+        <div class="screen-header">
+          <div class="screen-icon">🔐</div>
+          <span class="screen-name">Login Page</span>
+          <span class="screen-route">/login</span>
+        </div>
+        <div class="screen-body">
+          <ul>
+            <li>Form gồm 2 trường: Username và Password (masked). Nút "Đăng nhập" full-width.</li>
+            <li>Khi submit: gọi <code>POST /api/User/login</code>, nhận JWT, lưu vào <code>localStorage</code> dưới key <code>admin_jwt</code>.</li>
+            <li>Parse JWT payload để lấy <code>ClaimTypes.Role</code>. Nếu role là <code>Tourist</code>, hiển thị lỗi "Tài khoản không có quyền truy cập Admin".</li>
+            <li>Redirect về <code>/dashboard</code> sau khi đăng nhập thành công.</li>
+            <li>Route này là public duy nhất — mọi route khác đều require authenticated JWT.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Dashboard -->
+      <div class="screen-card">
+        <div class="screen-header">
+          <div class="screen-icon">📊</div>
+          <span class="screen-name">Dashboard Overview</span>
+          <span class="screen-route">/dashboard</span>
+        </div>
+        <div class="screen-body">
+          <ul>
+            <li>Stat cards: Tổng số POI | POI có Geofence | POI có Audio | Tổng Tour.</li>
+            <li>Bản đồ mini hiển thị toàn bộ POI với pin màu khác nhau theo loại (Major/Minor).</li>
+            <li>Quick action buttons: "Thêm POI mới", "Tạo Tour", "Upload Audio".</li>
+            <li>Activity feed: 10 action gần nhất (nếu có audit log backend — xem Missing API §11).</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- POI List -->
+      <div class="screen-card">
+        <div class="screen-header">
+          <div class="screen-icon">📍</div>
+          <span class="screen-name">POI Management — List View</span>
+          <span class="screen-route">/pois</span>
+        </div>
+        <div class="screen-body">
+          <ul>
+            <li>Bảng dữ liệu (data table) với cột: Thumbnail ảnh đầu tiên | Tên POI | Loại (Major/Minor + subtype) | Lat/Lng | Rating ⭐ | Review count | Geofence (✓/✗) | QR (✓/✗) | Actions.</li>
+            <li>Filter thanh bên trái: Theo loại POI (Major / WC / Bán vé / Gửi xe / Bến thuyền).</li>
+            <li>Tìm kiếm real-time theo tên POI.</li>
+            <li>Nút toggle View: chuyển đổi giữa List View và Map View.</li>
+            <li>Nút "Thêm POI" ở header — mở modal hoặc navigate sang /pois/new.</li>
+            <li>Click vào row POI để mở trang POI Detail (<code>/pois/:id</code>).</li>
+            <li>Nút xóa trong row: hiện confirmation dialog trước khi gọi DELETE.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- POI Map View -->
+      <div class="screen-card">
+        <div class="screen-header">
+          <div class="screen-icon">🗺️</div>
+          <span class="screen-name">POI Management — Map View</span>
+          <span class="screen-route">/pois?view=map</span>
+        </div>
+        <div class="screen-body">
+          <ul>
+            <li>Bản đồ full-screen (Leaflet.js hoặc Mapbox GL) hiển thị tất cả POI dưới dạng marker.</li>
+            <li>Marker color: Xanh lá = Major, Đỏ = Minor (WC), Vàng = Bán vé, Xanh dương = Gửi xe, Tím = Bến thuyền.</li>
+            <li><strong>Click vào vị trí trống trên bản đồ</strong>: mở sidebar form "Tạo POI mới" với Lat/Lng đã tự điền từ click point. Admin chỉ cần nhập Tên và Loại.</li>
+            <li>Click vào marker POI đã có: mở popup với tên, rating, nút "Edit" và "Xóa".</li>
+            <li>Kéo marker để cập nhật vị trí — hiện confirmation "Cập nhật tọa độ POI này?".</li>
+            <li>Hiển thị vòng tròn Geofence (circle overlay) xung quanh POI có Geofence, bán kính theo dữ liệu DB.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- POI Detail -->
+      <div class="screen-card">
+        <div class="screen-header">
+          <div class="screen-icon">✏️</div>
+          <span class="screen-name">POI Detail & Edit Page</span>
+          <span class="screen-route">/pois/:id</span>
+        </div>
+        <div class="screen-body">
+          <ul>
+            <li><strong>Thông tin cơ bản:</strong> Form edit tên, loại POI, mô tả, lat/lng (có mini-map để xem vị trí).</li>
+            <li><strong>Tab Ảnh:</strong> Grid ảnh từ Cloudinary, kéo thả để reorder, nút upload (đơn và batch), nút xóa từng ảnh (gọi DELETE + xóa trên Cloudinary qua PublicId).</li>
+            <li><strong>Tab Narrations:</strong> Bảng narration theo ngôn ngữ. Mỗi row có: Language Code | Text preview | Toggle TTS/Audio | Upload audio button | Preview player. Nút "Thêm narration" mở form chọn ngôn ngữ + nhập text.</li>
+            <li><strong>Tab Restaurant:</strong> Danh sách nhà hàng của POI. Expand từng nhà hàng để xem/edit menu món ăn.</li>
+            <li><strong>Tab Geofence:</strong> Form nhập bán kính (meters) + mini-map hiển thị vòng tròn preview radius. Nếu chưa có geofence thì hiện "Tạo Geofence". Nếu đã có thì edit bán kính.</li>
+            <li><strong>Tab QR Code:</strong> Hiển thị QR image preview (render từ CodeValue URL), nút "Tạo QR" nếu chưa có, nút Download PNG.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Tour -->
+      <div class="screen-card">
+        <div class="screen-header">
+          <div class="screen-icon">🛤️</div>
+          <span class="screen-name">Tour Builder</span>
+          <span class="screen-route">/tours/new · /tours/:id/edit</span>
+        </div>
+        <div class="screen-body">
+          <ul>
+            <li>Layout 3 cột: [Danh sách POI khả dụng] | [Builder — danh sách đã chọn + drag handle] | [Preview bản đồ lộ trình]</li>
+            <li><strong>Cột 1 — POI Pool:</strong> Tìm kiếm POI theo tên. Filter theo loại. Card từng POI với ảnh thumbnail, tên, rating. Nút "+" để thêm vào tour.</li>
+            <li><strong>Cột 2 — Tour Builder:</strong> Drag-and-drop list (dùng thư viện <code>@dnd-kit/sortable</code> hoặc <code>react-beautiful-dnd</code>). Mỗi item hiển thị số thứ tự (1, 2, 3…), tên POI, thumbnail, nút xóa khỏi tour. Sau mỗi lần reorder: tự động cập nhật polyline trên cột 3.</li>
+            <li><strong>Cột 3 — Map Preview:</strong> Vẽ polyline nối các POI theo thứ tự. Đánh số thứ tự trên marker. Cập nhật realtime khi kéo thả ở cột 2.</li>
+            <li>Form meta: Tên Tour, Mô tả, Ngôn ngữ, Thời lượng ước tính.</li>
+            <li>Validation: Tối thiểu 2 POI mới cho phép Save. Tên Tour không được để trống.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Language -->
+      <div class="screen-card">
+        <div class="screen-header">
+          <div class="screen-icon">🌐</div>
+          <span class="screen-name">Language Management</span>
+          <span class="screen-route">/languages</span>
+        </div>
+        <div class="screen-body">
+          <ul>
+            <li>Bảng danh sách ngôn ngữ: Language Code | Tên đầy đủ | Số Narration đang dùng.</li>
+            <li>Form thêm ngôn ngữ: Language Code (vi, en, zh…) + Tên hiển thị. Chỉ Manager và Admin mới thấy nút thêm.</li>
+            <li>Nút xóa: Chỉ Admin mới thấy. Cần confirmation: "Xóa ngôn ngữ này sẽ ảnh hưởng đến X narration đang dùng. Tiếp tục?"</li>
+          </ul>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- § 5 FLOWS -->
+    <section class="section" id="flows">
+      <div class="section-num">§ 05</div>
+      <h2 class="section-title">Flows & Interactions</h2>
+
+      <h3>Flow 1: Thêm POI mới bằng click bản đồ</h3>
+      <div class="flow-diagram">
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-step-box">Admin mở Map View</div>
+            <div class="flow-step-sub">/pois?view=map</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-box highlight">Click vị trí trống</div>
+            <div class="flow-step-sub">Sidebar mở ra</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-box">Lat/Lng tự điền</div>
+            <div class="flow-step-sub">Nhập Tên + Loại POI</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-box">Nhấn "Tạo POI"</div>
+            <div class="flow-step-sub">Gọi API</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-box teal-bg">Marker xuất hiện</div>
+            <div class="flow-step-sub">Redirect /pois/:id</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Flow 2: Xây dựng và sắp xếp Tour</h3>
+      <div class="flow-diagram">
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-step-box">Mở Tour Builder</div>
+            <div class="flow-step-sub">/tours/new</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-box">Chọn POI từ pool</div>
+            <div class="flow-step-sub">Click "+" hoặc drag</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-box highlight">Kéo thả reorder</div>
+            <div class="flow-step-sub">Thứ tự 1→2→3</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-box">Map cập nhật</div>
+            <div class="flow-step-sub">Polyline tự vẽ lại</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-box teal-bg">Save Tour</div>
+            <div class="flow-step-sub">Gọi POST /api/Tour</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Flow 3: Upload Audio cho Narration</h3>
+      <div class="flow-diagram">
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-step-box">Mở Tab Narrations</div>
+            <div class="flow-step-sub">/pois/:id</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-box">Click "Upload Audio"</div>
+            <div class="flow-step-sub">Chọn .mp3/.wav</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-box highlight">POST /audio</div>
+            <div class="flow-step-sub">Upload Cloudinary</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-box">Toggle "Dùng Audio"</div>
+            <div class="flow-step-sub">PATCH /use-audio</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-step-box teal-bg">App Mobile phát</div>
+            <div class="flow-step-sub">AudioUrl từ Cloudinary</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Interaction: Drag-and-drop ảnh POI</h3>
+      <p>Khu vực ảnh trong Tab Ảnh dùng thư viện kéo thả (đề xuất <code>@dnd-kit/sortable</code>). Sau khi người dùng thả ảnh vào vị trí mới, UI optimistically cập nhật thứ tự ngay. Sau đó gọi <code>PATCH /api/PoiImages/reorder</code> với mảng <code>[{imageId, displayOrder}]</code> mới. Nếu API lỗi, roll back về thứ tự cũ và hiển thị toast error.</p>
+
+    </section>
+
+    <!-- § 6 STATE -->
+    <section class="section" id="states">
+      <div class="section-num">§ 06</div>
+      <h2 class="section-title">State Management</h2>
+
+      <p>Mọi component có call API phải xử lý đầy đủ 4 trạng thái sau:</p>
+
+      <div class="states">
+        <span class="state-pill s-default">Default</span>
+        <span class="state-pill s-loading">Loading</span>
+        <span class="state-pill s-empty">Empty</span>
+        <span class="state-pill s-error">Error</span>
+        <span class="state-pill s-success">Success</span>
+      </div>
+
+      <table class="field-table" style="margin-top:16px;">
+        <thead>
+          <tr>
+            <th>State</th>
+            <th>Trigger</th>
+            <th>UI hiển thị</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="state-pill s-loading" style="font-size:9px;">Loading</span></td>
+            <td style="font-size:12.5px;">API đang gọi</td>
+            <td style="font-size:12.5px;">Skeleton loader (không dùng spinner tròn)</td>
+            <td style="font-size:12.5px;">Disable nút save/submit</td>
+          </tr>
+          <tr>
+            <td><span class="state-pill s-empty" style="font-size:9px;">Empty</span></td>
+            <td style="font-size:12.5px;">API trả về [] rỗng</td>
+            <td style="font-size:12.5px;">Illustration + message + nút CTA (vd: "Thêm POI đầu tiên")</td>
+            <td style="font-size:12.5px;">Link đến action tương ứng</td>
+          </tr>
+          <tr>
+            <td><span class="state-pill s-error" style="font-size:9px;">Error</span></td>
+            <td style="font-size:12.5px;">API trả về 4xx/5xx hoặc network error</td>
+            <td style="font-size:12.5px;">Banner đỏ trên cùng với error message từ response body</td>
+            <td style="font-size:12.5px;">Nút "Thử lại"</td>
+          </tr>
+          <tr>
+            <td><span class="state-pill s-success" style="font-size:9px;">Success</span></td>
+            <td style="font-size:12.5px;">API trả về 200/201/204</td>
+            <td style="font-size:12.5px;">Toast notification 3 giây rồi tự dismiss</td>
+            <td style="font-size:12.5px;">Refresh data trong background</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Validation Rules (Client-side)</h3>
+      <table class="field-table">
+        <thead><tr><th>Field</th><th>Rule</th><th>Message lỗi</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="field-name">POI Name</td>
+            <td style="font-size:12.5px;">Required, 3–100 ký tự</td>
+            <td style="font-size:12.5px;">Tên POI phải từ 3–100 ký tự</td>
+          </tr>
+          <tr>
+            <td class="field-name">Latitude</td>
+            <td style="font-size:12.5px;">Required, số thực, -90 đến 90</td>
+            <td style="font-size:12.5px;">Vĩ độ không hợp lệ</td>
+          </tr>
+          <tr>
+            <td class="field-name">Longitude</td>
+            <td style="font-size:12.5px;">Required, số thực, -180 đến 180</td>
+            <td style="font-size:12.5px;">Kinh độ không hợp lệ</td>
+          </tr>
+          <tr>
+            <td class="field-name">Geofence Radius</td>
+            <td style="font-size:12.5px;">Required, số nguyên, 10–5000 (mét)</td>
+            <td style="font-size:12.5px;">Bán kính phải từ 10 đến 5000 mét</td>
+          </tr>
+          <tr>
+            <td class="field-name">Audio File</td>
+            <td style="font-size:12.5px;">Extension: .mp3 .wav .ogg .m4a .aac. Size ≤ 50MB</td>
+            <td style="font-size:12.5px;">File phải là định dạng âm thanh, tối đa 50MB</td>
+          </tr>
+          <tr>
+            <td class="field-name">Image File</td>
+            <td style="font-size:12.5px;">Extension: .jpg .jpeg .png .webp .gif. Size ≤ 10MB</td>
+            <td style="font-size:12.5px;">File phải là hình ảnh, tối đa 10MB</td>
+          </tr>
+          <tr>
+            <td class="field-name">Tour POIs</td>
+            <td style="font-size:12.5px;">Tối thiểu 2 POI</td>
+            <td style="font-size:12.5px;">Tour phải có ít nhất 2 điểm tham quan</td>
+          </tr>
+          <tr>
+            <td class="field-name">Food Price</td>
+            <td style="font-size:12.5px;">Required, số dương, tối đa 10 triệu</td>
+            <td style="font-size:12.5px;">Giá món ăn không hợp lệ</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- § 7 DATA -->
+    <section class="section" id="data">
+      <div class="section-num">§ 07</div>
+      <h2 class="section-title">Data Requirements</h2>
+
+      <h3>Entity: POI</h3>
+      <p>Dữ liệu suy ra từ <code>POIsController</code> → <code>POIDto</code> và <code>GET /api/POIs</code> response.</p>
+      <table class="field-table">
+        <thead><tr><th>Field</th><th>Type</th><th>Req.</th><th>Nguồn</th><th>Ghi chú</th></tr></thead>
+        <tbody>
+          <tr><td class="field-name">PoiId</td><td>int</td><td class="field-req req-yes">✓</td><td><span class="field-source">API</span></td><td style="font-size:12px;">Auto-generated, readonly</td></tr>
+          <tr><td class="field-name">Name</td><td>string</td><td class="field-req req-yes">✓</td><td><span class="field-source">API</span></td><td style="font-size:12px;">3–100 ký tự</td></tr>
+          <tr><td class="field-name">Latitude</td><td>double</td><td class="field-req req-yes">✓</td><td><span class="field-source">API</span></td><td style="font-size:12px;">Lấy từ click bản đồ</td></tr>
+          <tr><td class="field-name">Longitude</td><td>double</td><td class="field-req req-yes">✓</td><td><span class="field-source">API</span></td><td style="font-size:12px;">Lấy từ click bản đồ</td></tr>
+          <tr><td class="field-name">PoiType</td><td>enum</td><td class="field-req req-yes">✓</td><td><span class="field-derived">UI thêm</span></td><td style="font-size:12px;">Major / WC / Bán vé / Gửi xe / Bến thuyền</td></tr>
+          <tr><td class="field-name">AverageRating</td><td>double</td><td class="field-req req-no">—</td><td><span class="field-source">API</span></td><td style="font-size:12px;">Readonly, tính từ Reviews</td></tr>
+          <tr><td class="field-name">ReviewCount</td><td>int</td><td class="field-req req-no">—</td><td><span class="field-source">API</span></td><td style="font-size:12px;">Readonly, đếm từ Reviews</td></tr>
+          <tr><td class="field-name">ImageUrls</td><td>List&lt;string&gt;</td><td class="field-req req-no">—</td><td><span class="field-source">API</span></td><td style="font-size:12px;">Lấy từ PoiImages, ordered by DisplayOrder</td></tr>
+          <tr><td class="field-name">Narrations</td><td>List&lt;NarrationDto&gt;</td><td class="field-req req-no">—</td><td><span class="field-source">API</span></td><td style="font-size:12px;">Xem entity Narration bên dưới</td></tr>
+          <tr><td class="field-name">Restaurants</td><td>List&lt;RestaurantDto&gt;</td><td class="field-req req-no">—</td><td><span class="field-source">API</span></td><td style="font-size:12px;">Xem entity Restaurant</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Entity: Narration</h3>
+      <p>Dữ liệu từ <code>NarrationsController</code> + <code>NarrationDto</code>.</p>
+      <table class="field-table">
+        <thead><tr><th>Field</th><th>Type</th><th>Req.</th><th>Nguồn</th><th>Ghi chú</th></tr></thead>
+        <tbody>
+          <tr><td class="field-name">NarrationId</td><td>int</td><td class="field-req req-yes">✓</td><td><span class="field-source">API</span></td><td style="font-size:12px;">Auto-generated</td></tr>
+          <tr><td class="field-name">PoiId</td><td>int</td><td class="field-req req-yes">✓</td><td><span class="field-source">API</span></td><td style="font-size:12px;">FK tới POI</td></tr>
+          <tr><td class="field-name">LanguageCode</td><td>string</td><td class="field-req req-yes">✓</td><td><span class="field-source">API</span></td><td style="font-size:12px;">vd: "vi", "en", "zh". Phải có trong Language table</td></tr>
+          <tr><td class="field-name">Text</td><td>string</td><td class="field-req req-yes">✓</td><td><span class="field-source">API</span></td><td style="font-size:12px;">Nội dung thuyết minh dạng text</td></tr>
+          <tr><td class="field-name">AudioUrl</td><td>string?</td><td class="field-req req-no">—</td><td><span class="field-source">API</span></td><td style="font-size:12px;">URL Cloudinary sau khi upload audio</td></tr>
+          <tr><td class="field-name">UseAudioFile</td><td>bool</td><td class="field-req req-yes">✓</td><td><span class="field-source">API</span></td><td style="font-size:12px;">true = phát AudioUrl, false = dùng TTS đọc Text</td></tr>
+          <tr><td class="field-name">VoiceName</td><td>string?</td><td class="field-req req-no">—</td><td><span class="field-source">API</span></td><td style="font-size:12px;">Tên giọng TTS (nếu dùng TTS)</td></tr>
+          <tr><td class="field-name">SpeechRate</td><td>double?</td><td class="field-req req-no">—</td><td><span class="field-source">API</span></td><td style="font-size:12px;">Tốc độ đọc TTS</td></tr>
+          <tr><td class="field-name">DurationSeconds</td><td>int?</td><td class="field-req req-no">—</td><td><span class="field-source">API</span></td><td style="font-size:12px;">Thời lượng audio (nếu upload file)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Entity: Restaurant & Food</h3>
+      <table class="field-table">
+        <thead><tr><th>Field</th><th>Type</th><th>Req.</th><th>Entity</th></tr></thead>
+        <tbody>
+          <tr><td class="field-name">RestaurantId</td><td>int</td><td class="field-req req-yes">✓</td><td>Restaurant</td></tr>
+          <tr><td class="field-name">PoiId</td><td>int</td><td class="field-req req-yes">✓</td><td>Restaurant (FK)</td></tr>
+          <tr><td class="field-name">Name</td><td>string</td><td class="field-req req-yes">✓</td><td>Restaurant</td></tr>
+          <tr><td class="field-name">Address</td><td>string?</td><td class="field-req req-no">—</td><td>Restaurant</td></tr>
+          <tr><td class="field-name">Description</td><td>string?</td><td class="field-req req-no">—</td><td>Restaurant</td></tr>
+          <tr><td class="field-name">FoodId</td><td>int</td><td class="field-req req-yes">✓</td><td>Food</td></tr>
+          <tr><td class="field-name">Food.Name</td><td>string</td><td class="field-req req-yes">✓</td><td>Food</td></tr>
+          <tr><td class="field-name">Food.Price</td><td>decimal</td><td class="field-req req-yes">✓</td><td>Food</td></tr>
+          <tr><td class="field-name">Food.Description</td><td>string?</td><td class="field-req req-no">—</td><td>Food</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Entity: Geofence</h3>
+      <table class="field-table">
+        <thead><tr><th>Field</th><th>Type</th><th>Req.</th><th>Ghi chú</th></tr></thead>
+        <tbody>
+          <tr><td class="field-name">GeofenceId</td><td>int</td><td class="field-req req-yes">✓</td><td style="font-size:12px;">Auto-generated</td></tr>
+          <tr><td class="field-name">PoiId</td><td>int</td><td class="field-req req-yes">✓</td><td style="font-size:12px;">1-1 với POI (mỗi POI chỉ có 1 geofence)</td></tr>
+          <tr><td class="field-name">Radius</td><td>double</td><td class="field-req req-yes">✓</td><td style="font-size:12px;">Đơn vị: mét. Range: 10–5000</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Entity: Tour <span style="font-family: var(--mono); font-size:11px; color: var(--red); background: var(--red-light); padding: 2px 8px; border-radius:2px; margin-left:8px;">API chưa có — xem §11</span></h3>
+      <table class="field-table">
+        <thead><tr><th>Field</th><th>Type</th><th>Req.</th><th>Ghi chú</th></tr></thead>
+        <tbody>
+          <tr><td class="field-name">TourId</td><td>int</td><td class="field-req req-yes">✓</td><td style="font-size:12px;">Auto-generated</td></tr>
+          <tr><td class="field-name">Name</td><td>string</td><td class="field-req req-yes">✓</td><td style="font-size:12px;">3–100 ký tự</td></tr>
+          <tr><td class="field-name">Description</td><td>string?</td><td class="field-req req-no">—</td><td style="font-size:12px;"></td></tr>
+          <tr><td class="field-name">LanguageCode</td><td>string?</td><td class="field-req req-no">—</td><td style="font-size:12px;">Ngôn ngữ mặc định của tour</td></tr>
+          <tr><td class="field-name">EstimatedMinutes</td><td>int?</td><td class="field-req req-no">—</td><td style="font-size:12px;">Thời lượng ước tính</td></tr>
+          <tr><td class="field-name">TourPOIs</td><td>List&lt;TourPOI&gt;</td><td class="field-req req-yes">✓</td><td style="font-size:12px;">Tối thiểu 2 items. Có field SortOrder (int)</td></tr>
+          <tr><td class="field-name">TourPOI.PoiId</td><td>int</td><td class="field-req req-yes">✓</td><td style="font-size:12px;">FK tới POI</td></tr>
+          <tr><td class="field-name">TourPOI.SortOrder</td><td>int</td><td class="field-req req-yes">✓</td><td style="font-size:12px;">Thứ tự trong tour (1, 2, 3…)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- § 8 AC -->
+    <section class="section" id="ac">
+      <div class="section-num">§ 08</div>
+      <h2 class="section-title">Acceptance Criteria</h2>
+
+      <div class="ac-block">
+        <div class="ac-header">AC-01: Đăng nhập Admin</div>
+        <div class="gwt">
+          <div class="gwt-row"><span class="gwt-label given">Given</span><span class="gwt-text">Admin truy cập trang <code>/login</code></span></div>
+          <div class="gwt-row"><span class="gwt-label when">When</span><span class="gwt-text">Nhập đúng username và password của tài khoản có role "Admin" hoặc "Manager", nhấn Đăng nhập</span></div>
+          <div class="gwt-row"><span class="gwt-label then">Then</span><span class="gwt-text">Hệ thống lưu JWT vào localStorage, redirect về <code>/dashboard</code>, header hiển thị tên và role của user</span></div>
+        </div>
+      </div>
+
+      <div class="ac-block">
+        <div class="ac-header">AC-02: Từ chối Tourist đăng nhập Admin</div>
+        <div class="gwt">
+          <div class="gwt-row"><span class="gwt-label given">Given</span><span class="gwt-text">Người dùng có role "Tourist" nhập đúng thông tin đăng nhập</span></div>
+          <div class="gwt-row"><span class="gwt-label when">When</span><span class="gwt-text">Nhấn Đăng nhập, API trả về JWT thành công</span></div>
+          <div class="gwt-row"><span class="gwt-label then">Then</span><span class="gwt-text">Web Admin parse JWT, phát hiện role = "Tourist", hiển thị thông báo lỗi "Tài khoản không có quyền truy cập Admin", KHÔNG lưu token, KHÔNG redirect</span></div>
+        </div>
+      </div>
+
+      <div class="ac-block">
+        <div class="ac-header">AC-03: Tạo POI mới bằng click bản đồ</div>
+        <div class="gwt">
+          <div class="gwt-row"><span class="gwt-label given">Given</span><span class="gwt-text">Admin đang ở Map View (<code>/pois?view=map</code>) và đã đăng nhập</span></div>
+          <div class="gwt-row"><span class="gwt-label when">When</span><span class="gwt-text">Admin click vào vị trí trống trên bản đồ, nhập Tên POI và chọn Loại, nhấn "Tạo POI"</span></div>
+          <div class="gwt-row"><span class="gwt-label then">Then</span><span class="gwt-text">Hệ thống gọi <code>POST /api/POIs</code> với Lat/Lng từ click point. Marker mới xuất hiện trên bản đồ. Toast "Tạo POI thành công". Redirect sang <code>/pois/:newId</code> để tiếp tục nhập nội dung</span></div>
+        </div>
+      </div>
+
+      <div class="ac-block">
+        <div class="ac-header">AC-04: Kéo thả reorder ảnh POI</div>
+        <div class="gwt">
+          <div class="gwt-row"><span class="gwt-label given">Given</span><span class="gwt-text">POI có ít nhất 2 ảnh trong Tab Ảnh</span></div>
+          <div class="gwt-row"><span class="gwt-label when">When</span><span class="gwt-text">Admin kéo ảnh thứ 3 lên vị trí thứ 1 và thả</span></div>
+          <div class="gwt-row"><span class="gwt-label then">Then</span><span class="gwt-text">UI cập nhật thứ tự ngay lập tức (optimistic). Hệ thống gọi <code>PATCH /api/PoiImages/reorder</code> với DisplayOrder mới. Nếu API thành công: toast xanh. Nếu thất bại: roll back về thứ tự cũ + toast đỏ</span></div>
+        </div>
+      </div>
+
+      <div class="ac-block">
+        <div class="ac-header">AC-05: Upload audio và switch sang Audio mode</div>
+        <div class="gwt">
+          <div class="gwt-row"><span class="gwt-label given">Given</span><span class="gwt-text">Narration đang ở chế độ TTS (UseAudioFile = false)</span></div>
+          <div class="gwt-row"><span class="gwt-label when">When</span><span class="gwt-text">Manager upload file .mp3 ≤ 50MB, sau đó toggle switch sang "Dùng Audio"</span></div>
+          <div class="gwt-row"><span class="gwt-label then">Then</span><span class="gwt-text">Hệ thống gọi <code>POST /api/Narrations/:id/audio</code> → file lên Cloudinary → URL được lưu. Sau đó gọi <code>PATCH /api/Narrations/:id/use-audio</code>. App Mobile lần sau vào vùng geofence sẽ phát AudioUrl thay vì TTS</span></div>
+        </div>
+      </div>
+
+      <div class="ac-block">
+        <div class="ac-header">AC-06: Tạo Tour với kéo thả sắp xếp POI</div>
+        <div class="gwt">
+          <div class="gwt-row"><span class="gwt-label given">Given</span><span class="gwt-text">Admin đang ở Tour Builder với ít nhất 3 POI đã được thêm vào danh sách tour</span></div>
+          <div class="gwt-row"><span class="gwt-label when">When</span><span class="gwt-text">Admin kéo POI thứ 3 lên vị trí thứ 1, sau đó nhấn Save</span></div>
+          <div class="gwt-row"><span class="gwt-label then">Then</span><span class="gwt-text">Polyline trên Map Preview cập nhật realtime khi kéo thả. Khi Save: gọi <code>POST /api/Tour</code> với mảng TourPOIs có SortOrder đúng thứ tự mới. Response trả về TourId mới. Redirect sang <code>/tours/:id</code></span></div>
+        </div>
+      </div>
+
+      <div class="ac-block">
+        <div class="ac-header">AC-07: Validation Tour tối thiểu 2 POI</div>
+        <div class="gwt">
+          <div class="gwt-row"><span class="gwt-label given">Given</span><span class="gwt-text">Admin ở Tour Builder và chỉ mới thêm 1 POI vào danh sách</span></div>
+          <div class="gwt-row"><span class="gwt-label when">When</span><span class="gwt-text">Admin nhấn nút "Save Tour"</span></div>
+          <div class="gwt-row"><span class="gwt-label then">Then</span><span class="gwt-text">Nút Save bị disable. Hiển thị inline message "Tour cần ít nhất 2 điểm tham quan". KHÔNG gọi API. Nút chỉ enable khi danh sách có ≥ 2 POI và tên tour không rỗng</span></div>
+        </div>
+      </div>
+
+      <div class="ac-block">
+        <div class="ac-header">AC-08: Phân quyền xóa ngôn ngữ</div>
+        <div class="gwt">
+          <div class="gwt-row"><span class="gwt-label given">Given</span><span class="gwt-text">User đăng nhập với role "Manager" (không phải "Admin")</span></div>
+          <div class="gwt-row"><span class="gwt-label when">When</span><span class="gwt-text">User mở trang Language Management</span></div>
+          <div class="gwt-row"><span class="gwt-label then">Then</span><span class="gwt-text">Nút "Xóa ngôn ngữ" bị ẩn hoàn toàn (không chỉ disabled). Nút "Thêm ngôn ngữ" vẫn hiển thị vì Manager có quyền POST. Nguyên tắc: UI phải phản ánh đúng phân quyền từ role trong JWT</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- § 9 NFR -->
+    <section class="section" id="nfr">
+      <div class="section-num">§ 09</div>
+      <h2 class="section-title">Non-Functional Requirements</h2>
+
+      <div class="nfr-grid">
+        <div class="nfr-card">
+          <div class="nfr-title"><span class="dot" style="background: var(--red);"></span>Bảo mật</div>
+          <ul>
+            <li>JWT lưu trong <code>localStorage</code> hoặc <code>httpOnly cookie</code> (cookie an toàn hơn)</li>
+            <li>Tất cả API call phải gắn header <code>Authorization: Bearer &lt;token&gt;</code></li>
+            <li>Interceptor tự động redirect về <code>/login</code> khi nhận 401</li>
+            <li>Không log JWT token ra console</li>
+            <li>Confirm dialog bắt buộc với mọi action xóa dữ liệu</li>
+            <li>JWT expire 24h (theo backend config) — Web Admin phải handle gracefully</li>
+          </ul>
+        </div>
+        <div class="nfr-card">
+          <div class="nfr-title"><span class="dot" style="background: var(--blue);"></span>Hiệu năng</div>
+          <ul>
+            <li>Danh sách POI load ≤ 2 giây trên kết nối 4G bình thường</li>
+            <li>Bản đồ render POI markers ≤ 3 giây với ≤ 500 markers</li>
+            <li>Upload ảnh batch hiển thị progress bar % realtime</li>
+            <li>Debounce tìm kiếm 300ms để không spam API</li>
+            <li>Lazy load ảnh trong grid (Intersection Observer)</li>
+            <li>Paginate danh sách POI nếu > 50 items</li>
+          </ul>
+        </div>
+        <div class="nfr-card">
+          <div class="nfr-title"><span class="dot" style="background: var(--teal);"></span>Usability</div>
+          <ul>
+            <li>Tất cả form có auto-save draft (localStorage) để tránh mất data khi F5</li>
+            <li>Breadcrumb navigation rõ ràng: Dashboard › POIs › Tên POI</li>
+            <li>Responsive: hoạt động tốt trên màn hình 1280px trở lên</li>
+            <li>Keyboard shortcuts: Ctrl+S để save, Esc để đóng modal</li>
+            <li>Undo action cho xóa (soft-undo trong 5 giây qua toast)</li>
+          </ul>
+        </div>
+        <div class="nfr-card">
+          <div class="nfr-title"><span class="dot" style="background: var(--amber);"></span>Validation & Data Integrity</div>
+          <ul>
+            <li>Validation chạy cả client-side (UX) và server-side (source of truth)</li>
+            <li>Không cho phép xóa POI nếu POI đó đang được dùng trong Tour đang active</li>
+            <li>File upload: validate type và size trước khi gọi API</li>
+            <li>Geofence: mỗi POI chỉ có 1 geofence (backend đã enforce, UI phải reflect)</li>
+            <li>Language code: unique constraint (backend đã enforce)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- § 10 API MAPPING -->
+    <section class="section" id="api">
+      <div class="section-num">§ 10</div>
+      <h2 class="section-title">API Mapping</h2>
+
+      <p>Đối chiếu giữa chức năng Web Admin và các endpoint REST đã có trong backend controllers.</p>
+
+      <h4>POI Management</h4>
+      <table class="api-table">
+        <thead><tr><th>Chức năng Admin</th><th>Method</th><th>Endpoint</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Xem danh sách POI</td><td><span class="http-method get">GET</span></td><td class="endpoint">/api/POIs</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Xem chi tiết 1 POI</td><td><span class="http-method get">GET</span></td><td class="endpoint">/api/POIs/{id}</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Tạo POI mới</td><td><span class="http-method post">POST</span></td><td class="endpoint">/api/POIs</td><td><span class="missing-tag">✗ Thiếu</span></td></tr>
+          <tr><td>Cập nhật POI</td><td><span class="http-method put">PUT</span></td><td class="endpoint">/api/POIs/{id}</td><td><span class="missing-tag">✗ Thiếu</span></td></tr>
+          <tr><td>Xóa POI</td><td><span class="http-method delete">DELETE</span></td><td class="endpoint">/api/POIs/{id}</td><td><span class="missing-tag">✗ Thiếu</span></td></tr>
+        </tbody>
+      </table>
+
+      <h4>POI Images</h4>
+      <table class="api-table">
+        <thead><tr><th>Chức năng Admin</th><th>Method</th><th>Endpoint</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Lấy danh sách ảnh POI</td><td><span class="http-method get">GET</span></td><td class="endpoint">/api/PoiImages/{poiId}</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Upload 1 ảnh</td><td><span class="http-method post">POST</span></td><td class="endpoint">/api/PoiImages/upload</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Upload nhiều ảnh</td><td><span class="http-method post">POST</span></td><td class="endpoint">/api/PoiImages/upload-multiple</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Reorder ảnh (kéo thả)</td><td><span class="http-method patch">PATCH</span></td><td class="endpoint">/api/PoiImages/reorder</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Xóa ảnh</td><td><span class="http-method delete">DELETE</span></td><td class="endpoint">/api/PoiImages/{id}</td><td><span class="available-tag">✓ Có</span></td></tr>
+        </tbody>
+      </table>
+
+      <h4>Narrations</h4>
+      <table class="api-table">
+        <thead><tr><th>Chức năng Admin</th><th>Method</th><th>Endpoint</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Lấy tất cả narrations</td><td><span class="http-method get">GET</span></td><td class="endpoint">/api/Narrations</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Lấy narration theo POI</td><td><span class="http-method get">GET</span></td><td class="endpoint">/api/Narrations/poi/{poiId}</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Tạo narration mới</td><td><span class="http-method post">POST</span></td><td class="endpoint">/api/Narrations</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Cập nhật narration</td><td><span class="http-method put">PUT</span></td><td class="endpoint">/api/Narrations/{id}</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Xóa narration</td><td><span class="http-method delete">DELETE</span></td><td class="endpoint">/api/Narrations/{id}</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Upload audio file</td><td><span class="http-method post">POST</span></td><td class="endpoint">/api/Narrations/{id}/audio</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Switch sang TTS</td><td><span class="http-method patch">PATCH</span></td><td class="endpoint">/api/Narrations/{id}/use-tts</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Switch sang Audio file</td><td><span class="http-method patch">PATCH</span></td><td class="endpoint">/api/Narrations/{id}/use-audio</td><td><span class="available-tag">✓ Có</span></td></tr>
+        </tbody>
+      </table>
+
+      <h4>Restaurant & Food</h4>
+      <table class="api-table">
+        <thead><tr><th>Chức năng Admin</th><th>Method</th><th>Endpoint</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Lấy danh sách nhà hàng</td><td><span class="http-method get">GET</span></td><td class="endpoint">/api/Restaurant</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Chi tiết nhà hàng + menu</td><td><span class="http-method get">GET</span></td><td class="endpoint">/api/Restaurant/{id}</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Tạo nhà hàng mới</td><td><span class="http-method post">POST</span></td><td class="endpoint">/api/Restaurant</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Cập nhật nhà hàng</td><td><span class="http-method put">PUT</span></td><td class="endpoint">/api/Restaurant/{id}</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Xóa nhà hàng</td><td><span class="http-method delete">DELETE</span></td><td class="endpoint">/api/Restaurant/{id}</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Menu theo nhà hàng</td><td><span class="http-method get">GET</span></td><td class="endpoint">/api/Food/ByRestaurant/{id}</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Thêm món ăn</td><td><span class="http-method post">POST</span></td><td class="endpoint">/api/Food</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Cập nhật món ăn</td><td><span class="http-method put">PUT</span></td><td class="endpoint">/api/Food/{id}</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Xóa món ăn</td><td><span class="http-method delete">DELETE</span></td><td class="endpoint">/api/Food/{id}</td><td><span class="available-tag">✓ Có</span></td></tr>
+        </tbody>
+      </table>
+
+      <h4>Geofence · QR Code · Language</h4>
+      <table class="api-table">
+        <thead><tr><th>Chức năng Admin</th><th>Method</th><th>Endpoint</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Danh sách geofence</td><td><span class="http-method get">GET</span></td><td class="endpoint">/api/Geofence</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Tạo geofence cho POI</td><td><span class="http-method post">POST</span></td><td class="endpoint">/api/Geofence</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Cập nhật bán kính</td><td><span class="http-method put">PUT</span></td><td class="endpoint">/api/Geofence/{id}</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Danh sách QR Code</td><td><span class="http-method get">GET</span></td><td class="endpoint">/api/QRCode</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Chi tiết QR Code</td><td><span class="http-method get">GET</span></td><td class="endpoint">/api/QRCode/{id}</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Tạo QR Code</td><td><span class="http-method post">POST</span></td><td class="endpoint">/api/QRCode</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Xóa QR Code</td><td><span class="http-method delete">DELETE</span></td><td class="endpoint">/api/QRCode/{id}</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Danh sách ngôn ngữ</td><td><span class="http-method get">GET</span></td><td class="endpoint">/api/Language</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Thêm ngôn ngữ</td><td><span class="http-method post">POST</span></td><td class="endpoint">/api/Language</td><td><span class="available-tag">✓ Có</span></td></tr>
+          <tr><td>Xóa ngôn ngữ</td><td><span class="http-method delete">DELETE</span></td><td class="endpoint">/api/Language/{code}</td><td><span class="available-tag">✓ Có</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- § 11 MISSING APIs -->
+    <section class="section" id="missing">
+      <div class="section-num">§ 11</div>
+      <h2 class="section-title">Missing APIs</h2>
+
+      <div class="callout warning">
+        <div class="callout-label">Lưu ý cho Backend team</div>
+        <p>Các API sau đây chưa tồn tại trong codebase. Cần implement thêm trước khi Web Admin Sprint 1 kết thúc. Ưu tiên theo P0 trước.</p>
+      </div>
+
+      <div class="missing-api-card">
+        <div class="missing-api-name">🔴 [P0] POST /api/POIs — Tạo POI mới</div>
+        <div class="missing-api-desc"><code>POIsController</code> hiện chỉ có <code>GET</code> (GetAll và GetById). Hoàn toàn thiếu endpoint để tạo, sửa, xóa POI. Đây là tính năng cốt lõi nhất của Web Admin.</div>
+        <div class="missing-api-suggest">Cần thêm: POST /api/POIs · PUT /api/POIs/{id} · DELETE /api/POIs/{id}</div>
+      </div>
+
+      <div class="missing-api-card">
+        <div class="missing-api-name">🔴 [P0] Tour CRUD — Toàn bộ Tour API</div>
+        <div class="missing-api-desc">Không có bất kỳ controller nào liên quan đến Tour trong codebase hiện tại. Cần tạo <code>TourController</code> mới với đầy đủ CRUD. Model cần có: Tour entity và TourPOI (bảng nối có field SortOrder).</div>
+        <div class="missing-api-suggest">Cần tạo: GET /api/Tour · POST /api/Tour · PUT /api/Tour/{id} · DELETE /api/Tour/{id} · PUT /api/Tour/{id}/reorder-pois</div>
+      </div>
+
+      <div class="missing-api-card" style="background: var(--amber-light); border-color: #fac775;">
+        <div class="missing-api-name">🟡 [P1] GET /api/Geofence/{poiId} — Lấy Geofence theo POI</div>
+        <div class="missing-api-desc"><code>GeofenceController</code> chỉ có <code>GET /api/Geofence</code> (lấy toàn bộ). Web Admin cần truy vấn geofence của 1 POI cụ thể để hiển thị trong Tab Geofence. Hiện tại phải filter client-side từ danh sách đầy đủ — không hiệu quả.</div>
+        <div class="missing-api-suggest" style="color: var(--amber);">Cần thêm: GET /api/Geofence/ByPOI/{poiId}</div>
+      </div>
+
+      <div class="missing-api-card" style="background: var(--amber-light); border-color: #fac775;">
+        <div class="missing-api-name">🟡 [P1] DELETE /api/Geofence/{id} — Xóa Geofence</div>
+        <div class="missing-api-desc">Không có endpoint DELETE cho Geofence. Admin không thể xóa geofence và tạo lại nếu cần reset. Hiện chỉ có PUT để sửa bán kính.</div>
+        <div class="missing-api-suggest" style="color: var(--amber);">Cần thêm: DELETE /api/Geofence/{id}</div>
+      </div>
+
+      <div class="missing-api-card" style="background: var(--blue-light); border-color: #b5d4f4;">
+        <div class="missing-api-name">🔵 [P2] Audit Log API — Lịch sử hoạt động</div>
+        <div class="missing-api-desc">Dashboard muốn hiển thị "10 action gần nhất" nhưng backend chưa có audit log. Nếu không implement, bỏ phần này khỏi Dashboard MVP.</div>
+        <div class="missing-api-suggest" style="color: var(--blue);">Optional: GET /api/AuditLog?limit=10</div>
+      </div>
+
+      <div class="missing-api-card" style="background: var(--blue-light); border-color: #b5d4f4;">
+        <div class="missing-api-name">🔵 [P2] GET /api/User/me (với DisplayName)</div>
+        <div class="missing-api-desc">API <code>GET /api/User/me</code> hiện trả về username và role nhưng không có <code>DisplayName</code>. Web Admin header muốn hiển thị tên thân thiện. Có thể bổ sung DisplayName vào response.</div>
+        <div class="missing-api-suggest" style="color: var(--blue);">Sửa GET /api/User/me response thêm field DisplayName</div>
+      </div>
+    </section>
+
+    <!-- § 12 OPEN QUESTIONS -->
+    <section class="section" id="openq">
+      <div class="section-num">§ 12</div>
+      <h2 class="section-title">Open Questions & Assumptions</h2>
+
+      <ul class="oq-list">
+        <li class="oq-item">
+          <span class="oq-num">Q1</span>
+          <div>
+            <div class="oq-q">POI Type (Major/Minor) được lưu ở đâu trong DB?</div>
+            <div class="oq-a"><strong>Giả định:</strong> Hiện chưa có field PoiType trong model POI (code chưa thể hiện). Dev Backend cần thêm field <code>PoiType</code> (enum hoặc string) vào bảng POI và expose ra GET/POST response. Web Admin dùng field này để render màu marker trên bản đồ.</div>
+          </div>
+        </li>
+        <li class="oq-item">
+          <span class="oq-num">Q2</span>
+          <div>
+            <div class="oq-q">Xóa POI có cascade xóa Geofence, QR Code, Narration, và ảnh Cloudinary không?</div>
+            <div class="oq-a"><strong>Giả định:</strong> Backend phải xử lý cascade delete (xóa PoiImages trên Cloudinary, xóa Audio trên Cloudinary trước khi xóa record). Web Admin chỉ gọi <code>DELETE /api/POIs/{id}</code> và không chịu trách nhiệm cleanup. Cần Backend team confirm.</div>
+          </div>
+        </li>
+        <li class="oq-item">
+          <span class="oq-num">Q3</span>
+          <div>
+            <div class="oq-q">Review hiện tại là mock data — khi nào API review thực thật được implement?</div>
+            <div class="oq-a"><strong>Giả định:</strong> Tab Review trong <code>DetailScreen.xaml.cs</code> dùng mock data. Web Admin v1.0 chỉ hiển thị ReadOnly review list từ <code>POIDto.Reviews</code>. Chức năng phê duyệt/xóa review sẽ là v2.0 sau khi có Review API thật.</div>
+          </div>
+        </li>
+        <li class="oq-item">
+          <span class="oq-num">Q4</span>
+          <div>
+            <div class="oq-q">Bản đồ nào được dùng cho Web Admin — Google Maps hay OpenStreetMap?</div>
+            <div class="oq-a"><strong>Giả định:</strong> Mobile App dùng <code>Microsoft.Maui.Controls.Maps</code> (OpenStreetMap/Google Maps tùy platform). Web Admin đề xuất dùng <strong>Leaflet.js + OpenStreetMap</strong> (miễn phí, không cần API key billing) để phù hợp budget MVP. Nếu cần Google Maps, phải request API key và xác nhận billing.</div>
+          </div>
+        </li>
+        <li class="oq-item">
+          <span class="oq-num">Q5</span>
+          <div>
+            <div class="oq-q">Tour có hiển thị trên App Mobile ngay khi tạo không, hay cần "Publish" thủ công?</div>
+            <div class="oq-a"><strong>Giả định:</strong> Do Tour API chưa có, chưa rõ flow. Đề xuất thêm field <code>IsPublished</code> (bool) vào Tour model để Admin có thể tạo Tour ở chế độ Draft → Preview → Publish khi đã sẵn sàng. Cần confirm với Product Owner.</div>
+          </div>
+        </li>
+        <li class="oq-item">
+          <span class="oq-num">Q6</span>
+          <div>
+            <div class="oq-q">Khi tạo QR Code — CodeValue URL dùng domain thật hay placeholder?</div>
+            <div class="oq-a"><strong>Giả định:</strong> Code backend hiện dùng hardcode <code>https://myapp.com/poi/{id}</code>. Cần config <code>BaseAppUrl</code> trong <code>appsettings.json</code> và Web Admin cho phép Admin preview QR image (render từ URL) trước khi in ấn.</div>
+          </div>
+        </li>
+        <li class="oq-item">
+          <span class="oq-num">Q7</span>
+          <div>
+            <div class="oq-q">Dữ liệu MapPage hiện là hardcode — khi nào chuyển sang API?</div>
+            <div class="oq-a"><strong>Giả định:</strong> <code>MapPage.xaml.cs</code> đang dùng danh sách <code>LoadVinhKhanhRestaurants()</code> hardcode. Sau khi Web Admin có thể tạo POI qua API, App Mobile cần refactor để gọi <code>GET /api/POIs</code> thay vì hardcode. Web Admin tạo data thật → App Mobile consume. Đây là dependency cần align với Mobile team.</div>
+          </div>
+        </li>
+        <li class="oq-item">
+          <span class="oq-num">Q8</span>
+          <div>
+            <div class="oq-q">Có cần log audit khi Admin xóa POI hoặc thay đổi Geofence không?</div>
+            <div class="oq-a"><strong>Giả định:</strong> Không yêu cầu trong v1.0 MVP. Nếu cần, sẽ implement Audit Log middleware ở v2.0. Hiện tại chỉ dùng confirmation dialog như lớp bảo vệ chính.</div>
+          </div>
+        </li>
+      </ul>
+
+      <div class="callout success" style="margin-top: 28px;">
+        <div class="callout-label">Bước tiếp theo</div>
+        <p>Team Backend ưu tiên implement <strong>POST/PUT/DELETE /api/POIs</strong> và <strong>Tour CRUD API</strong> (§11, P0) trước khi Frontend Web Admin bắt đầu Sprint 1. Frontend có thể bắt đầu với Login, Dashboard shell, và POI List/Map View dùng GET APIs đã có sẵn trong khi chờ các API còn thiếu.</p>
+      </div>
+
+      <div class="footnote" style="margin-top: 32px;">
+        PRD v1.0 · Vĩnh Khánh Tourism Web Admin · Document generated 07/2025 · Author: Senior BA/PO · Status: Draft — pending sign-off from Tech Lead and Product Owner
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // Active nav link on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.nav-item');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(item => item.classList.remove('active'));
+        const active = document.querySelector(`.nav-item[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

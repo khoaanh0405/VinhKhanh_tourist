@@ -1,0 +1,82 @@
+<!--
+  ══════════════════════════════════════════════════════════════
+  AppShell.xaml — SNIPPET (chỉ phần TabBar + Route cần cập nhật)
+  ══════════════════════════════════════════════════════════════
+  Thay thế <TabBar> hiện tại của bạn bằng đoạn dưới đây.
+
+  Thay đổi chính:
+  1. Tất cả Tab chỉ hiển thị Icon (Title = "")
+  2. Thêm Tab "Settings" thay cho tab cũ có LanguageSelector
+  3. Đăng ký Route cho SettingsPage
+
+  HƯỚNG DẪN XỬ LÝ ICON:
+  - Thêm 4 file SVG/PNG vào Resources/Images/ của project:
+      tab_home.svg   (house outline)
+      tab_map.svg    (map-pin outline)
+      tab_heart.svg  (heart outline)
+      tab_settings.svg (gear outline)
+  - Bạn có thể dùng bộ icon Phosphor, Tabler, hoặc Feather (MIT license)
+  - Kích thước khuyến nghị: 28x28dp, màu mặc định #AAAAAA,
+    MAUI Shell sẽ tự apply TintColor theo Selected/Unselected state
+-->
+
+<Shell
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:screens="clr-namespace:client.lib.screens"
+    xmlns:map="clr-namespace:client.lib.screens.map"
+    xmlns:settings="clr-namespace:client.lib.screens.settings"
+    x:Class="client.lib.AppShell">
+
+    <!-- ══ Shell-wide visual styling ══ -->
+    <Shell.Resources>
+        <ResourceDictionary>
+            <!-- Tab bar background & tint -->
+            <Style TargetType="TabBar">
+                <Setter Property="Shell.TabBarBackgroundColor" Value="White"/>
+                <Setter Property="Shell.TabBarForegroundColor" Value="#1ABC9C"/>
+                <Setter Property="Shell.TabBarUnselectedColor" Value="#AAAAAA"/>
+                <Setter Property="Shell.TabBarTitleColor" Value="#1ABC9C"/>
+            </Style>
+        </ResourceDictionary>
+    </Shell.Resources>
+
+    <Shell.TabBarBackgroundColor>White</Shell.TabBarBackgroundColor>
+    <Shell.TabBarForegroundColor>#1ABC9C</Shell.TabBarForegroundColor>
+    <Shell.TabBarUnselectedColor>#AAAAAA</Shell.TabBarUnselectedColor>
+
+    <TabBar>
+        <!-- Tab 1: Trang chủ -->
+        <ShellContent
+            Title=""
+            Icon="tab_home.png"
+            Route="HomePage"
+            ContentTemplate="{DataTemplate screens:HomePage}"/>
+
+        <!-- Tab 2: Bản đồ -->
+        <ShellContent
+            Title=""
+            Icon="tab_map.png"
+            Route="MapPage"
+            ContentTemplate="{DataTemplate map:MapPage}"/>
+
+        <!-- Tab 3: Yêu thích -->
+        <ShellContent
+            Title=""
+            Icon="tab_heart.png"
+            Route="FavoritesPage"
+            ContentTemplate="{DataTemplate screens:FavoritesPage}"/>
+
+        <!-- Tab 4: Cài đặt (MỚI — thay LanguageSelector) -->
+        <ShellContent
+            Title=""
+            Icon="tab_settings.png"
+            Route="SettingsPage"
+            ContentTemplate="{DataTemplate settings:SettingsPage}"/>
+    </TabBar>
+
+    <!-- ══ Modal routes (giữ nguyên như cũ) ══ -->
+    <!-- Thêm SettingsPage route nếu bạn muốn điều hướng bằng GoToAsync -->
+    <!-- <ShellContent Route="SettingsPage" ... /> đã nằm trong TabBar rồi -->
+
+</Shell>

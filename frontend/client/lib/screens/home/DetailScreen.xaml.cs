@@ -1,5 +1,6 @@
 using client.lib.model;
 using client.lib.services;
+using client.lib.core; // Thêm dòng này để gọi được đa ngôn ngữ
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using Microsoft.Maui.Controls.Shapes;
@@ -17,11 +18,10 @@ public partial class DetailScreen : ContentPage
         _poi = poi;
         BindingContext = _poi;
 
-        // Kéo AppViewModel (Singleton) từ hệ thống ra để dùng ké dữ liệu Yêu thích
         _appViewModel = Application.Current.Handler.MauiContext.Services.GetService<AppViewModel>();
 
         LoadData();
-        UpdateFavoriteButtonState(); // Cập nhật nút bấm lúc vừa mở trang
+        UpdateFavoriteButtonState();
     }
 
     private void LoadData()
@@ -30,26 +30,19 @@ public partial class DetailScreen : ContentPage
 
         LblName.Text = _poi.Name;
 
-        // Lấy text từ Narration đầu tiên
-        var defaultNarration = _poi.Narrations?.FirstOrDefault();
-        LblDescription.Text = defaultNarration?.Text ?? "Chạm để khám phá thêm về địa điểm này.";
+        LblDescription.Text = !string.IsNullOrEmpty(_poi.Description)
+            ? _poi.Description
+            : LocalizationResourceManager.Instance["DetailDefaultDesc"];
 
-        // -----------------------------------------------------
-        // 1. SỬA LỖI HÌNH ẢNH: Ép CarouselView nhận dữ liệu
-        // -----------------------------------------------------
         if (_poi.ImageUrls != null && _poi.ImageUrls.Any())
         {
             ImgCarousel.ItemsSource = _poi.ImageUrls;
         }
         else
         {
-            // Hình mặc định nếu quán chưa có ảnh
             ImgCarousel.ItemsSource = new List<string> { "placeholder_img.webp" };
         }
 
-        // -----------------------------------------------------
-        // 2. XỬ LÝ THỰC ĐƠN
-        // -----------------------------------------------------
         ListFoodsContainer.Children.Clear();
 
         if (_poi.Restaurants != null && _poi.Restaurants.Any())
@@ -65,34 +58,20 @@ public partial class DetailScreen : ContentPage
             }
             else
             {
-                ListFoodsContainer.Children.Add(new Label { Text = "Đang cập nhật thực đơn...", TextColor = Colors.Gray, FontAttributes = FontAttributes.Italic });
+                ListFoodsContainer.Children.Add(new Label { Text = LocalizationResourceManager.Instance["DetailMenuUpdating"], TextColor = Colors.Gray, FontAttributes = FontAttributes.Italic });
             }
         }
         else
         {
-            ListFoodsContainer.Children.Add(new Label { Text = "Chưa có thông tin thực đơn.", TextColor = Colors.Gray, FontAttributes = FontAttributes.Italic });
+            ListFoodsContainer.Children.Add(new Label { Text = LocalizationResourceManager.Instance["DetailMenuEmpty"], TextColor = Colors.Gray, FontAttributes = FontAttributes.Italic });
         }
         LoadReviews();
     }
 
     private View CreateFoodItemView(Food food)
     {
-        var frame = new Frame
-        {
-            CornerRadius = 12,
-            Padding = 15,
-            BackgroundColor = Color.FromArgb("#F8F9FA"),
-            HasShadow = false,
-            BorderColor = Color.FromArgb("#E0E0E0"),
-            Margin = new Thickness(0, 0, 0, 10)
-        };
-
-        var grid = new Grid
-        {
-            ColumnDefinitions = { new ColumnDefinition { Width = GridLength.Star }, new ColumnDefinition { Width = GridLength.Auto } },
-            RowDefinitions = { new RowDefinition { Height = GridLength.Auto }, new RowDefinition { Height = GridLength.Auto } }
-        };
-
+        var frame = new Frame { CornerRadius = 12, Padding = 15, BackgroundColor = Color.FromArgb("#F8F9FA"), HasShadow = false, BorderColor = Color.FromArgb("#E0E0E0"), Margin = new Thickness(0, 0, 0, 10) };
+        var grid = new Grid { ColumnDefinitions = { new ColumnDefinition { Width = GridLength.Star }, new ColumnDefinition { Width = GridLength.Auto } }, RowDefinitions = { new RowDefinition { Height = GridLength.Auto }, new RowDefinition { Height = GridLength.Auto } } };
         var lblName = new Label { Text = food.Name, FontAttributes = FontAttributes.Bold, FontSize = 16, TextColor = Color.FromArgb("#333333") };
         var lblPrice = new Label { Text = $"{food.Price:N0} đ", FontAttributes = FontAttributes.Bold, FontSize = 16, TextColor = Color.FromArgb("#E74C3C") };
         var lblDesc = new Label { Text = food.Description, FontSize = 13, TextColor = Color.FromArgb("#666666"), Margin = new Thickness(0, 5, 0, 0) };
@@ -110,58 +89,51 @@ public partial class DetailScreen : ContentPage
     {
         if (_appViewModel != null && _appViewModel.IsPOIFavorite(_poi.PoiId))
         {
-            BtnFavorite.Text = "💔 Bỏ yêu thích";
-            BtnFavorite.BackgroundColor = Color.FromArgb("#636E72"); // Đổi màu xám
+            BtnFavorite.Text = LocalizationResourceManager.Instance["DetailRemoveFavorite"];
+            BtnFavorite.BackgroundColor = Color.FromArgb("#636E72");
         }
         else
         {
-            BtnFavorite.Text = "❤️ Thêm vào yêu thích";
-            BtnFavorite.BackgroundColor = Color.FromArgb("#FF4757"); // Màu đỏ
+            BtnFavorite.Text = LocalizationResourceManager.Instance["DetailAddFavorite"];
+            BtnFavorite.BackgroundColor = Color.FromArgb("#FF4757");
         }
     }
 
     private async void OnFavoriteClicked(object sender, EventArgs e)
     {
-        // --- 1. KIỂM TRA ĐĂNG NHẬP TRƯỚC TIÊN ---
         bool isLoggedIn = Preferences.Get("IsLoggedIn", false);
         if (!isLoggedIn)
         {
-            // Hiển thị thông báo và điều hướng nếu người dùng đồng ý
-            bool wantToLogin = await DisplayAlert("Yêu cầu đăng nhập", "Bạn cần đăng nhập để có thể lưu địa điểm yêu thích. Đăng nhập ngay?", "Đồng ý", "Để sau");
-            if (wantToLogin)
-            {
-                await Shell.Current.GoToAsync("LoginScreen");
-            }
-            return; // Chặn không cho chạy các lệnh thêm yêu thích bên dưới
+            bool wantToLogin = await DisplayAlert(
+                LocalizationResourceManager.Instance["AlertLoginRequiredTitle"],
+                LocalizationResourceManager.Instance["AlertLoginToFavorite"],
+                LocalizationResourceManager.Instance["AlertAgree"],
+                LocalizationResourceManager.Instance["AlertLater"]);
+
+            if (wantToLogin) await Shell.Current.GoToAsync("LoginScreen");
+            return;
         }
-        // ----------------------------------------
 
         if (_appViewModel == null) return;
 
-        // Lưu hoặc Xóa khỏi danh sách
         _appViewModel.TogglePOIFavorite(_poi);
         UpdateFavoriteButtonState();
 
-        // Tạo thông báo Toast mượt mà
-        string message = _appViewModel.IsPOIFavorite(_poi.PoiId)
-            ? $"Đã lưu {_poi.Name} vào yêu thích"
-            : $"Đã xóa {_poi.Name} khỏi yêu thích";
+        // Sử dụng string.Format để truyền tên địa điểm vào thông báo
+        string msgFormat = _appViewModel.IsPOIFavorite(_poi.PoiId)
+            ? LocalizationResourceManager.Instance["ToastAddedFavorite"]
+            : LocalizationResourceManager.Instance["ToastRemovedFavorite"];
 
+        string message = string.Format(msgFormat, _poi.Name);
         var toast = Toast.Make(message, ToastDuration.Short, 14);
         await toast.Show();
     }
 
-    // ==========================================
-    // PHẦN XỬ LÝ ĐÁNH GIÁ VÀ BÌNH LUẬN (SỬA MỚI)
-    // ==========================================
-
-    private int _selectedRating = 0; // Biến lưu số sao người dùng chọn
+    private int _selectedRating = 0;
 
     private void LoadReviews()
     {
         ListReviewsContainer.Children.Clear();
-
-        // [MOCK DATA] Tạo dữ liệu giả để demo hiển thị
         var mockReviews = new List<Review>
         {
             new Review { UserName = "Tuấn Anh", Rating = 5, Comment = "Ốc ở đây cực kỳ tươi ngon, nước chấm đậm đà!", CreatedAt = DateTime.Now.AddDays(-1) },
@@ -176,7 +148,6 @@ public partial class DetailScreen : ContentPage
 
     private View CreateReviewItemView(Review review)
     {
-        // ... [Giữ nguyên hàm vẽ giao diện bình luận cũ của bạn] ...
         var frame = new Frame { CornerRadius = 10, Padding = 12, HasShadow = false, BackgroundColor = Colors.White, BorderColor = Color.FromArgb("#E0E0E0"), Margin = new Thickness(0, 0, 0, 5) };
         var verticalStack = new VerticalStackLayout { Spacing = 4 };
         var headerGrid = new Grid { ColumnDefinitions = { new ColumnDefinition { Width = GridLength.Star }, new ColumnDefinition { Width = GridLength.Auto } } };
@@ -190,33 +161,30 @@ public partial class DetailScreen : ContentPage
         return frame;
     }
 
-    // Hàm để hiện khung nhập liệu
     private async void OnShowReviewInputClicked(object sender, EventArgs e)
     {
-        // --- 1. KIỂM TRA ĐĂNG NHẬP TRƯỚC TIÊN ---
         bool isLoggedIn = Preferences.Get("IsLoggedIn", false);
         if (!isLoggedIn)
         {
-            bool wantToLogin = await DisplayAlert("Yêu cầu đăng nhập", "Bạn cần đăng nhập để viết đánh giá và bình luận. Đăng nhập ngay?", "Đồng ý", "Để sau");
-            if (wantToLogin)
-            {
-                await Shell.Current.GoToAsync("LoginScreen");
-            }
-            return; // Chặn không cho hiện khung nhập liệu
+            bool wantToLogin = await DisplayAlert(
+                LocalizationResourceManager.Instance["AlertLoginRequiredTitle"],
+                LocalizationResourceManager.Instance["AlertLoginToReview"],
+                LocalizationResourceManager.Instance["AlertAgree"],
+                LocalizationResourceManager.Instance["AlertLater"]);
+
+            if (wantToLogin) await Shell.Current.GoToAsync("LoginScreen");
+            return;
         }
-        // ----------------------------------------
 
         ReviewInputFrame.IsVisible = true;
-        BtnShowReviewInput.IsVisible = false; // Ẩn nút bấm đi
+        BtnShowReviewInput.IsVisible = false;
     }
 
-    // Hàm để ẩn khung nhập liệu và reset
     private void OnCancelReviewClicked(object sender, EventArgs e)
     {
         ResetReviewForm();
     }
 
-    // Xử lý khi người dùng click vào ngôi sao
     private void OnStarTapped(object sender, TappedEventArgs e)
     {
         if (e.Parameter is string param && int.TryParse(param, out int rating))
@@ -226,7 +194,6 @@ public partial class DetailScreen : ContentPage
         }
     }
 
-    // Cập nhật giao diện sao (tô màu vàng hoặc xám)
     private void UpdateStarVisibility(int selectedRating)
     {
         Label[] stars = { Star1, Star2, Star3, Star4, Star5 };
@@ -234,55 +201,58 @@ public partial class DetailScreen : ContentPage
         {
             if (i < selectedRating)
             {
-                stars[i].Text = "⭐"; // Sao đầy (vàng)
+                stars[i].Text = "⭐";
                 stars[i].TextColor = Color.FromArgb("#FFD700");
             }
             else
             {
-                stars[i].Text = "☆"; // Sao rỗng (xám)
+                stars[i].Text = "☆";
                 stars[i].TextColor = Colors.Gray;
             }
         }
     }
 
-    // Xử lý khi bấm nút "Gửi đánh giá"
     private async void OnSubmitReviewClicked(object sender, EventArgs e)
     {
-        // 1. Kiểm tra hợp lệ (Phải vote sao mới cho gửi)
         if (_selectedRating == 0)
         {
-            await DisplayAlert("Thông báo", "Vui lòng chọn số sao đánh giá (từ 1 đến 5).", "OK");
+            await DisplayAlert(
+                LocalizationResourceManager.Instance["AlertNotice"],
+                LocalizationResourceManager.Instance["AlertSelectStar"],
+                LocalizationResourceManager.Instance["AlertOK"]);
             return;
         }
 
         string comment = CommentEditor.Text;
 
-        // 2. Tạo đối tượng Review mới (Demo)
         var newReview = new Review
         {
-            UserName = "Bạn (Demo)",
+            UserName = LocalizationResourceManager.Instance["DetailYouDemo"],
             Rating = _selectedRating,
             Comment = comment,
             CreatedAt = DateTime.Now
         };
 
-        // 3. Chèn vào giao diện (Cho nổi lên đầu)
         ListReviewsContainer.Children.Insert(0, CreateReviewItemView(newReview));
-
-        // 4. Thông báo và reset form
         ResetReviewForm();
-        await DisplayAlert("Cảm ơn!", "Đánh giá của bạn đã được ghi nhận thành công.", "OK");
 
-        // [GHI CHÚ] Sau này chỗ này sẽ gọi API để lưu vào Database.
-        // Backend sẽ tự tính lại AverageRating của POI dựa trên bảng Reviews mới.
+        await DisplayAlert(
+            LocalizationResourceManager.Instance["AlertThankYou"],
+            LocalizationResourceManager.Instance["AlertReviewSuccess"],
+            LocalizationResourceManager.Instance["AlertOK"]);
     }
 
     private void ResetReviewForm()
     {
         _selectedRating = 0;
-        UpdateStarVisibility(0); // Reset sao về xám
+        UpdateStarVisibility(0);
         CommentEditor.Text = string.Empty;
         ReviewInputFrame.IsVisible = false;
-        BtnShowReviewInput.IsVisible = true; // Hiện lại nút bấm
+        BtnShowReviewInput.IsVisible = true;
+    }
+
+    private async void OnBackTapped(object sender, TappedEventArgs e)
+    {
+        await Navigation.PopAsync();
     }
 }

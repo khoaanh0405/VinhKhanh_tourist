@@ -1,0 +1,351 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+	<data name="ExploreTitle" xml:space="preserve">
+		<value>Khám Phá Vĩnh Khánh 🍜</value>
+	</data>
+	<data name="SearchPlaceholder" xml:space="preserve">
+		<value>Tìm quán, món ăn (VD: lẩu bò, ốc)...</value>
+	</data>
+	<data name="TopFavorites" xml:space="preserve">
+		<value>🔥 Top Quán Yêu Thích</value>
+	</data>
+	<data name="AllLocations" xml:space="preserve">
+		<value>Tất cả địa điểm</value>
+	</data>
+	<data name="NotFoundText" xml:space="preserve">
+		<value>Không tìm thấy món ăn hoặc quán nào</value>
+	</data>
+	<data name="SearchMapPlaceholder" xml:space="preserve">
+		<value>Tìm kiếm quán ăn...</value>
+	</data>
+	<data name="SearchFavoritesPlaceholder" xml:space="preserve">
+		<value>Tìm trong mục yêu thích...</value>
+	</data>
+	<data name="EmptyFavoritesText" xml:space="preserve">
+		<value>Chưa có địa điểm yêu thích nào</value>
+	</data>
+	<data name="SearchMapPlaceholder" xml:space="preserve">
+		<value>Tìm kiếm quán ăn...</value>
+	</data>
+	<data name="SearchFavoritesPlaceholder" xml:space="preserve">
+		<value>Tìm trong mục yêu thích...</value>
+	</data>
+	<data name="EmptyFavoritesText" xml:space="preserve">
+		<value>Chưa có địa điểm yêu thích nào</value>
+	</data>
+	<data name="HomeDistanceMeters" xml:space="preserve">
+    <value>Cách bạn {0}m</value>
+    </data>
+	<data name="HomeDistanceKm" xml:space="preserve">
+    <value>Cách bạn {0}km</value>
+    </data>
+
+	<data name="HomeGreeting" xml:space="preserve">
+    <value>Xin chào 👋</value>
+  </data>
+	<data name="HomeReviews" xml:space="preserve">
+    <value>đánh giá</value>
+  </data>
+	<data name="HomeSort" xml:space="preserve">
+    <value>Sắp xếp ↕</value>
+  </data>
+	<data name="DetailDefaultDesc" xml:space="preserve">
+    <value>Chạm để khám phá thêm về địa điểm này.</value>
+  </data>
+	<data name="DetailLocationDemo" xml:space="preserve">
+    <value>Khu ẩm thực Vĩnh Khánh</value>
+  </data>
+	<data name="DetailMenuTitle" xml:space="preserve">
+    <value>Thực đơn nổi bật</value>
+  </data>
+	<data name="DetailMenuUpdating" xml:space="preserve">
+    <value>Đang cập nhật thực đơn...</value>
+  </data>
+	<data name="DetailMenuEmpty" xml:space="preserve">
+    <value>Chưa có thông tin thực đơn.</value>
+  </data>
+	<data name="DetailReviewTitle" xml:space="preserve">
+    <value>Đánh giá &amp; Bình luận</value>
+  </data>
+	<data name="DetailWriteReview" xml:space="preserve">
+    <value>Viết đánh giá của bạn</value>
+  </data>
+	<data name="DetailYourReview" xml:space="preserve">
+    <value>Đánh giá của bạn</value>
+  </data>
+	<data name="DetailReviewPlaceholder" xml:space="preserve">
+    <value>Chia sẻ trải nghiệm của bạn tại đây...</value>
+  </data>
+	<data name="DetailCancel" xml:space="preserve">
+    <value>Huỷ bỏ</value>
+  </data>
+	<data name="DetailSubmitReview" xml:space="preserve">
+    <value>Gửi đánh giá</value>
+  </data>
+	<data name="DetailAddFavorite" xml:space="preserve">
+    <value>❤️ Thêm vào yêu thích</value>
+  </data>
+	<data name="DetailRemoveFavorite" xml:space="preserve">
+    <value>💔 Bỏ yêu thích</value>
+  </data>
+	<data name="ToastAddedFavorite" xml:space="preserve">
+    <value>Đã lưu {0} vào yêu thích</value>
+  </data>
+	<data name="ToastRemovedFavorite" xml:space="preserve">
+    <value>Đã xóa {0} khỏi yêu thích</value>
+  </data>
+	<data name="AlertLoginRequiredTitle" xml:space="preserve">
+    <value>Yêu cầu đăng nhập</value>
+  </data>
+	<data name="AlertLoginToFavorite" xml:space="preserve">
+    <value>Bạn cần đăng nhập để có thể lưu địa điểm yêu thích. Đăng nhập ngay?</value>
+  </data>
+	<data name="AlertLoginToReview" xml:space="preserve">
+    <value>Bạn cần đăng nhập để viết đánh giá và bình luận. Đăng nhập ngay?</value>
+  </data>
+	<data name="AlertAgree" xml:space="preserve">
+    <value>Đồng ý</value>
+  </data>
+	<data name="AlertLater" xml:space="preserve">
+    <value>Để sau</value>
+  </data>
+	<data name="AlertNotice" xml:space="preserve">
+    <value>Thông báo</value>
+  </data>
+	<data name="AlertSelectStar" xml:space="preserve">
+    <value>Vui lòng chọn số sao đánh giá (từ 1 đến 5).</value>
+  </data>
+	<data name="AlertOK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+	<data name="DetailYouDemo" xml:space="preserve">
+    <value>Bạn (Demo)</value>
+  </data>
+	<data name="AlertThankYou" xml:space="preserve">
+    <value>Cảm ơn!</value>
+  </data>
+	<data name="AlertReviewSuccess" xml:space="preserve">
+    <value>Đánh giá của bạn đã được ghi nhận thành công.</value>
+  </data>
+	
+	<!-- ── Trang Cài đặt: Header ── -->
+	<data name="SettingsTitle" xml:space="preserve">
+    <value>Cài đặt</value>
+  </data>
+	<data name="SettingsSubtitle" xml:space="preserve">
+    <value>Tuỳ chỉnh trải nghiệm của bạn</value>
+  </data>
+
+	<!-- ── Trang Cài đặt: Section Ngôn ngữ ── -->
+	<data name="SettingsSectionLanguage" xml:space="preserve">
+    <value>Ngôn ngữ &amp; Vùng</value>
+  </data>
+	<data name="SettingsLanguageTitle" xml:space="preserve">
+    <value>Ngôn ngữ hiển thị</value>
+  </data>
+	<data name="SettingsLanguageDesc" xml:space="preserve">
+    <value>Chọn ngôn ngữ cho nội dung app</value>
+  </data>
+
+	<!-- ── Trang Cài đặt: Section Công cụ ── -->
+	<data name="SettingsSectionTools" xml:space="preserve">
+    <value>Công cụ</value>
+  </data>
+	<data name="SettingsQrTitle" xml:space="preserve">
+    <value>Quét mã QR</value>
+  </data>
+	<data name="SettingsQrDesc" xml:space="preserve">
+    <value>Quét mã QR để xem chi tiết địa điểm</value>
+  </data>
+	<data name="SettingsQrOpen" xml:space="preserve">
+    <value>Mở →</value>
+  </data>
+
+	<!-- ── Trang Cài đặt: Section Thông báo ── -->
+	<data name="SettingsSectionNotifications" xml:space="preserve">
+    <value>Thông báo</value>
+  </data>
+	<data name="SettingsPushTitle" xml:space="preserve">
+    <value>Thông báo đẩy</value>
+  </data>
+	<data name="SettingsPushDesc" xml:space="preserve">
+    <value>Nhận thông báo về địa điểm mới</value>
+  </data>
+	<data name="SettingsSoundTitle" xml:space="preserve">
+    <value>Âm thanh thông báo</value>
+  </data>
+	<data name="SettingsSoundDesc" xml:space="preserve">
+    <value>Phát âm thanh khi có thông báo mới</value>
+  </data>
+
+	<!-- ── Trang Cài đặt: Section Thông tin ── -->
+	<data name="SettingsSectionInfo" xml:space="preserve">
+    <value>Thông tin</value>
+  </data>
+	<data name="SettingsAboutTitle" xml:space="preserve">
+    <value>Về ứng dụng</value>
+  </data>
+	<data name="SettingsAboutDesc" xml:space="preserve">
+    <value>Phiên bản 1.0.0</value>
+  </data>
+	<data name="SettingsRateTitle" xml:space="preserve">
+    <value>Đánh giá ứng dụng</value>
+  </data>
+	<data name="SettingsRateDesc" xml:space="preserve">
+    <value>Chia sẻ trải nghiệm của bạn</value>
+  </data>
+
+	<!-- ── Trang Cài đặt: Footer ── -->
+	<data name="SettingsFooterTagline" xml:space="preserve">
+    <value>Khám phá ẩm thực Vĩnh Khánh</value>
+  </data>
+	<data name="SettingsFooterVersion" xml:space="preserve">
+    <value>v1.0.0  ·  Made with ❤️ in Vietnam</value>
+  </data>
+
+	<!-- ── Thông báo sau khi đổi ngôn ngữ ── -->
+	<data name="SettingsLanguageChangedTitle" xml:space="preserve">
+    <value>Đổi ngôn ngữ thành công</value>
+  </data>
+	<data name="SettingsLanguageChangedMsg" xml:space="preserve">
+    <value>Đã chuyển sang</value>
+    <comment>Hiển thị: "Đã chuyển sang Tiếng Việt 🇻🇳" — tên ngôn ngữ được ghép thêm trong code</comment>
+  </data>
+
+	<!-- ── Tab bar names (dùng trong AppShell.UpdateTabsLanguage) ── -->
+	<data name="TabHome" xml:space="preserve">
+    <value>Trang chủ</value>
+  </data>
+	<data name="TabMap" xml:space="preserve">
+    <value>Bản đồ</value>
+  </data>
+	<data name="TabFavorites" xml:space="preserve">
+    <value>Yêu thích</value>
+  </data>
+	<data name="TabSettings" xml:space="preserve">
+    <value>Cài đặt</value>
+  </data>
+
+	<!-- ── FavoritesPage Title (nếu chưa có) ── -->
+	<data name="FavoritesTitle" xml:space="preserve">
+    <value>Yêu thích của tôi</value>
+  </data>
+</root>

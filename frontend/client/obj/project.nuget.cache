@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "nN9mbD/QFEs=",
+  "dgSpecHash": "3sH9pw0uA0Q=",
   "success": true,
   "projectFilePath": "D:\\DoAn_CSharp\\frontend\\client\\client.csproj",
   "expectedPackageFiles": [
@@ -30,7 +30,7 @@
     "C:\\Users\\Khoa\\.nuget\\packages\\microsoft.maui.graphics\\10.0.30\\microsoft.maui.graphics.10.0.30.nupkg.sha512",
     "C:\\Users\\Khoa\\.nuget\\packages\\microsoft.maui.maps\\10.0.30\\microsoft.maui.maps.10.0.30.nupkg.sha512",
     "C:\\Users\\Khoa\\.nuget\\packages\\microsoft.maui.resizetizer\\10.0.30\\microsoft.maui.resizetizer.10.0.30.nupkg.sha512",
-    "C:\\Users\\Khoa\\.nuget\\packages\\microsoft.net.illink.tasks\\10.0.3\\microsoft.net.illink.tasks.10.0.3.nupkg.sha512",
+    "C:\\Users\\Khoa\\.nuget\\packages\\microsoft.net.illink.tasks\\10.0.5\\microsoft.net.illink.tasks.10.0.5.nupkg.sha512",
     "C:\\Users\\Khoa\\.nuget\\packages\\plugin.maui.audio\\4.0.0\\plugin.maui.audio.4.0.0.nupkg.sha512",
     "C:\\Users\\Khoa\\.nuget\\packages\\xamarin.android.glide\\4.16.0.14\\xamarin.android.glide.4.16.0.14.nupkg.sha512",
     "C:\\Users\\Khoa\\.nuget\\packages\\xamarin.android.glide.annotations\\4.16.0.14\\xamarin.android.glide.annotations.4.16.0.14.nupkg.sha512",

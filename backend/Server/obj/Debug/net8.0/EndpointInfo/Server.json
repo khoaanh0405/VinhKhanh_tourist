@@ -1148,6 +1148,17 @@
         "tags": [
           "POIs"
         ],
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "query",
+            "style": "form",
+            "schema": {
+              "type": "string",
+              "default": "vi"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -1195,6 +1206,15 @@
             "schema": {
               "type": "integer",
               "format": "int32"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "style": "form",
+            "schema": {
+              "type": "string",
+              "default": "vi"
             }
           }
         ],
@@ -1566,17 +1586,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AuthRequest"
+                "$ref": "#/components/schemas/RegisterRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/AuthRequest"
+                "$ref": "#/components/schemas/RegisterRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/AuthRequest"
+                "$ref": "#/components/schemas/RegisterRequest"
               }
             }
           }
@@ -1597,17 +1617,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AuthRequest"
+                "$ref": "#/components/schemas/LoginRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/AuthRequest"
+                "$ref": "#/components/schemas/LoginRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/AuthRequest"
+                "$ref": "#/components/schemas/LoginRequest"
               }
             }
           }
@@ -1634,24 +1654,6 @@
   },
   "components": {
     "schemas": {
-      "AuthRequest": {
-        "type": "object",
-        "properties": {
-          "username": {
-            "type": "string",
-            "nullable": true
-          },
-          "password": {
-            "type": "string",
-            "nullable": true
-          },
-          "role": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "CreateNarrationDto": {
         "type": "object",
         "properties": {
@@ -1730,6 +1732,13 @@
           "restaurant": {
             "$ref": "#/components/schemas/Restaurant"
           },
+          "foodTranslations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FoodTranslation"
+            },
+            "nullable": true
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -1761,6 +1770,47 @@
           "description": {
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FoodTranslation": {
+        "required": [
+          "description",
+          "foodId",
+          "languageCode",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "translationId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "foodId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "languageCode": {
+            "maxLength": 10,
+            "minLength": 1,
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "food": {
+            "$ref": "#/components/schemas/Food"
+          },
+          "language": {
+            "$ref": "#/components/schemas/Language"
           }
         },
         "additionalProperties": false
@@ -1812,9 +1862,44 @@
             },
             "nullable": true
           },
+          "poiTranslations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PoiTranslation"
+            },
+            "nullable": true
+          },
+          "restaurantTranslations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RestaurantTranslation"
+            },
+            "nullable": true
+          },
+          "foodTranslations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FoodTranslation"
+            },
+            "nullable": true
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -1952,6 +2037,7 @@
       },
       "POI": {
         "required": [
+          "description",
           "latitude",
           "longitude",
           "name"
@@ -1974,6 +2060,10 @@
           "longitude": {
             "type": "number",
             "format": "double"
+          },
+          "description": {
+            "minLength": 1,
+            "type": "string"
           },
           "averageRating": {
             "type": "number",
@@ -2025,6 +2115,13 @@
             },
             "nullable": true
           },
+          "poiTranslations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PoiTranslation"
+            },
+            "nullable": true
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -2055,6 +2152,10 @@
           "longitude": {
             "type": "number",
             "format": "double"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
           },
           "averageRating": {
             "type": "number",
@@ -2187,6 +2288,41 @@
         },
         "additionalProperties": false
       },
+      "PoiTranslation": {
+        "required": [
+          "description",
+          "languageCode",
+          "poiId"
+        ],
+        "type": "object",
+        "properties": {
+          "translationId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "poiId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "languageCode": {
+            "maxLength": 10,
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "poi": {
+            "$ref": "#/components/schemas/POI"
+          },
+          "language": {
+            "$ref": "#/components/schemas/Language"
+          }
+        },
+        "additionalProperties": false
+      },
       "QRCode": {
         "type": "object",
         "properties": {
@@ -2209,6 +2345,28 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -2252,6 +2410,13 @@
             },
             "nullable": true
           },
+          "restaurantTranslations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RestaurantTranslation"
+            },
+            "nullable": true
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -2289,6 +2454,41 @@
               "$ref": "#/components/schemas/FoodDto"
             },
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RestaurantTranslation": {
+        "required": [
+          "description",
+          "languageCode",
+          "restaurantId"
+        ],
+        "type": "object",
+        "properties": {
+          "translationId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "restaurantId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "languageCode": {
+            "maxLength": 10,
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "restaurant": {
+            "$ref": "#/components/schemas/Restaurant"
+          },
+          "language": {
+            "$ref": "#/components/schemas/Language"
           }
         },
         "additionalProperties": false

@@ -25,6 +25,7 @@ namespace Server.Models
 
         // Navigation properties
         public virtual Restaurant Restaurant { get; set; }
+        public virtual ICollection<FoodTranslation> FoodTranslations { get; set; } = new List<FoodTranslation>();
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }

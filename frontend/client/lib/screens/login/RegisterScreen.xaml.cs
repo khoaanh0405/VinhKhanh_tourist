@@ -1,3 +1,5 @@
+using client.lib.services;
+
 namespace client.lib.screens.login;
 
 public partial class RegisterScreen : ContentPage
@@ -7,7 +9,8 @@ public partial class RegisterScreen : ContentPage
         InitializeComponent();
     }
 
-    // 1. Xử lý khi nhấn nút ĐĂNG KÝ NGAY
+    private readonly ApiService _apiService = new ApiService();
+
     private async void OnRegisterClicked(object sender, EventArgs e)
     {
         string displayName = DisplayNameEntry.Text;
@@ -15,7 +18,6 @@ public partial class RegisterScreen : ContentPage
         string password = PasswordEntry.Text;
         string confirmPassword = ConfirmPasswordEntry.Text;
 
-        // Kiểm tra xem người dùng có bỏ trống ô nào không
         if (string.IsNullOrWhiteSpace(displayName) || string.IsNullOrWhiteSpace(username) ||
             string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(confirmPassword))
         {
@@ -23,22 +25,25 @@ public partial class RegisterScreen : ContentPage
             return;
         }
 
-        // Kiểm tra mật khẩu xác nhận có khớp không
         if (password != confirmPassword)
         {
             await DisplayAlert("Lỗi", "Mật khẩu xác nhận không khớp", "OK");
             return;
         }
 
-        // TẠM THỜI MÔ PHỎNG ĐĂNG KÝ THÀNH CÔNG (Sau này bạn sẽ gọi API lưu vào DB ở đây)
-        bool isRegisterSuccess = true;
+        // GỌI API ĐĂNG KÝ THẬT
+        var response = await _apiService.RegisterAsync(displayName, username, password);
 
-        if (isRegisterSuccess)
+        // Kiểm tra UserId trả về từ API (trong class AuthResponse của ApiService)
+        if (response != null && response.UserId != null)
         {
             await DisplayAlert("Thành công", "Đăng ký tài khoản thành công! Vui lòng đăng nhập.", "OK");
-
-            // Đăng ký xong thì tự động quay lại trang Đăng nhập
             await Shell.Current.GoToAsync("..");
+        }
+        else
+        {
+            string errorMsg = response?.Message ?? "Đăng ký thất bại, không thể kết nối server.";
+            await DisplayAlert("Lỗi", errorMsg, "OK");
         }
     }
 

@@ -23,17 +23,25 @@ namespace VServer.Controllers
             _configuration = configuration;
         }
 
-        // DTO cho Register & Login
-        public class AuthRequest
+        // DTO cho Đăng ký
+        public class RegisterRequest
+        {
+            public string DisplayName { get; set; } // Thêm trường này
+            public string Username { get; set; }
+            public string Password { get; set; }
+            public string Role { get; set; } = "Tourist"; // App cho người dùng nên để mặc định là Tourist
+        }
+
+        // DTO cho Đăng nhập
+        public class LoginRequest
         {
             public string Username { get; set; }
             public string Password { get; set; }
-            public string Role { get; set; } = "Manager"; // Mặc định là Manager
         }
 
         // 1. ĐĂNG KÝ (Mã hóa mật khẩu trước khi lưu)
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] AuthRequest request)
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             if (await _context.Users.AnyAsync(u => u.Username == request.Username))
             {
@@ -45,9 +53,10 @@ namespace VServer.Controllers
 
             var newUser = new User
             {
+                DisplayName = request.DisplayName, // LƯU TÊN HIỂN THỊ VÀO DB
                 Username = request.Username,
-                Password = passwordHash, // Lưu chuỗi mã hóa vào DB, KHÔNG lưu pass thật
-                Role = request.Role,
+                Password = passwordHash,
+                Role = request.Role, // Sẽ lấy giá trị mặc định là "Tourist"
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -59,7 +68,7 @@ namespace VServer.Controllers
 
         // 2. ĐĂNG NHẬP (Kiểm tra Hash và trả về JWT)
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] AuthRequest request)
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             // Tìm user trong DB
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);

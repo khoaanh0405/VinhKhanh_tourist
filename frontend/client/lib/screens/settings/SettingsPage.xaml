@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:resources="clr-namespace:client.Resources.String;assembly=client"
+             xmlns:loc="clr-namespace:client.lib.core"
+             x:Class="client.lib.screens.settings.SettingsPage"
+             BackgroundColor="#F5F6FA"
+             Shell.NavBarIsVisible="False">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <Grid Padding="20,52,20,20" BackgroundColor="White" ColumnDefinitions="*, Auto">
+                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                    <Label Text="{Binding Path=[SettingsTitle], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                           FontSize="24" FontAttributes="Bold" TextColor="#1A1A2E"/>
+                    <Label Text="{Binding Path=[SettingsSubtitle], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                           FontSize="13" TextColor="#636E72"/>
+                </VerticalStackLayout>
+                <Border Grid.Column="1" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 20"
+                        StrokeThickness="0" BackgroundColor="#F5F6FA" VerticalOptions="Center">
+                    <Label Text="🔔" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Border>
+            </Grid>
+
+            <BoxView HeightRequest="12" BackgroundColor="Transparent"/>
+
+            <Label Text="{Binding Path=[SettingsSectionLanguage], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                   FontSize="13" FontAttributes="Bold" TextColor="#AAAAAA" Margin="20,0,20,8" CharacterSpacing="0.5"/>
+
+            <Border Margin="20,0,20,16" Padding="20" StrokeShape="RoundRectangle 20" StrokeThickness="0" BackgroundColor="White">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.07" Radius="10" Offset="0,3"/>
+                </Border.Shadow>
+                <VerticalStackLayout Spacing="0">
+                    <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12" Padding="0,0,0,14">
+                        <Border Grid.Column="0" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 20" StrokeThickness="0" BackgroundColor="#EAF4FB">
+                            <Label Text="🌐" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                            <Label Text="{Binding Path=[SettingsLanguageTitle], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                                   FontSize="15" FontAttributes="Bold" TextColor="#1A1A2E"/>
+                            <Label Text="{Binding Path=[SettingsLanguageDesc], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                                   FontSize="12" TextColor="#AAAAAA"/>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <Border StrokeShape="RoundRectangle 14" StrokeThickness="1.5" Stroke="#E8F8F5" BackgroundColor="#F0FCF8" HeightRequest="50" Padding="12,0">
+                        <Grid ColumnDefinitions="Auto, *">
+                            <Label Grid.Column="0" Text="🗺️" FontSize="18" VerticalOptions="Center" Margin="0,0,8,0"/>
+                            <Picker x:Name="LanguagePicker" Grid.Column="1" TextColor="#1A1A2E" BackgroundColor="Transparent" VerticalOptions="Center" SelectedIndexChanged="OnLanguageSelected">
+                                <Picker.Items>
+                                    <x:String>🇻🇳 Tiếng Việt</x:String>
+                                    <x:String>🇬🇧 English</x:String>
+                                    <x:String>🇰🇷 한국어</x:String>
+                                </Picker.Items>
+                            </Picker>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+            </Border>
+
+            <Label Text="{Binding Path=[SettingsSectionTools], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                   FontSize="13" FontAttributes="Bold" TextColor="#AAAAAA" Margin="20,0,20,8" CharacterSpacing="0.5"/>
+
+            <Border Margin="20,0,20,16" Padding="20" StrokeShape="RoundRectangle 20" StrokeThickness="0" BackgroundColor="White">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.07" Radius="10" Offset="0,3"/>
+                </Border.Shadow>
+                <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12" Padding="0,2,0,2">
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnQrScannerTapped"/>
+                    </Grid.GestureRecognizers>
+                    <Border Grid.Column="0" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 20" StrokeThickness="0" BackgroundColor="#E8F8F5">
+                        <Label Text="📷" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                        <Label Text="{Binding Path=[SettingsQrTitle], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                               FontSize="15" FontAttributes="Bold" TextColor="#1A1A2E"/>
+                        <Label Text="{Binding Path=[SettingsQrDesc], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                               FontSize="12" TextColor="#AAAAAA"/>
+                    </VerticalStackLayout>
+                    <Border Grid.Column="2" HeightRequest="28" Padding="10,0" StrokeShape="RoundRectangle 14" StrokeThickness="0" BackgroundColor="#E8F8F5" VerticalOptions="Center">
+                        <Label Text="{Binding Path=[SettingsQrOpen], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                               FontSize="12" TextColor="#1ABC9C" FontAttributes="Bold"/>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <Label Text="{Binding Path=[SettingsSectionNotifications], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                   FontSize="13" FontAttributes="Bold" TextColor="#AAAAAA" Margin="20,0,20,8" CharacterSpacing="0.5"/>
+
+            <Border Margin="20,0,20,16" Padding="20" StrokeShape="RoundRectangle 20" StrokeThickness="0" BackgroundColor="White">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.07" Radius="10" Offset="0,3"/>
+                </Border.Shadow>
+                <VerticalStackLayout Spacing="0">
+                    <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12" Padding="0,4,0,14">
+                        <Border Grid.Column="0" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 20" StrokeThickness="0" BackgroundColor="#FFF3E0">
+                            <Label Text="🔔" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                            <Label Text="{Binding Path=[SettingsPushTitle], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                                   FontSize="15" FontAttributes="Bold" TextColor="#1A1A2E"/>
+                            <Label Text="{Binding Path=[SettingsPushDesc], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                                   FontSize="12" TextColor="#AAAAAA"/>
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="2" ThumbColor="White" OnColor="#1ABC9C" VerticalOptions="Center"/>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" BackgroundColor="#F5F5F5" Margin="52,0,0,0"/>
+
+                    <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12" Padding="0,14,0,4">
+                        <Border Grid.Column="0" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 20" StrokeThickness="0" BackgroundColor="#EDE7F6">
+                            <Label Text="🔊" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                            <Label Text="{Binding Path=[SettingsSoundTitle], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                                   FontSize="15" FontAttributes="Bold" TextColor="#1A1A2E"/>
+                            <Label Text="{Binding Path=[SettingsSoundDesc], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                                   FontSize="12" TextColor="#AAAAAA"/>
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="2" ThumbColor="White" OnColor="#1ABC9C" IsToggled="True" VerticalOptions="Center"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Label Text="{Binding Path=[SettingsSectionInfo], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                   FontSize="13" FontAttributes="Bold" TextColor="#AAAAAA" Margin="20,0,20,8" CharacterSpacing="0.5"/>
+
+            <Border Margin="20,0,20,16" Padding="20" StrokeShape="RoundRectangle 20" StrokeThickness="0" BackgroundColor="White">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.07" Radius="10" Offset="0,3"/>
+                </Border.Shadow>
+                <VerticalStackLayout Spacing="0">
+                    <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12" Padding="0,2,0,14">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnAboutTapped"/>
+                        </Grid.GestureRecognizers>
+                        <Border Grid.Column="0" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 20" StrokeThickness="0" BackgroundColor="#E8F8F5">
+                            <Label Text="ℹ️" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                            <Label Text="{Binding Path=[SettingsAboutTitle], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                                   FontSize="15" FontAttributes="Bold" TextColor="#1A1A2E"/>
+                            <Label Text="{Binding Path=[SettingsAboutDesc], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                                   FontSize="12" TextColor="#AAAAAA"/>
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="›" FontSize="22" TextColor="#CCCCCC" VerticalOptions="Center"/>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" BackgroundColor="#F5F5F5" Margin="52,0,0,0"/>
+
+                    <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12" Padding="0,14,0,2">
+                        <Border Grid.Column="0" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 20" StrokeThickness="0" BackgroundColor="#FFF8E6">
+                            <Label Text="⭐" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                            <Label Text="{Binding Path=[SettingsRateTitle], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                                   FontSize="15" FontAttributes="Bold" TextColor="#1A1A2E"/>
+                            <Label Text="{Binding Path=[SettingsRateDesc], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                                   FontSize="12" TextColor="#AAAAAA"/>
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="›" FontSize="22" TextColor="#CCCCCC" VerticalOptions="Center"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <VerticalStackLayout Spacing="4" HorizontalOptions="Center" Margin="0,8,0,40">
+                <Border WidthRequest="48" HeightRequest="48" StrokeShape="RoundRectangle 24" StrokeThickness="0" BackgroundColor="#1ABC9C" HorizontalOptions="Center">
+                    <Label Text="🍜" FontSize="24" HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Border>
+                <Label Text="{Binding Path=[SettingsFooterTagline], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                       FontSize="13" TextColor="#AAAAAA" HorizontalOptions="Center" Margin="0,6,0,0"/>
+                <Label Text="{Binding Path=[SettingsFooterVersion], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                       FontSize="11" TextColor="#CCCCCC" HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

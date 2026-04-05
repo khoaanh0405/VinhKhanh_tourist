@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:client.lib.screens.search"
+             xmlns:models="clr-namespace:client.lib.model"
+             x:Class="client.lib.screens.search.SearchPage"
+             BackgroundColor="#F5F6FA"
+             Shell.NavBarIsVisible="False"
+             x:DataType="vm:SearchViewModel">
+
+    <Grid RowDefinitions="Auto, *">
+
+        <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" Padding="10,52,10,16" BackgroundColor="White" ColumnSpacing="10">
+            <ImageButton Grid.Column="0" WidthRequest="24" HeightRequest="24" VerticalOptions="Center" Margin="10,0,0,0" Command="{Binding GoBackCommand}">
+                <ImageButton.Source>
+                    <FontImageSource Glyph="←" Color="#1A1A2E" Size="24"/>
+                </ImageButton.Source>
+            </ImageButton>
+
+            <Border Grid.Column="1" HeightRequest="44" StrokeShape="RoundRectangle 22" StrokeThickness="1" Stroke="#EFEFEF" BackgroundColor="#F5F6FA">
+                <Grid ColumnDefinitions="*, Auto">
+                    <Entry x:Name="MainSearchEntry" Grid.Column="0" Placeholder="Tìm quán, món ăn..." PlaceholderColor="#BBBBBB"
+                           Text="{Binding SearchText, Mode=TwoWay}" ClearButtonVisibility="WhileEditing" ReturnCommand="{Binding SearchCommand}"
+                           BackgroundColor="Transparent" TextColor="#1A1A2E" VerticalOptions="Center" Margin="16,0,0,0"/>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="2" WidthRequest="44" HeightRequest="44" StrokeShape="RoundRectangle 22" StrokeThickness="0" BackgroundColor="#1ABC9C" Margin="0,0,10,0">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SearchCommand}"/>
+                </Border.GestureRecognizers>
+                <Label Text="🔍" FontSize="16" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
+            </Border>
+        </Grid>
+
+        <ScrollView Grid.Row="1" Padding="20,20,20,0" IsVisible="{Binding IsShowingSuggestions}">
+            <VerticalStackLayout Spacing="24">
+
+                <VerticalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Grid.Column="0" Text="Lịch sử tìm kiếm" FontSize="16" FontAttributes="Bold" TextColor="#1A1A2E" VerticalOptions="Center"/>
+                        <Label Grid.Column="1" Text="Xóa" FontSize="14" TextColor="#E74C3C" VerticalOptions="Center">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ClearHistoryCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+
+                    <FlexLayout BindableLayout.ItemsSource="{Binding SearchHistory}" Wrap="Wrap" Direction="Row" AlignItems="Start" AlignContent="Start">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="x:String">
+                                <Border Margin="0,0,8,8" Padding="12,6" StrokeShape="RoundRectangle 16" StrokeThickness="1" Stroke="#EFEFEF" BackgroundColor="White">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SearchViewModel}}, Path=SelectHistoryCommand}" CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Label Text="{Binding .}" FontSize="13" TextColor="#636E72"/>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="12" Padding="0,0,0,20">
+                    <Label Text="Gợi ý phổ biến" FontSize="16" FontAttributes="Bold" TextColor="#1A1A2E"/>
+
+                    <CollectionView ItemsSource="{Binding SearchSuggestions}" SelectionMode="None">
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="10" VerticalItemSpacing="10"/>
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:POI">
+                                <Border Padding="0" StrokeShape="RoundRectangle 12" StrokeThickness="1" Stroke="#EFEFEF" BackgroundColor="White" HeightRequest="140">
+                                    <Border.Shadow>
+                                        <Shadow Brush="Black" Opacity="0.05" Radius="8" Offset="0,2"/>
+                                    </Border.Shadow>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SearchViewModel}}, Path=SelectSuggestionCommand}" CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid RowDefinitions="*, Auto">
+                                        <Image Grid.Row="0" Source="{Binding ImageUrl}" Aspect="AspectFill"/>
+                                        <Label Grid.Row="1" Text="{Binding Name}" FontSize="13" TextColor="#1A1A2E" FontAttributes="Bold" 
+                                               HorizontalOptions="Center" VerticalOptions="Center" Padding="8,10" 
+                                               MaxLines="2" LineBreakMode="TailTruncation"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <CollectionView Grid.Row="1" ItemsSource="{Binding SearchResults}" IsVisible="{Binding IsShowingResults}" SelectionMode="None">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10" Margin="0,60,0,0">
+                    <Label Text="🔍" FontSize="40" HorizontalOptions="Center"/>
+                    <Label Text="Không tìm thấy kết quả nào" TextColor="#636E72" FontSize="15" HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:POI">
+                    <Border Margin="20,14,20,0" Padding="0" StrokeShape="RoundRectangle 16" StrokeThickness="0" BackgroundColor="White">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Opacity="0.07" Radius="10" Offset="0,3"/>
+                        </Border.Shadow>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SearchViewModel}}, Path=SelectResultCommand}" CommandParameter="{Binding .}"/>
+                        </Border.GestureRecognizers>
+
+                        <Grid ColumnDefinitions="115, *" HeightRequest="110">
+                            <Border Grid.Column="0" StrokeShape="RoundRectangle 16,0,0,16" StrokeThickness="0">
+                                <Image Source="{Binding ImageUrl}" Aspect="AspectFill"/>
+                            </Border>
+
+                            <VerticalStackLayout Grid.Column="1" Padding="14,12,14,12" Spacing="4" VerticalOptions="Center">
+                                <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="15" TextColor="#1A1A2E" MaxLines="1" LineBreakMode="TailTruncation"/>
+
+                                <HorizontalStackLayout Spacing="4">
+                                    <Label Text="📍" FontSize="11" VerticalOptions="Center"/>
+                                    <Label Text="{Binding Description}" FontSize="12" TextColor="#636E72" VerticalOptions="Center" MaxLines="1" LineBreakMode="TailTruncation"/>
+                                </HorizontalStackLayout>
+
+                                <HorizontalStackLayout Spacing="6" Margin="0,2,0,0">
+                                    <Border HeightRequest="22" Padding="8,0" StrokeShape="RoundRectangle 11" StrokeThickness="0" BackgroundColor="#FFF8E6" VerticalOptions="Center">
+                                        <HorizontalStackLayout Spacing="3" VerticalOptions="Center">
+                                            <Label Text="⭐" FontSize="11"/>
+                                            <Label Text="{Binding AverageRating, StringFormat='{0:F1}'}" FontSize="12" FontAttributes="Bold" TextColor="#E67E22"/>
+                                        </HorizontalStackLayout>
+                                    </Border>
+                                    <HorizontalStackLayout Spacing="3" VerticalOptions="Center">
+                                        <Label Text="·" TextColor="#AAAAAA" FontSize="12" FontAttributes="Bold"/>
+                                        <Label Text="{Binding ReviewCount}" TextColor="#AAAAAA" FontSize="12"/>
+                                        <Label Text="đánh giá" TextColor="#AAAAAA" FontSize="12"/>
+                                    </HorizontalStackLayout>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

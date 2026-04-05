@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  MapPage.xaml  —  Theme: Teal Explorer
+  Code-behind: MapPage.xaml.cs (không thay đổi)
+-->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:maps="http://schemas.microsoft.com/dotnet/2021/maui/maps"
+             x:Class="client.lib.screens.map.MapPage"
+             Shell.NavBarIsVisible="False">
+
+    <Grid>
+        <!-- Full-screen Map -->
+        <maps:Map x:Name="MyMap" IsShowingUser="True"/>
+
+        <!-- ─── TOP SEARCH BAR ─── -->
+        <Border Margin="16,50,16,0"
+                VerticalOptions="Start"
+                StrokeShape="RoundRectangle 26"
+                StrokeThickness="0"
+                BackgroundColor="White">
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,3" Opacity="0.12" Radius="12"/>
+            </Border.Shadow>
+            <Grid ColumnDefinitions="Auto, *, Auto" HeightRequest="52">
+                <Label Grid.Column="0" Text="🔍"
+                       VerticalOptions="Center" HorizontalOptions="Center"
+                       FontSize="17" TextColor="#AAAAAA" Margin="16,0,6,0"/>
+                <Entry x:Name="SearchEntry"
+                       Grid.Column="1"
+                       Placeholder="Tìm kiếm quán ăn..."
+                       PlaceholderColor="#BBBBBB"
+                       ClearButtonVisibility="WhileEditing"
+                       TextChanged="OnSearchTextChanged"
+                       BackgroundColor="Transparent"
+                       VerticalOptions="Center"
+                       TextColor="#1A1A2E"/>
+                <!-- Location pin button -->
+                <Border Grid.Column="2"
+                        WidthRequest="34" HeightRequest="34"
+                        StrokeShape="RoundRectangle 10"
+                        StrokeThickness="0"
+                        BackgroundColor="#1ABC9C"
+                        Margin="0,0,9,0"
+                        VerticalOptions="Center">
+                    <Label Text="📍" FontSize="16"
+                           HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ─── SEARCH RESULTS DROPDOWN ─── -->
+        <Border x:Name="SearchResultsContainer"
+                IsVisible="False"
+                Margin="16,110,16,0"
+                Padding="0"
+                VerticalOptions="Start"
+                StrokeShape="RoundRectangle 16"
+                StrokeThickness="0"
+                BackgroundColor="White">
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,4" Opacity="0.12" Radius="12"/>
+            </Border.Shadow>
+            <CollectionView x:Name="SearchList"
+                            MaximumHeightRequest="260"
+                            SelectionMode="Single"
+                            SelectionChanged="OnSearchResultSelected">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="16,13" ColumnDefinitions="Auto, *, Auto"
+                              ColumnSpacing="10">
+                            <Label Grid.Column="0" Text="📍" FontSize="14"
+                                   VerticalOptions="Center" TextColor="#1ABC9C"/>
+                            <Label Grid.Column="1" Text="{Binding Name}"
+                                   VerticalOptions="Center"
+                                   TextColor="#1A1A2E"
+                                   FontSize="14" FontAttributes="Bold"
+                                   MaxLines="1" LineBreakMode="TailTruncation"/>
+                            <Label Grid.Column="2" Text="{Binding DistanceStr}"
+                                   VerticalOptions="Center"
+                                   TextColor="#1ABC9C" FontSize="13"
+                                   FontAttributes="Bold"/>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Border>
+
+        <!-- ─── MY LOCATION BUTTON ─── -->
+        <Border WidthRequest="48" HeightRequest="48"
+                StrokeShape="RoundRectangle 24"
+                StrokeThickness="0"
+                BackgroundColor="White"
+                VerticalOptions="Start"
+                HorizontalOptions="End"
+                Margin="0,116,16,0">
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,2" Opacity="0.15" Radius="8"/>
+            </Border.Shadow>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnGoToMyLocationClicked"/>
+            </Border.GestureRecognizers>
+            <Label Text="🎯" FontSize="22"
+                   HorizontalOptions="Center" VerticalOptions="Center"/>
+        </Border>
+
+        <!-- ─── BOTTOM RESTAURANT CARDS ─── -->
+        <CollectionView x:Name="RestaurantList"
+                        VerticalOptions="End"
+                        HeightRequest="140"
+                        Margin="0,0,0,20"
+                        SelectionMode="None">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="12"/>
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border WidthRequest="310"
+                            Margin="16,4,0,4"
+                            Padding="0"
+                            StrokeShape="RoundRectangle 16"
+                            StrokeThickness="0"
+                            BackgroundColor="White">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Offset="0,4" Opacity="0.10" Radius="12"/>
+                        </Border.Shadow>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnRestaurantTapped"
+                                                  CommandParameter="{Binding .}"/>
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="104, *">
+                            <Border Grid.Column="0"
+                                    StrokeShape="RoundRectangle 16,0,0,16"
+                                    StrokeThickness="0"
+                                    IsClippedToBounds="True">
+                                <Image Source="{Binding ImageUrl}"
+                                       Aspect="AspectFill"
+                                       HeightRequest="132" WidthRequest="104"/>
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Margin="12,12,12,10"
+                                                 Spacing="4"
+                                                 VerticalOptions="Center">
+                                <Label Text="{Binding Name}"
+                                       FontAttributes="Bold" FontSize="15"
+                                       TextColor="#1A1A2E"
+                                       MaxLines="1" LineBreakMode="TailTruncation"/>
+                                <HorizontalStackLayout Spacing="5">
+                                    <Label Text="⭐" FontSize="12"
+                                           VerticalOptions="Center" TextColor="#FFB800"/>
+                                    <Label Text="{Binding AverageRating}"
+                                           TextColor="#1A1A2E"
+                                           FontAttributes="Bold" FontSize="13"/>
+                                    <Label Text="·" TextColor="#CCCCCC" FontSize="13"/>
+                                    <Label Text="{Binding DistanceStr}"
+                                           TextColor="#1ABC9C"
+                                           FontAttributes="Bold" FontSize="13"/>
+                                </HorizontalStackLayout>
+                                <Label Text="{Binding Description}"
+                                       FontSize="12" TextColor="#636E72"
+                                       MaxLines="2" LineBreakMode="TailTruncation"/>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
+</ContentPage>

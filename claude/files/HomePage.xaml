@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  ╔══════════════════════════════════════════════════════════╗
+  ║  HomePage.xaml  —  Theme: Teal Explorer                 ║
+  ║  Primary: #1ABC9C  |  BG: #F5F6FA  |  Surface: #FFFFFF  ║
+  ╚══════════════════════════════════════════════════════════╝
+  Logic (code-behind) không thay đổi.
+-->
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:client.lib.model"
+    xmlns:vm="clr-namespace:client.lib.screens.home"
+    xmlns:widgets="clr-namespace:client.lib.widgets"
+    x:Class="client.lib.screens.HomePage"
+    BackgroundColor="#F5F6FA"
+    x:DataType="vm:HomeViewModel"
+    Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto, Auto, *">
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!--  TOP HEADER                                         -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <Grid Grid.Row="0"
+              ColumnDefinitions="Auto, *, Auto, Auto"
+              Padding="20,52,20,16"
+              BackgroundColor="White"
+              ColumnSpacing="10">
+
+            <!-- Avatar / Profile Icon -->
+            <Border x:Name="ProfileIconBorder"
+                    Grid.Column="0"
+                    WidthRequest="46" HeightRequest="46"
+                    StrokeShape="RoundRectangle 23"
+                    StrokeThickness="0"
+                    BackgroundColor="#E8F8F5"
+                    VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnProfileIconTapped"/>
+                </Border.GestureRecognizers>
+                <Path Data="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+                      Fill="#1ABC9C"
+                      HorizontalOptions="Center" VerticalOptions="Center"
+                      Aspect="Uniform" HeightRequest="24" WidthRequest="24"/>
+            </Border>
+
+            <!-- Greeting Text -->
+            <VerticalStackLayout Grid.Column="1"
+                                 Margin="12,0,0,0"
+                                 VerticalOptions="Center"
+                                 Spacing="2">
+                <Label Text="Xin chào 👋"
+                       FontSize="12" TextColor="#636E72"/>
+                <Label Text="{Binding ExploreTitle}"
+                       FontSize="17" FontAttributes="Bold" TextColor="#1A1A2E"/>
+            </VerticalStackLayout>
+
+            <!-- Auto-Narration Toggle (beside notification) -->
+            <Border Grid.Column="2"
+                    WidthRequest="40" HeightRequest="40"
+                    StrokeShape="RoundRectangle 20"
+                    StrokeThickness="0"
+                    VerticalOptions="Center">
+                <Border.Triggers>
+                    <DataTrigger TargetType="Border"
+                                 Binding="{Binding IsAutoNarrationEnabled}" Value="True">
+                        <Setter Property="BackgroundColor" Value="#E8F8F5"/>
+                    </DataTrigger>
+                    <DataTrigger TargetType="Border"
+                                 Binding="{Binding IsAutoNarrationEnabled}" Value="False">
+                        <Setter Property="BackgroundColor" Value="#F5F6FA"/>
+                    </DataTrigger>
+                </Border.Triggers>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ToggleAutoNarrationCommand}"/>
+                </Border.GestureRecognizers>
+                <Label HorizontalOptions="Center" VerticalOptions="Center" FontSize="18">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label"
+                                     Binding="{Binding IsAutoNarrationEnabled}" Value="True">
+                            <Setter Property="Text" Value="🎧"/>
+                        </DataTrigger>
+                        <DataTrigger TargetType="Label"
+                                     Binding="{Binding IsAutoNarrationEnabled}" Value="False">
+                            <Setter Property="Text" Value="🔇"/>
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+            </Border>
+
+            <!-- Notification Bell -->
+            <Border Grid.Column="3"
+                    WidthRequest="40" HeightRequest="40"
+                    StrokeShape="RoundRectangle 20"
+                    StrokeThickness="0"
+                    BackgroundColor="#F5F6FA"
+                    VerticalOptions="Center">
+                <Label Text="🔔" FontSize="18"
+                       HorizontalOptions="Center" VerticalOptions="Center"/>
+            </Border>
+        </Grid>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!--  SEARCH BAR                                         -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <Border Grid.Row="1"
+                Margin="20,14,20,10"
+                HeightRequest="52"
+                StrokeShape="RoundRectangle 26"
+                StrokeThickness="1" Stroke="#EFEFEF"
+                BackgroundColor="White">
+            <Border.Shadow>
+                <Shadow Brush="Black" Opacity="0.06" Radius="10" Offset="0,3"/>
+            </Border.Shadow>
+            <Grid ColumnDefinitions="Auto, *, Auto">
+                <Label Grid.Column="0"
+                       Text="🔍" FontSize="16"
+                       TextColor="#AAAAAA"
+                       VerticalOptions="Center"
+                       Margin="16,0,6,0"/>
+                <Entry Grid.Column="1"
+                       Placeholder="{Binding SearchPlaceholder}"
+                       PlaceholderColor="#BBBBBB"
+                       Text="{Binding SearchText, Mode=TwoWay}"
+                       ClearButtonVisibility="WhileEditing"
+                       BackgroundColor="Transparent"
+                       TextColor="#1A1A2E"
+                       VerticalOptions="Center"/>
+                <!-- Filter button -->
+                <Border Grid.Column="2"
+                        WidthRequest="34" HeightRequest="34"
+                        StrokeShape="RoundRectangle 10"
+                        StrokeThickness="0"
+                        BackgroundColor="#1ABC9C"
+                        Margin="0,0,9,0"
+                        VerticalOptions="Center">
+                    <Label Text="⚙" FontSize="16" TextColor="White"
+                           HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!--  MAIN SCROLL – CollectionView with Header          -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <CollectionView Grid.Row="2"
+                        ItemsSource="{Binding Pois}"
+                        SelectionMode="None">
+            <CollectionView.Margin>
+                <OnPlatform x:TypeArguments="Thickness">
+                    <On Platform="iOS, Android" Value="0,0,0,0"/>
+                </OnPlatform>
+            </CollectionView.Margin>
+
+            <!-- HEADER: Top Favorites (Carousel) + Section label -->
+            <CollectionView.Header>
+                <VerticalStackLayout Padding="20,4,20,0" Spacing="0">
+
+                    <!-- Section: Top Favorites -->
+                    <Grid ColumnDefinitions="*, Auto" Margin="0,0,0,12">
+                        <Label Grid.Column="0"
+                               Text="{Binding TopFavorites}"
+                               FontSize="18" FontAttributes="Bold"
+                               TextColor="#1A1A2E"
+                               VerticalOptions="Center"/>
+                        <Label Grid.Column="1"
+                               Text="Xem tất cả →"
+                               FontSize="13" TextColor="#1ABC9C"
+                               VerticalOptions="Center"/>
+                    </Grid>
+
+                    <!-- Featured Carousel -->
+                    <CarouselView ItemsSource="{Binding FeaturedPois}"
+                                  HeightRequest="195"
+                                  HorizontalScrollBarVisibility="Never"
+                                  Loop="False">
+                        <CarouselView.ItemTemplate>
+                            <DataTemplate x:DataType="models:POI">
+                                <Border Margin="0,0,14,4"
+                                        Padding="0"
+                                        StrokeShape="RoundRectangle 18"
+                                        StrokeThickness="0"
+                                        BackgroundColor="White">
+                                    <Border.Shadow>
+                                        <Shadow Brush="Black" Opacity="0.10" Radius="12" Offset="0,4"/>
+                                    </Border.Shadow>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnNavigateToDetail"
+                                                              CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                    <Grid>
+                                        <Image Source="{Binding ImageUrl}" Aspect="AspectFill"/>
+                                        <!-- Gradient overlay -->
+                                        <BoxView VerticalOptions="End" HeightRequest="100">
+                                            <BoxView.Background>
+                                                <LinearGradientBrush EndPoint="0,1">
+                                                    <GradientStop Color="Transparent" Offset="0.0"/>
+                                                    <GradientStop Color="#CC000000" Offset="1.0"/>
+                                                </LinearGradientBrush>
+                                            </BoxView.Background>
+                                        </BoxView>
+                                        <!-- Heart badge -->
+                                        <Border WidthRequest="30" HeightRequest="30"
+                                                StrokeShape="RoundRectangle 15"
+                                                StrokeThickness="0"
+                                                BackgroundColor="#CCFFFFFF"
+                                                HorizontalOptions="End"
+                                                VerticalOptions="Start"
+                                                Margin="0,10,10,0">
+                                            <Label Text="❤️" FontSize="13"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"/>
+                                        </Border>
+                                        <!-- Name + rating -->
+                                        <VerticalStackLayout VerticalOptions="End"
+                                                             Margin="14,0,14,12"
+                                                             Spacing="4">
+                                            <Label Text="{Binding Name}"
+                                                   TextColor="White"
+                                                   FontAttributes="Bold"
+                                                   FontSize="16"
+                                                   MaxLines="1"
+                                                   LineBreakMode="TailTruncation"/>
+                                            <HorizontalStackLayout Spacing="5">
+                                                <Border WidthRequest="56" HeightRequest="22"
+                                                        StrokeShape="RoundRectangle 11"
+                                                        StrokeThickness="0"
+                                                        BackgroundColor="#CC1ABC9C"
+                                                        VerticalOptions="Center">
+                                                    <HorizontalStackLayout Spacing="3"
+                                                                           HorizontalOptions="Center"
+                                                                           VerticalOptions="Center">
+                                                        <Label Text="⭐" FontSize="10"/>
+                                                        <Label Text="{Binding AverageRating, StringFormat='{0:F1}'}"
+                                                               TextColor="White" FontSize="11"
+                                                               FontAttributes="Bold"/>
+                                                    </HorizontalStackLayout>
+                                                </Border>
+                                                <Label Text="{Binding ReviewCount, StringFormat='({0} đánh giá)'}"
+                                                       TextColor="#DDDDDD" FontSize="11"
+                                                       VerticalOptions="Center"/>
+                                            </HorizontalStackLayout>
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CarouselView.ItemTemplate>
+                    </CarouselView>
+
+                    <!-- Section: All Locations -->
+                    <Grid ColumnDefinitions="*, Auto" Margin="0,24,0,14">
+                        <HorizontalStackLayout Grid.Column="0" Spacing="6" VerticalOptions="Center">
+                            <Label Text="📍" FontSize="16" VerticalOptions="Center"/>
+                            <Label Text="{Binding AllLocations}"
+                                   FontSize="18" FontAttributes="Bold"
+                                   TextColor="#1A1A2E" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                        <Label Grid.Column="1"
+                               Text="Sắp xếp ↕"
+                               FontSize="13" TextColor="#1ABC9C"
+                               VerticalOptions="Center"/>
+                    </Grid>
+
+                </VerticalStackLayout>
+            </CollectionView.Header>
+
+            <!-- ─── POI CARD (1 per row, detailed) ─── -->
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:POI">
+                    <Border Margin="20,0,20,14"
+                            Padding="0"
+                            StrokeShape="RoundRectangle 16"
+                            StrokeThickness="0"
+                            BackgroundColor="White">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Opacity="0.07" Radius="10" Offset="0,3"/>
+                        </Border.Shadow>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnNavigateToDetail"
+                                                  CommandParameter="{Binding .}"/>
+                        </Border.GestureRecognizers>
+
+                        <Grid ColumnDefinitions="115, *" HeightRequest="110">
+                            <!-- Thumbnail -->
+                            <Border Grid.Column="0"
+                                    StrokeShape="RoundRectangle 16,0,0,16"
+                                    StrokeThickness="0"
+                                    IsClippedToBounds="True">
+                                <Image Source="{Binding ImageUrl}" Aspect="AspectFill"/>
+                            </Border>
+
+                            <!-- Details -->
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Padding="14,12,14,12"
+                                                 Spacing="4"
+                                                 VerticalOptions="Center">
+                                <Label Text="{Binding Name}"
+                                       FontAttributes="Bold"
+                                       FontSize="15"
+                                       TextColor="#1A1A2E"
+                                       MaxLines="1"
+                                       LineBreakMode="TailTruncation"/>
+
+                                <HorizontalStackLayout Spacing="4">
+                                    <Label Text="📍" FontSize="11" VerticalOptions="Center"/>
+                                    <Label Text="{Binding DistanceDisplay}"
+                                           FontSize="12" TextColor="#636E72"
+                                           VerticalOptions="Center"
+                                           MaxLines="1" LineBreakMode="TailTruncation"/>
+                                </HorizontalStackLayout>
+
+                                <!-- Rating row -->
+                                <HorizontalStackLayout Spacing="6" Margin="0,2,0,0">
+                                    <!-- Stars pill -->
+                                    <Border HeightRequest="22" Padding="8,0"
+                                            StrokeShape="RoundRectangle 11"
+                                            StrokeThickness="0"
+                                            BackgroundColor="#FFF8E6"
+                                            VerticalOptions="Center">
+                                        <HorizontalStackLayout Spacing="3" VerticalOptions="Center">
+                                            <Label Text="⭐" FontSize="11"/>
+                                            <Label Text="{Binding AverageRating, StringFormat='{0:F1}'}"
+                                                   FontSize="12" FontAttributes="Bold"
+                                                   TextColor="#E67E22"/>
+                                        </HorizontalStackLayout>
+                                    </Border>
+                                    <Label Text="{Binding ReviewCount, StringFormat='· {0} đánh giá'}"
+                                           FontSize="12" TextColor="#AAAAAA"
+                                           VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+            <!-- Footer spacing -->
+            <CollectionView.Footer>
+                <BoxView HeightRequest="20" BackgroundColor="Transparent"/>
+            </CollectionView.Footer>
+
+        </CollectionView>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!--  SEARCH RESULTS OVERLAY                            -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <Grid Grid.Row="2" Opacity="0" InputTransparent="True">
+            <Grid.Triggers>
+                <DataTrigger TargetType="Grid"
+                             Binding="{Binding IsSearching}" Value="True">
+                    <Setter Property="Opacity" Value="1"/>
+                    <Setter Property="InputTransparent" Value="False"/>
+                </DataTrigger>
+            </Grid.Triggers>
+
+            <BoxView BackgroundColor="Black" Opacity="0.4" InputTransparent="True"/>
+
+            <Border BackgroundColor="#F5F6FA"
+                    VerticalOptions="Start"
+                    Margin="20,10,20,0"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 18">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.15" Radius="14" Offset="0,5"/>
+                </Border.Shadow>
+                <CollectionView ItemsSource="{Binding FilteredPois}"
+                                Margin="0" MaximumHeightRequest="440">
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout VerticalOptions="Center"
+                                             HorizontalOptions="Center"
+                                             Spacing="10" Margin="0,40,0,40">
+                            <Label Text="🔍" FontSize="36" HorizontalOptions="Center"/>
+                            <Label Text="{Binding NotFoundText}"
+                                   TextColor="#636E72" FontSize="15"
+                                   HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:POI">
+                            <Border Margin="12,10,12,0"
+                                    Padding="0" HeightRequest="80"
+                                    StrokeShape="RoundRectangle 14"
+                                    StrokeThickness="1" Stroke="#EFEFEF"
+                                    BackgroundColor="White">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnNavigateToDetail"
+                                                          CommandParameter="{Binding .}"/>
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="80, *" IsClippedToBounds="True">
+                                    <Border Grid.Column="0"
+                                            StrokeShape="RoundRectangle 14,0,0,14"
+                                            StrokeThickness="0" IsClippedToBounds="True">
+                                        <Image Source="{Binding ImageUrl}" Aspect="AspectFill"/>
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1"
+                                                         Padding="12,0,12,0"
+                                                         Spacing="4"
+                                                         VerticalOptions="Center">
+                                        <Label Text="{Binding Name}"
+                                               FontAttributes="Bold" FontSize="14"
+                                               TextColor="#1A1A2E"
+                                               MaxLines="1" LineBreakMode="TailTruncation"/>
+                                        <HorizontalStackLayout Spacing="4">
+                                            <Label Text="⭐" FontSize="11" TextColor="#FFB800"
+                                                   VerticalOptions="Center"/>
+                                            <Label Text="{Binding AverageRating, StringFormat='{0:F1}'}"
+                                                   FontSize="13" FontAttributes="Bold"
+                                                   TextColor="#1A1A2E" VerticalOptions="Center"/>
+                                            <Label Text="{Binding ReviewCount, StringFormat='({0})'}"
+                                                   FontSize="12" TextColor="#AAAAAA"
+                                                   VerticalOptions="Center"/>
+                                        </HorizontalStackLayout>
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Border>
+        </Grid>
+
+        <!-- Audio Mini Player -->
+        <widgets:AudioPlayerMiniView Grid.Row="2"
+                                     VerticalOptions="End"
+                                     Margin="20,0,20,16"/>
+
+    </Grid>
+</ContentPage>

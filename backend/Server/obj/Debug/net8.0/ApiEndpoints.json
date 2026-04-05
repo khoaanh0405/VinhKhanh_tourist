@@ -638,7 +638,13 @@
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "lang",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": [
       {
         "Type": "System.Collections.Generic.List\u00601[[Server.DTOs.POIDto, Server, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
@@ -663,6 +669,11 @@
         "Name": "id",
         "Type": "System.Int32",
         "IsRequired": true
+      },
+      {
+        "Name": "lang",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": [
@@ -884,7 +895,7 @@
     "Parameters": [
       {
         "Name": "request",
-        "Type": "VServer.Controllers.UserController\u002BAuthRequest",
+        "Type": "VServer.Controllers.UserController\u002BLoginRequest",
         "IsRequired": true
       }
     ],
@@ -910,7 +921,7 @@
     "Parameters": [
       {
         "Name": "request",
-        "Type": "VServer.Controllers.UserController\u002BAuthRequest",
+        "Type": "VServer.Controllers.UserController\u002BRegisterRequest",
         "IsRequired": true
       }
     ],

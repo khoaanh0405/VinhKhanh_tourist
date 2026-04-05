@@ -1,22 +1,49 @@
-<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-       xmlns:screens="clr-namespace:client.lib.screens"
-       xmlns:map="clr-namespace:client.lib.screens.map"
-       xmlns:qr="clr-namespace:client.lib.screens.qr"
-       x:Class="client.AppShell">
+<Shell
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:screens="clr-namespace:client.lib.screens"
+    xmlns:map="clr-namespace:client.lib.screens.map"
+    xmlns:settings="clr-namespace:client.lib.screens.settings"
+    x:Class="client.AppShell">
+
+    <Shell.Resources>
+        <ResourceDictionary>
+            <Style TargetType="TabBar">
+                <Setter Property="Shell.TabBarBackgroundColor" Value="White"/>
+                <Setter Property="Shell.TabBarForegroundColor" Value="#1ABC9C"/>
+                <Setter Property="Shell.TabBarUnselectedColor" Value="#AAAAAA"/>
+                <Setter Property="Shell.TabBarTitleColor" Value="#1ABC9C"/>
+            </Style>
+        </ResourceDictionary>
+    </Shell.Resources>
+
+    <Shell.TabBarBackgroundColor>White</Shell.TabBarBackgroundColor>
+    <Shell.TabBarForegroundColor>#1ABC9C</Shell.TabBarForegroundColor>
+    <Shell.TabBarUnselectedColor>#AAAAAA</Shell.TabBarUnselectedColor>
 
     <TabBar>
-        <Tab Title="Trang chủ" Icon="home.png">
-            <ShellContent ContentTemplate="{DataTemplate screens:HomePage}" />
-        </Tab>
-        <Tab Title="Bản đồ" Icon="map.png">
-            <ShellContent ContentTemplate="{DataTemplate map:MapPage}" />
-        </Tab>
-        <Tab Title="QR" Icon="qr.png">
-            <ShellContent ContentTemplate="{DataTemplate qr:QrScannerPage}" />
-        </Tab>
-        <Tab Title="Yêu thích" Icon="heart.png">
-            <ShellContent ContentTemplate="{DataTemplate screens:FavoritesPage}" />
-        </Tab>
+        <ShellContent Route="HomePage" ContentTemplate="{DataTemplate screens:HomePage}">
+            <ShellContent.Icon>
+                <FontImageSource Glyph="🏠" Size="28" />
+            </ShellContent.Icon>
+        </ShellContent>
+
+        <ShellContent Route="MapPage" ContentTemplate="{DataTemplate map:MapPage}">
+            <ShellContent.Icon>
+                <FontImageSource Glyph="🗺️" Size="28" />
+            </ShellContent.Icon>
+        </ShellContent>
+
+        <ShellContent Route="FavoritesPage" ContentTemplate="{DataTemplate screens:FavoritesPage}">
+            <ShellContent.Icon>
+                <FontImageSource Glyph="❤️" Size="28" />
+            </ShellContent.Icon>
+        </ShellContent>
+
+        <ShellContent Route="SettingsPage" ContentTemplate="{DataTemplate settings:SettingsPage}">
+            <ShellContent.Icon>
+                <FontImageSource Glyph="⚙️" Size="28" />
+            </ShellContent.Icon>
+        </ShellContent>
     </TabBar>
 </Shell>

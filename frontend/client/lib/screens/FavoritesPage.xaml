@@ -1,54 +1,166 @@
 <?xml version="1.0" encoding="utf-8" ?>
+<!--
+  FavoritesPage.xaml  —  Theme: Teal Explorer
+  Code-behind: FavoritesPage.xaml.cs (không thay đổi)
+-->
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:client.lib.model"
              xmlns:vm="clr-namespace:client.lib.services"
              x:Class="client.lib.screens.FavoritesPage"
-             Title="Yêu thích"
-             BackgroundColor="#F5F7FA"
-             x:DataType="vm:AppViewModel">
+             BackgroundColor="#F5F6FA"
+             x:DataType="vm:AppViewModel"
+             Shell.NavBarIsVisible="False">
 
-    <Grid Padding="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Grid RowDefinitions="Auto, Auto, *">
 
-        <Border Grid.Row="0" Margin="0,0,0,10" StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="White" Shadow="{Shadow Brush=Black, Opacity=0.1, Radius=4}">
-            <SearchBar x:Name="FavoriteSearchBar" 
-                       Placeholder="Tìm trong mục yêu thích..." 
-                       TextChanged="OnFavoriteSearchTextChanged"
-                       BackgroundColor="Transparent" />
+        <!-- ═══ HEADER ═══ -->
+        <Grid Grid.Row="0"
+              ColumnDefinitions="*, Auto"
+              Padding="20,52,20,16"
+              BackgroundColor="White">
+            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                <Label Text="Danh sách yêu thích"
+                       FontSize="22" FontAttributes="Bold" TextColor="#1A1A2E"/>
+                <Label Text="{Binding FavoritePOIs.Count, StringFormat='{0} địa điểm đã lưu'}"
+                       FontSize="13" TextColor="#636E72"/>
+            </VerticalStackLayout>
+            <Border Grid.Column="1"
+                    WidthRequest="40" HeightRequest="40"
+                    StrokeShape="RoundRectangle 20"
+                    StrokeThickness="0"
+                    BackgroundColor="#F5F6FA"
+                    VerticalOptions="Center">
+                <Label Text="🔔" FontSize="18"
+                       HorizontalOptions="Center" VerticalOptions="Center"/>
+            </Border>
+        </Grid>
+
+        <!-- ═══ SEARCH BAR ═══ -->
+        <Border Grid.Row="1"
+                Margin="20,14,20,10"
+                HeightRequest="50"
+                StrokeShape="RoundRectangle 25"
+                StrokeThickness="1" Stroke="#EFEFEF"
+                BackgroundColor="White">
+            <Border.Shadow>
+                <Shadow Brush="Black" Opacity="0.05" Radius="8" Offset="0,2"/>
+            </Border.Shadow>
+            <Grid ColumnDefinitions="Auto, *">
+                <Label Grid.Column="0" Text="🔍" FontSize="16"
+                       TextColor="#AAAAAA" VerticalOptions="Center"
+                       Margin="16,0,6,0"/>
+                <SearchBar x:Name="FavoriteSearchBar"
+                           Grid.Column="1"
+                           Placeholder="{Binding SearchFavoritesPlaceholder}"
+                           PlaceholderColor="#BBBBBB"
+                           TextColor="#1A1A2E"
+                           TextChanged="OnFavoriteSearchTextChanged"
+                           BackgroundColor="Transparent"
+                           VerticalOptions="Center"
+                           CancelButtonColor="#1ABC9C"/>
+            </Grid>
         </Border>
 
-        <CollectionView Grid.Row="1" x:Name="FavoriteCollectionView" ItemsSource="{Binding FavoritePOIs}">
+        <!-- ═══ LIST ═══ -->
+        <CollectionView Grid.Row="2"
+                        x:Name="FavoriteCollectionView"
+                        ItemsSource="{Binding FavoritePOIs}"
+                        Margin="20,0,20,0">
 
             <CollectionView.EmptyView>
-                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
-                    <Image Source="heart_outline.png" HeightRequest="64" Opacity="0.5"/>
-                    <Label Text="Chưa có địa điểm yêu thích nào" TextColor="Gray" FontSize="16"/>
+                <VerticalStackLayout VerticalOptions="Center"
+                                     HorizontalOptions="Center"
+                                     Spacing="14" Margin="0,60,0,0">
+                    <Border WidthRequest="90" HeightRequest="90"
+                            StrokeShape="RoundRectangle 45"
+                            StrokeThickness="0"
+                            BackgroundColor="#FFF0F0"
+                            HorizontalOptions="Center">
+                        <Label Text="💔" FontSize="40"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                    </Border>
+                    <Label Text="{Binding EmptyFavoritesText}"
+                           TextColor="#AAAAAA" FontSize="16"
+                           HorizontalOptions="Center"/>
+                    <Label Text="Hãy khám phá và lưu lại những địa điểm bạn thích!"
+                           TextColor="#CCCCCC" FontSize="13"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                           Margin="20,0,20,0"/>
                 </VerticalStackLayout>
             </CollectionView.EmptyView>
 
+            <CollectionView.Header>
+                <BoxView HeightRequest="4" BackgroundColor="Transparent"/>
+            </CollectionView.Header>
+
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:POI">
-                    <Frame Margin="0,0,0,10" Padding="0" HeightRequest="100" CornerRadius="12" HasShadow="True" IsClippedToBounds="True">
-                        <Grid ColumnDefinitions="100, *">
-                            <Image Grid.Column="0" Source="{Binding ImageUrl}" Aspect="AspectFill"/>
+                    <Border Margin="0,0,0,14"
+                            Padding="0"
+                            StrokeShape="RoundRectangle 16"
+                            StrokeThickness="0"
+                            BackgroundColor="White">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Opacity="0.07" Radius="10" Offset="0,3"/>
+                        </Border.Shadow>
+                        <Grid ColumnDefinitions="115, *" HeightRequest="110">
+                            <!-- Thumbnail -->
+                            <Border Grid.Column="0"
+                                    StrokeShape="RoundRectangle 16,0,0,16"
+                                    StrokeThickness="0">
+                                <Image Source="{Binding ImageUrl}" Aspect="AspectFill"/>
+                            </Border>
 
-                            <VerticalStackLayout Grid.Column="1" Padding="12" Spacing="4" VerticalOptions="Center">
-                                <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="16" TextColor="#2D3436" MaxLines="1"/>
+                            <!-- Details -->
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Padding="14,12,12,12"
+                                                 Spacing="5"
+                                                 VerticalOptions="Center">
+                                <Label Text="{Binding Name}"
+                                       FontAttributes="Bold" FontSize="15"
+                                       TextColor="#1A1A2E"
+                                       MaxLines="1" LineBreakMode="TailTruncation"/>
 
-                                <HorizontalStackLayout Spacing="4">
-                                    <Label Text="⭐" FontSize="12" TextColor="#FFD700" VerticalOptions="Center"/>
-                                    <Label Text="{Binding AverageRating, StringFormat='{0:F1}'}" FontSize="13" FontAttributes="Bold" VerticalOptions="Center"/>
+                                <!-- Rating + Review count -->
+                                <HorizontalStackLayout Spacing="6">
+                                    <Border HeightRequest="22" Padding="8,0"
+                                            StrokeShape="RoundRectangle 11"
+                                            StrokeThickness="0"
+                                            BackgroundColor="#FFF8E6"
+                                            VerticalOptions="Center">
+                                        <HorizontalStackLayout Spacing="3" VerticalOptions="Center">
+                                            <Label Text="⭐" FontSize="11"/>
+                                            <Label Text="{Binding AverageRating, StringFormat='{0:F1}'}"
+                                                   FontSize="12" FontAttributes="Bold"
+                                                   TextColor="#E67E22"/>
+                                        </HorizontalStackLayout>
+                                    </Border>
+                                    <Label Text="{Binding ReviewCount, StringFormat='({0})'}"
+                                           FontSize="12" TextColor="#AAAAAA"
+                                           VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+
+                                <!-- Distance -->
+                                <HorizontalStackLayout Spacing="3">
+                                    <Label Text="📍" FontSize="11" VerticalOptions="Center"/>
+                                    <Label Text="{Binding DistanceDisplay}"
+                                           FontSize="12" TextColor="#636E72"
+                                           VerticalOptions="Center"
+                                           MaxLines="1" LineBreakMode="TailTruncation"/>
                                 </HorizontalStackLayout>
                             </VerticalStackLayout>
                         </Grid>
-                    </Frame>
+                    </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
 
+            <CollectionView.Footer>
+                <BoxView HeightRequest="20" BackgroundColor="Transparent"/>
+            </CollectionView.Footer>
         </CollectionView>
+
     </Grid>
 </ContentPage>

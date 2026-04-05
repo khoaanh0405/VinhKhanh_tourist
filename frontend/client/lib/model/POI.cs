@@ -14,7 +14,7 @@ namespace client.lib.model
         public string Name { get; set; } = string.Empty;
 
         [JsonPropertyName("description")]
-        public string Description { get; set; } = string.Empty;
+        public string? Description { get; set; }
 
         [JsonPropertyName("latitude")]
         public double Latitude { get; set; }
@@ -41,6 +41,19 @@ namespace client.lib.model
                     return "placeholder_img.webp"; 
 
                 return ImageUrls.First();
+            }
+        }
+
+        [JsonIgnore]
+        public List<string> FullImageUrls
+        {
+            get
+            {
+                // Nếu không có ảnh nào, trả về 1 list chứa ảnh mặc định để UI không bị trống
+                if (ImageUrls == null || !ImageUrls.Any())
+                    return new List<string> { "placeholder_img.webp" };
+
+                return ImageUrls;
             }
         }
 

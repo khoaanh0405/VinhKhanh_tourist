@@ -1,3 +1,4 @@
+using client.lib.services;
 using Microsoft.Maui.Controls.Maps;
 using Microsoft.Maui.Maps;
 using System.Text.Json;
@@ -110,13 +111,28 @@ public partial class MapPage : ContentPage
 
     private void LoadVinhKhanhRestaurants()
     {
-        _allRestaurants = new List<RestaurantPoi>
+        // Kéo GeofenceService từ DI Container (nơi chứa dữ liệu API đã tải ở Home)
+        var geofenceService = Application.Current.Handler.MauiContext.Services.GetService<GeofenceService>();
+
+        if (geofenceService != null && geofenceService.Pois != null && geofenceService.Pois.Any())
         {
-            new RestaurantPoi { PoiId = 1, Name = "Ốc Oanh Vĩnh Khánh", Description = "Quán ốc nổi tiếng và đông khách nhất khu phố...", Lat = 10.761500, Lng = 106.704200, AverageRating = 4.8, ImageUrl = "https://res.cloudinary.com/dfxbdpxkc/image/upload/v1772255164/placeholder_img_ypdb0p.webp" },
-            new RestaurantPoi { PoiId = 2, Name = "Ốc Vũ", Description = "Không gian thoáng mát, menu đa dạng...", Lat = 10.762000, Lng = 106.704500, AverageRating = 4.5, ImageUrl = "https://res.cloudinary.com/dfxbdpxkc/image/upload/v1772255164/haisanvk1_tank_oag0wf.jpg" },
-            new RestaurantPoi { PoiId = 3, Name = "Lẩu Bò Khu Nhà Cháy", Description = "Lẩu bò truyền thống với nước dùng đậm đà...", Lat = 10.761000, Lng = 106.703800, AverageRating = 4.2, ImageUrl = "https://res.cloudinary.com/dfxbdpxkc/image/upload/v1772255164/monanmau_xaj5lo.jpg" },
-            new RestaurantPoi { PoiId = 4, Name = "Sườn Nướng Đảo", Description = "Chuyên các món sườn nướng BBQ xốt cay ngọt...", Lat = 10.762500, Lng = 106.705000, AverageRating = 4.7, ImageUrl = "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1000" }
-        };
+            // Chuyển đổi POI thực tế thành dạng RestaurantPoi cho bản đồ
+            _allRestaurants = geofenceService.Pois.Select(p => new RestaurantPoi
+            {
+                PoiId = p.PoiId,
+                Name = p.Name, // Tên quán (Luôn là tiếng Việt theo yêu cầu)
+                Description = p.Description, // Mô tả (Đã được backend dịch)
+                Lat = p.Latitude,
+                Lng = p.Longitude,
+                AverageRating = p.AverageRating,
+                ImageUrl = p.ImageUrls?.FirstOrDefault() ?? "placeholder_img.webp"
+            }).ToList();
+        }
+        else
+        {
+            // Dự phòng nếu chưa tải được API
+            _allRestaurants = new List<RestaurantPoi>();
+        }
 
         UpdateDistances();
         _allRestaurants = _allRestaurants.OrderBy(r => r.DistanceStr).ToList();
@@ -235,10 +251,15 @@ public partial class MapPage : ContentPage
         catch (Exception) { /* Bỏ qua lỗi mạng dể app không bị crash */ }
     }
 
-    // Dừng lắng nghe vị trí khi tắt trang để tiết kiệm pin
-    protected override void OnDisappearing()
+    protected override void OnAppearing()
     {
-        base.OnDisappearing();
+        base.OnAppearing();
+
+        // Cập nhật lại Placeholder theo ngôn ngữ hiện tại mỗi khi mở Tab Bản đồ
+        SearchEntry.Placeholder = client.Resources.String.AppResources.SearchMapPlaceholder;
+
+        LoadVinhKhanhRestaurants();
+
         if (_isTrackingStarted)
         {
             Geolocation.StopListeningForeground();

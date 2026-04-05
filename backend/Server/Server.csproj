@@ -27,10 +27,8 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 
-		<!-- Azure Cognitive Services Speech -->
 		<PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.34.0" />
 
-		<!-- Google Cloud Text-to-Speech -->
 		<PackageReference Include="Google.Cloud.TextToSpeech.V1" Version="3.4.0" />
 
 

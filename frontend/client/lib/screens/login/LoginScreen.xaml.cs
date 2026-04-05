@@ -1,3 +1,5 @@
+using client.lib.services;
+
 namespace client.lib.screens.login;
 
 public partial class LoginScreen : ContentPage
@@ -7,7 +9,8 @@ public partial class LoginScreen : ContentPage
         InitializeComponent();
     }
 
-    // 1. Xử lý khi nhấn nút ĐĂNG NHẬP
+    private readonly ApiService _apiService = new ApiService();
+
     private async void OnLoginClicked(object sender, EventArgs e)
     {
         string username = UsernameEntry.Text;
@@ -19,23 +22,26 @@ public partial class LoginScreen : ContentPage
             return;
         }
 
-        // TẠM THỜI MÔ PHỎNG LOGIC ĐĂNG NHẬP THÀNH CÔNG (Sau này bạn sẽ gọi API ở đây)
-        bool isLoginSuccess = true;
+        // GỌI API ĐĂNG NHẬP THẬT
+        var response = await _apiService.LoginAsync(username, password);
 
-        if (isLoginSuccess)
+        // Backend trả về Token nếu thành công
+        if (response != null && !string.IsNullOrEmpty(response.Token))
         {
-            // Lưu trạng thái đã đăng nhập vào Preferences của điện thoại
+            // Lưu JWT Token bằng SecureStorage (Bảo mật)
+            await SecureStorage.Default.SetAsync("jwt_token", response.Token);
+
+            // Lưu thông tin cơ bản để hiển thị lên ProfileScreen
             Preferences.Set("IsLoggedIn", true);
             Preferences.Set("CurrentUsername", username);
 
             await DisplayAlert("Thành công", "Đăng nhập thành công!", "OK");
-
-            // Đóng trang đăng nhập, quay lại trang trước đó (Trang chủ)
             await Shell.Current.GoToAsync("..");
         }
         else
         {
-            await DisplayAlert("Lỗi", "Tên đăng nhập hoặc mật khẩu không đúng", "Thử lại");
+            string errorMsg = response?.Message ?? "Không thể kết nối đến server.";
+            await DisplayAlert("Lỗi", errorMsg, "Thử lại");
         }
     }
 

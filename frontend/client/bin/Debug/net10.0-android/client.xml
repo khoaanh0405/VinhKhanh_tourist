@@ -40,6 +40,9 @@
         <member name="P:client.lib.screens.home.HomeViewModel.IsAutoNarrationEnabled">
             <inheritdoc cref="F:client.lib.screens.home.HomeViewModel._isAutoNarrationEnabled"/>
         </member>
+        <member name="P:client.lib.screens.home.HomeViewModel.AvailableLanguages">
+            <inheritdoc cref="F:client.lib.screens.home.HomeViewModel._availableLanguages"/>
+        </member>
         <member name="M:client.lib.screens.home.HomeViewModel.OnSearchTextChanged(System.String)">
             <summary>Executes the logic for when <see cref="P:client.lib.screens.home.HomeViewModel.SearchText"/> just changed.</summary>
             <param name="value">The new property value that was set.</param>
@@ -124,6 +127,357 @@
         </member>
         <member name="P:client.lib.services.GeofenceService.CurrentActivePOI">
             <inheritdoc cref="F:client.lib.services.GeofenceService._currentActivePOI"/>
+        </member>
+        <member name="T:client.Resources.String.AppResources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.AlertAgree">
+            <summary>
+              Looks up a localized string similar to Đồng ý.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.AlertLater">
+            <summary>
+              Looks up a localized string similar to Để sau.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.AlertLoginRequiredTitle">
+            <summary>
+              Looks up a localized string similar to Yêu cầu đăng nhập.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.AlertLoginToFavorite">
+            <summary>
+              Looks up a localized string similar to Bạn cần đăng nhập để có thể lưu địa điểm yêu thích. Đăng nhập ngay?.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.AlertLoginToReview">
+            <summary>
+              Looks up a localized string similar to Bạn cần đăng nhập để viết đánh giá và bình luận. Đăng nhập ngay?.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.AlertNotice">
+            <summary>
+              Looks up a localized string similar to Thông báo.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.AlertOK">
+            <summary>
+              Looks up a localized string similar to OK.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.AlertReviewSuccess">
+            <summary>
+              Looks up a localized string similar to Đánh giá của bạn đã được ghi nhận thành công..
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.AlertSelectStar">
+            <summary>
+              Looks up a localized string similar to Vui lòng chọn số sao đánh giá (từ 1 đến 5)..
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.AlertThankYou">
+            <summary>
+              Looks up a localized string similar to Cảm ơn!.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.AllLocations">
+            <summary>
+              Looks up a localized string similar to Tất cả địa điểm.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.DetailAddFavorite">
+            <summary>
+              Looks up a localized string similar to ❤️ Thêm vào yêu thích.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.DetailCancel">
+            <summary>
+              Looks up a localized string similar to Huỷ bỏ.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.DetailDefaultDesc">
+            <summary>
+              Looks up a localized string similar to Chạm để khám phá thêm về địa điểm này..
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.DetailLocationDemo">
+            <summary>
+              Looks up a localized string similar to Khu ẩm thực Vĩnh Khánh.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.DetailMenuEmpty">
+            <summary>
+              Looks up a localized string similar to Chưa có thông tin thực đơn..
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.DetailMenuTitle">
+            <summary>
+              Looks up a localized string similar to Thực đơn nổi bật.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.DetailMenuUpdating">
+            <summary>
+              Looks up a localized string similar to Đang cập nhật thực đơn....
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.DetailRemoveFavorite">
+            <summary>
+              Looks up a localized string similar to 💔 Bỏ yêu thích.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.DetailReviewPlaceholder">
+            <summary>
+              Looks up a localized string similar to Chia sẻ trải nghiệm của bạn tại đây....
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.DetailReviewTitle">
+            <summary>
+              Looks up a localized string similar to Đánh giá &amp; Bình luận.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.DetailSubmitReview">
+            <summary>
+              Looks up a localized string similar to Gửi đánh giá.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.DetailWriteReview">
+            <summary>
+              Looks up a localized string similar to Viết đánh giá của bạn.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.DetailYouDemo">
+            <summary>
+              Looks up a localized string similar to Bạn (Demo).
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.DetailYourReview">
+            <summary>
+              Looks up a localized string similar to Đánh giá của bạn.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.EmptyFavoritesText">
+            <summary>
+              Looks up a localized string similar to Chưa có địa điểm yêu thích nào.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.ExploreTitle">
+            <summary>
+              Looks up a localized string similar to Khám Phá Vĩnh Khánh 🍜.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.FavoritesTitle">
+            <summary>
+              Looks up a localized string similar to Yêu thích của tôi.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.HomeDistanceKm">
+            <summary>
+              Looks up a localized string similar to Cách bạn {0}km.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.HomeDistanceMeters">
+            <summary>
+              Looks up a localized string similar to Cách bạn {0}m.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.HomeGreeting">
+            <summary>
+              Looks up a localized string similar to Xin chào 👋.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.HomeReviews">
+            <summary>
+              Looks up a localized string similar to đánh giá.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.HomeSort">
+            <summary>
+              Looks up a localized string similar to Sắp xếp ↕.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.NotFoundText">
+            <summary>
+              Looks up a localized string similar to Không tìm thấy món ăn hoặc quán nào.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SearchFavoritesPlaceholder">
+            <summary>
+              Looks up a localized string similar to Tìm trong mục yêu thích....
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SearchMapPlaceholder">
+            <summary>
+              Looks up a localized string similar to Tìm kiếm quán ăn....
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SearchPlaceholder">
+            <summary>
+              Looks up a localized string similar to Tìm quán, món ăn (VD: lẩu bò, ốc)....
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsAboutDesc">
+            <summary>
+              Looks up a localized string similar to Phiên bản 1.0.0.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsAboutTitle">
+            <summary>
+              Looks up a localized string similar to Về ứng dụng.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsFooterTagline">
+            <summary>
+              Looks up a localized string similar to Khám phá ẩm thực Vĩnh Khánh.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsFooterVersion">
+            <summary>
+              Looks up a localized string similar to v1.0.0  ·  Made with ❤️ in Vietnam.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsLanguageChangedMsg">
+            <summary>
+              Looks up a localized string similar to Đã chuyển sang.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsLanguageChangedTitle">
+            <summary>
+              Looks up a localized string similar to Đổi ngôn ngữ thành công.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsLanguageDesc">
+            <summary>
+              Looks up a localized string similar to Chọn ngôn ngữ cho nội dung app.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsLanguageTitle">
+            <summary>
+              Looks up a localized string similar to Ngôn ngữ hiển thị.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsPushDesc">
+            <summary>
+              Looks up a localized string similar to Nhận thông báo về địa điểm mới.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsPushTitle">
+            <summary>
+              Looks up a localized string similar to Thông báo đẩy.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsQrDesc">
+            <summary>
+              Looks up a localized string similar to Quét mã QR để xem chi tiết địa điểm.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsQrOpen">
+            <summary>
+              Looks up a localized string similar to Mở →.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsQrTitle">
+            <summary>
+              Looks up a localized string similar to Quét mã QR.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsRateDesc">
+            <summary>
+              Looks up a localized string similar to Chia sẻ trải nghiệm của bạn.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsRateTitle">
+            <summary>
+              Looks up a localized string similar to Đánh giá ứng dụng.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsSectionInfo">
+            <summary>
+              Looks up a localized string similar to Thông tin.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsSectionLanguage">
+            <summary>
+              Looks up a localized string similar to Ngôn ngữ &amp; Vùng.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsSectionNotifications">
+            <summary>
+              Looks up a localized string similar to Thông báo.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsSectionTools">
+            <summary>
+              Looks up a localized string similar to Công cụ.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsSoundDesc">
+            <summary>
+              Looks up a localized string similar to Phát âm thanh khi có thông báo mới.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsSoundTitle">
+            <summary>
+              Looks up a localized string similar to Âm thanh thông báo.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsSubtitle">
+            <summary>
+              Looks up a localized string similar to Tuỳ chỉnh trải nghiệm của bạn.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.SettingsTitle">
+            <summary>
+              Looks up a localized string similar to Cài đặt.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.TabFavorites">
+            <summary>
+              Looks up a localized string similar to Yêu thích.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.TabHome">
+            <summary>
+              Looks up a localized string similar to Trang chủ.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.TabMap">
+            <summary>
+              Looks up a localized string similar to Bản đồ.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.TabSettings">
+            <summary>
+              Looks up a localized string similar to Cài đặt.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.ToastAddedFavorite">
+            <summary>
+              Looks up a localized string similar to Đã lưu {0} vào yêu thích.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.ToastRemovedFavorite">
+            <summary>
+              Looks up a localized string similar to Đã xóa {0} khỏi yêu thích.
+            </summary>
+        </member>
+        <member name="P:client.Resources.String.AppResources.TopFavorites">
+            <summary>
+              Looks up a localized string similar to 🔥 Top Quán Yêu Thích.
+            </summary>
         </member>
         <member name="T:client.Resource">
             <summary>
@@ -368,6 +722,9 @@
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.IsAutoNarrationEnabled">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "IsAutoNarrationEnabled" generated properties.</summary>
         </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.AvailableLanguages">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "AvailableLanguages" generated properties.</summary>
+        </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.CurrentLanguageCode">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "CurrentLanguageCode" generated properties.</summary>
         </member>
@@ -418,6 +775,9 @@
         </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.IsAutoNarrationEnabled">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "IsAutoNarrationEnabled" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.AvailableLanguages">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "AvailableLanguages" generated properties.</summary>
         </member>
         <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.CurrentLanguageCode">
             <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "CurrentLanguageCode" generated properties.</summary>

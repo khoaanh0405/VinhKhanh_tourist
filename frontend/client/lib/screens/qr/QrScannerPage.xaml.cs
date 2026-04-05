@@ -29,4 +29,8 @@ public partial class QrScannerPage : ContentPage
             }
         });
     }
+    private async void OnBackTapped(object sender, TappedEventArgs e)
+    {
+        await Navigation.PopAsync();
+    }
 }

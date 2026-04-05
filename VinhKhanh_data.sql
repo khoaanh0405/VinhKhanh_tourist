@@ -20,10 +20,11 @@ GO
 ========================= */
 CREATE TABLE Users (
     UserId INT IDENTITY(1,1) PRIMARY KEY,
+    DisplayName NVARCHAR(100) NOT NULL,
     Username NVARCHAR(100) NOT NULL UNIQUE,
     Password NVARCHAR(200) NOT NULL,
     Role NVARCHAR(50) NOT NULL
-        CHECK (Role IN ('Admin','Manager','Staff')),
+        CHECK (Role IN ('Admin','Manager','Tourist')),
     CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE()
 );
 
@@ -184,11 +185,54 @@ CREATE INDEX IX_Reviews_PoiId ON Reviews(PoiId);
 GO
 
 /* =========================================================================
-   10. BƠM DỮ LIỆU MẪU (DEMO DATA) - QUÁN ĂN VÀ TOP RATED
+   10. BẢNG DỊCH THUẬT (TRANSLATIONS / LOCALIZATION)
+   Dùng để lưu trữ nội dung đa ngôn ngữ cho POIs, Restaurants và Foods
+========================================================================= */
+
+-- Dịch cho POIs
+CREATE TABLE PoiTranslations (
+    TranslationId INT IDENTITY(1,1) PRIMARY KEY,
+    PoiId INT NOT NULL,
+    LanguageCode NVARCHAR(10) NOT NULL,
+    Description NVARCHAR(500) NOT NULL,
+    FOREIGN KEY (PoiId) REFERENCES POIs(PoiId) ON DELETE CASCADE,
+    FOREIGN KEY (LanguageCode) REFERENCES Languages(LanguageCode),
+    CONSTRAINT UQ_PoiTrans UNIQUE (PoiId, LanguageCode)
+);
+
+-- Dịch cho Restaurants
+CREATE TABLE RestaurantTranslations (
+    TranslationId INT IDENTITY(1,1) PRIMARY KEY,
+    RestaurantId INT NOT NULL,
+    LanguageCode NVARCHAR(10) NOT NULL,
+    Description NVARCHAR(500) NOT NULL,
+    FOREIGN KEY (RestaurantId) REFERENCES Restaurants(RestaurantId) ON DELETE CASCADE,
+    FOREIGN KEY (LanguageCode) REFERENCES Languages(LanguageCode),
+    CONSTRAINT UQ_ResTrans UNIQUE (RestaurantId, LanguageCode)
+);
+
+-- Dịch cho Foods (Cần dịch cả Tên món ăn để du khách dễ gọi món)
+CREATE TABLE FoodTranslations (
+    TranslationId INT IDENTITY(1,1) PRIMARY KEY,
+    FoodId INT NOT NULL,
+    LanguageCode NVARCHAR(10) NOT NULL,
+    Name NVARCHAR(200) NOT NULL, 
+    Description NVARCHAR(500) NOT NULL,
+    FOREIGN KEY (FoodId) REFERENCES Foods(FoodId) ON DELETE CASCADE,
+    FOREIGN KEY (LanguageCode) REFERENCES Languages(LanguageCode),
+    CONSTRAINT UQ_FoodTrans UNIQUE (FoodId, LanguageCode)
+);
+GO
+
+/* =========================================================================
+   11. BƠM DỮ LIỆU MẪU (DEMO DATA) - QUÁN ĂN VÀ TOP RATED
 ========================================================================= */
 
 -- 1. Thêm Ngôn ngữ
-INSERT INTO Languages (LanguageCode, LanguageName) VALUES ('vi', N'Tiếng Việt'), ('en', N'English');
+INSERT INTO Languages (LanguageCode, LanguageName) VALUES 
+('vi', N'Tiếng Việt'), 
+('en', N'English'),
+('ko', N'한국어 (Korean)');
 
 -- 2. Thêm dữ liệu POI (Các quán ăn ở Vĩnh Khánh) với Rating khác nhau để test xếp hạng
 INSERT INTO POIs (Name, Latitude, Longitude, Description, AverageRating, ReviewCount) 
@@ -222,15 +266,71 @@ INSERT INTO Foods (Name, Price, Description, RestaurantId) VALUES
 (N'Lẩu thái chua cay', 180000, N'Sườn cây nướng than hoa sốt đặc biệt.', 4);
 
 -- 6. Thêm Narrations (Thuyết minh - Dùng UseAudioFile = 0 để TTS đọc tự động)
+-- 6. Thêm Narrations (Thuyết minh đa ngôn ngữ - Dùng UseAudioFile = 0 để TTS đọc tự động)
 INSERT INTO Narrations (PoiId, LanguageCode, Text, UseAudioFile, VoiceName) VALUES 
+
+-- ==================== TIẾNG VIỆT ('vi') ====================
 (1, 'vi', N'Chào mừng bạn đến với Ốc Oanh. Đây là quán ốc lâu đời và được đánh giá cao nhất tại phố ẩm thực Vĩnh Khánh. Bạn nhất định phải thử món ốc hương rang muối ớt nhé.', 0, 'vi-VN'),
 (2, 'vi', N'Bạn đang ở gần Ốc Vũ. Một địa điểm tuyệt vời để thưởng thức hải sản với không gian nhộn nhịp đặc trưng của Sài Gòn về đêm.', 0, 'vi-VN'),
 (3, 'vi', N'Nếu bạn đang thèm một chút hải sản tươi ngon, ốc thảo ngay cạnh đây là một lựa chọn tuyệt vời.', 0, 'vi-VN'),
-(4, 'vi', N'Ớt Xiêm Quán nổi bật lên như một điểm dừng chân lý tưởng cho những ai trót say mê không khí sôi động của con phố ẩm thực nức tiếng Quận 4.', 0, 'vi-VN');
-GO
+(4, 'vi', N'Ớt Xiêm Quán nổi bật lên như một điểm dừng chân lý tưởng cho những ai trót say mê không khí sôi động của con phố ẩm thực nức tiếng Quận 4.', 0, 'vi-VN'),
+
+-- ==================== TIẾNG ANH ('en') ====================
+(1, 'en', N'Welcome to Oc Oanh. This is the oldest and highest-rated snail restaurant on Vinh Khanh food street. You absolutely must try the roasted sweet snails with chili salt.', 0, 'en-US'),
+(2, 'en', N'You are near Oc Vu. A great place to enjoy fresh seafood with the bustling atmosphere typical of Saigon at night.', 0, 'en-US'),
+(3, 'en', N'If you are craving some delicious seafood, Oc Thao right next door is an excellent choice for you.', 0, 'en-US'),
+(4, 'en', N'Ot Xiem Quan stands out as an ideal stop for those who are passionate about the vibrant atmosphere of the famous food street in District 4.', 0, 'en-US'),
+
+-- ==================== TIẾNG HÀN ('ko') ====================
+(1, 'ko', N'빈칸 음식 거리에서 가장 오래되고 평점이 높은 옥오안에 오신 것을 환영합니다. 칠리 소금을 곁들인 구운 달팽이를 꼭 맛보세요.', 0, 'ko-KR'),
+(2, 'ko', N'오부 근처에 있습니다. 밤이 되면 사이공 특유의 북적이는 분위기와 함께 해산물을 즐기기에 아주 좋은 곳입니다.', 0, 'ko-KR'),
+(3, 'ko', N'신선한 해산물이 먹고 싶다면 바로 옆에 있는 옥타오가 탁월한 선택입니다.', 0, 'ko-KR'),
+(4, 'ko', N'옷시엠 식당은 4군 유명 먹자골목의 활기찬 분위기를 사랑하는 이들에게 이상적인 장소입니다.', 0, 'ko-KR');
 
 INSERT INTO Reviews (PoiId, UserName, Rating, Comment) VALUES 
 (1, N'Tuấn Anh', 5, N'Hải sản ở đây cực kỳ tươi. Món ốc hương rang muối ớt đậm đà, ăn là ghiền!'),
 (1, N'Mai Phương', 4, N'Quán hơi đông nên phục vụ có lúc chậm, nhưng bù lại đồ ăn rất ngon và nóng hổi.'),
 (2, N'Lê Đình Hoàng', 5, N'Không gian thoáng, giá cả hợp lý. Sò điệp nướng mỡ hành ở đây là chân ái.');
+GO
+
+-- 1. POI Translations
+INSERT INTO PoiTranslations (PoiId, LanguageCode, Description) VALUES 
+-- Tiếng Anh
+(1, 'en', N'The most famous and crowded snail restaurant on Vinh Khanh food street with fresh seafood and signature dipping sauces.'),
+(2, 'en', N'Airy space, diverse menu. Especially famous for roasted snails with chili salt and roasted crab claws with tamarind.'),
+(3, 'en', N'Long-standing establishment with spacious seating and a diverse snail menu.'),
+(4, 'en', N'A cozy pub serving a rich variety of dishes from meat to seafood.'),
+-- Tiếng Hàn
+(1, 'ko', N'빈칸 음식 거리에서 가장 유명하고 붐비는 해산물 식당으로, 신선한 해산물과 특제 디핑 소스를 제공합니다.'),
+(2, 'ko', N'쾌적한 공간과 다양한 메뉴. 특히 칠리 소금을 곁들인 구운 달팽이와 타마린드 소스를 곁들인 구운 게 집게발이 유명합니다.'),
+(3, 'ko', N'넓은 좌석과 다양한 달팽이 요리 메뉴를 갖춘 오래된 식당입니다.'),
+(4, 'ko', N'육류부터 해산물까지 다양한 요리를 제공하는 아늑한 분위기의 식당입니다.');
+
+-- 2. Restaurant Translations
+INSERT INTO RestaurantTranslations (RestaurantId, LanguageCode, Description) VALUES 
+-- Tiếng Anh
+(1, 'en', N'Specializes in fresh seafood.'),
+(2, 'en', N'Specializes in stir-fried and grilled snail dishes.'),
+(3, 'en', N'Specializes in various types of beef hotpot.'),
+(4, 'en', N'Cozy pub space for gatherings.'),
+-- Tiếng Hàn
+(1, 'ko', N'신선한 해산물 전문.'),
+(2, 'ko', N'달팽이 볶음 및 구이 요리 전문.'),
+(3, 'ko', N'소고기 전골 요리 전문.'),
+(4, 'ko', N'모임을 위한 아늑한 식당 공간.');
+
+-- 3. Food Translations (Dịch cả Tên và Mô tả)
+INSERT INTO FoodTranslations (FoodId, LanguageCode, Name, Description) VALUES 
+-- Tiếng Anh
+(1, 'en', N'Roasted sweet snails with chili salt', N'Large sweet snails, spicy, salty and sweet.'),
+(2, 'en', N'Roasted crab claws with tamarind', N'Fresh crab claws, rich sweet and sour tamarind sauce.'),
+(3, 'en', N'Grilled scallops with scallion oil', N'Rich scallops topped with roasted peanuts.'),
+(4, 'en', N'Mixed beef hotpot', N'12-hour bone broth, packed with tendon, oxtail, and beef.'),
+(5, 'en', N'Spicy Thai hotpot', N'Charcoal-grilled ribs with special sauce.'),
+-- Tiếng Hàn
+(1, 'ko', N'칠리 소금 맛 구운 달팽이', N'크고 매콤달콤 짭짤한 달팽이.'),
+(2, 'ko', N'타마린드 소스 게 집게발 구이', N'신선한 게 집게발, 진한 새콤달콤 타마린드 소스.'),
+(3, 'ko', N'파기름 가리비 구이', N'고소한 땅콩을 곁들인 풍미 가득한 가리비.'),
+(4, 'ko', N'모듬 소고기 전골', N'12시간 끓인 사골 육수에 힘줄, 꼬리, 소고기가 듬뿍 들어간 전골.'),
+(5, 'ko', N'태국식 매운 전골', N'특제 소스를 곁들인 숯불 돼지갈비 구이.');
 GO

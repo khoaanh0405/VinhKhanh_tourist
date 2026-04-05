@@ -16,6 +16,8 @@ namespace client.lib.services
 
         private List<POI> _allPOIs = new();
 
+        public List<POI> Pois => _allPOIs;
+
         // Dùng CancellationToken thay vì Timer để quản lý luồng nền
         private CancellationTokenSource? _monitoringCts;
 

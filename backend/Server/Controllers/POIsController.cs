@@ -19,48 +19,67 @@ namespace Server.Controllers
         }
 
         [HttpGet]
-        [HttpGet]
-        public async Task<ActionResult<List<POIDto>>> GetAll()
+        public async Task<ActionResult<List<POIDto>>> GetAll([FromQuery] string lang = "vi")
         {
             try
             {
                 var pois = await _context.POIs
                     .AsNoTracking()
-                    .AsSplitQuery() // Tránh lỗi hiệu suất của Entity Framework
+                    .AsSplitQuery()
                     .Select(p => new POIDto
                     {
                         PoiId = p.PoiId,
                         Name = p.Name,
+
+                        // Áp dụng Fallback Language cho POI Description
+                        Description = p.PoiTranslations.FirstOrDefault(t => t.LanguageCode == lang) != null
+                                      ? p.PoiTranslations.FirstOrDefault(t => t.LanguageCode == lang).Description
+                                      : p.Description,
+
                         Latitude = p.Latitude,
                         Longitude = p.Longitude,
-                        AverageRating = p.AverageRating, // Điểm đánh giá
-                        ReviewCount = p.ReviewCount,     // Số lượt đánh giá
+                        AverageRating = p.AverageRating,
+                        ReviewCount = p.ReviewCount,
 
-                        // Lấy Ảnh
                         ImageUrls = p.PoiImages.OrderBy(i => i.DisplayOrder).Select(i => i.ImageUrl).ToList(),
 
-                        // Lấy Audio / Text
-                        Narrations = p.Narrations.Select(n => new NarrationDto
-                        {
-                            NarrationId = n.NarrationId,
-                            Text = n.Text,
-                            LanguageCode = n.LanguageCode,
-                            AudioUrl = n.AudioUrl,
-                            UseAudioFile = n.UseAudioFile
-                        }).ToList(),
+                        Narrations = p.Narrations
+                            .Where(n => n.LanguageCode == lang)
+                            .Select(n => new NarrationDto
+                            {
+                                NarrationId = n.NarrationId,
+                                Text = n.Text,
+                                LanguageCode = n.LanguageCode,
+                                AudioUrl = n.AudioUrl,
+                                UseAudioFile = n.UseAudioFile,
+                                VoiceName = n.VoiceName
+                            }).ToList(),
 
                         Restaurants = p.Restaurants.Select(r => new RestaurantDto
                         {
                             RestaurantId = r.RestaurantId,
-                            Name = r.Name,
+                            Name = r.Name, // Tên riêng quán giữ nguyên
                             Address = r.Address,
-                            Description = r.Description,
+
+                            // Áp dụng Fallback Language cho Restaurant Description
+                            Description = r.RestaurantTranslations.FirstOrDefault(t => t.LanguageCode == lang) != null
+                                          ? r.RestaurantTranslations.FirstOrDefault(t => t.LanguageCode == lang).Description
+                                          : r.Description,
+
                             Foods = r.Foods.Select(f => new FoodDto
                             {
                                 FoodId = f.FoodId,
-                                Name = f.Name,
                                 Price = f.Price,
-                                Description = f.Description
+
+                                // Áp dụng Fallback Language cho Tên Món Ăn
+                                Name = f.FoodTranslations.FirstOrDefault(t => t.LanguageCode == lang) != null
+                                       ? f.FoodTranslations.FirstOrDefault(t => t.LanguageCode == lang).Name
+                                       : f.Name,
+
+                                // Áp dụng Fallback Language cho Mô tả Món Ăn
+                                Description = f.FoodTranslations.FirstOrDefault(t => t.LanguageCode == lang) != null
+                                              ? f.FoodTranslations.FirstOrDefault(t => t.LanguageCode == lang).Description
+                                              : f.Description
                             }).ToList()
                         }).ToList(),
 
@@ -85,8 +104,9 @@ namespace Server.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<POIDto>> GetById(int id)
+        public async Task<ActionResult<POIDto>> GetById(int id, [FromQuery] string lang = "vi")
         {
+            // Tương tự như GetAll, copy block .Select(...) từ GetAll xuống đây
             var poi = await _context.POIs
                 .AsNoTracking()
                 .AsSplitQuery()
@@ -95,11 +115,28 @@ namespace Server.Controllers
                 {
                     PoiId = p.PoiId,
                     Name = p.Name,
+                    Description = p.PoiTranslations.FirstOrDefault(t => t.LanguageCode == lang) != null ? p.PoiTranslations.FirstOrDefault(t => t.LanguageCode == lang).Description : p.Description,
                     Latitude = p.Latitude,
                     Longitude = p.Longitude,
-                    AverageRating = p.AverageRating, 
+                    AverageRating = p.AverageRating,
                     ReviewCount = p.ReviewCount,
-                    ImageUrls = p.PoiImages.OrderBy(i => i.DisplayOrder).Select(i => i.ImageUrl).ToList()
+                    ImageUrls = p.PoiImages.OrderBy(i => i.DisplayOrder).Select(i => i.ImageUrl).ToList(),
+                    Narrations = p.Narrations.Where(n => n.LanguageCode == lang).Select(n => new NarrationDto { NarrationId = n.NarrationId, Text = n.Text, LanguageCode = n.LanguageCode, AudioUrl = n.AudioUrl, UseAudioFile = n.UseAudioFile, VoiceName = n.VoiceName }).ToList(),
+                    Restaurants = p.Restaurants.Select(r => new RestaurantDto
+                    {
+                        RestaurantId = r.RestaurantId,
+                        Name = r.Name,
+                        Address = r.Address,
+                        Description = r.RestaurantTranslations.FirstOrDefault(t => t.LanguageCode == lang) != null ? r.RestaurantTranslations.FirstOrDefault(t => t.LanguageCode == lang).Description : r.Description,
+                        Foods = r.Foods.Select(f => new FoodDto
+                        {
+                            FoodId = f.FoodId,
+                            Price = f.Price,
+                            Name = f.FoodTranslations.FirstOrDefault(t => t.LanguageCode == lang) != null ? f.FoodTranslations.FirstOrDefault(t => t.LanguageCode == lang).Name : f.Name,
+                            Description = f.FoodTranslations.FirstOrDefault(t => t.LanguageCode == lang) != null ? f.FoodTranslations.FirstOrDefault(t => t.LanguageCode == lang).Description : f.Description
+                        }).ToList()
+                    }).ToList(),
+                    Reviews = p.Reviews.OrderByDescending(r => r.CreatedAt).Select(rv => new ReviewDto { ReviewId = rv.ReviewId, UserName = rv.UserName, Rating = rv.Rating, Comment = rv.Comment, CreatedAt = rv.CreatedAt }).ToList()
                 })
                 .FirstOrDefaultAsync();
 

@@ -12,6 +12,10 @@ namespace Server.Models
 
         [Required]
         [MaxLength(100)]
+        public string DisplayName { get; set; }
+
+        [Required]
+        [MaxLength(100)]
         public string Username { get; set; }
 
         [Required]
@@ -24,6 +28,8 @@ namespace Server.Models
 
         // Navigation properties
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [NotMapped]
         public DateTime? UpdatedAt { get; set; }
     }
 }

@@ -1,0 +1,350 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+	<data name="ExploreTitle" xml:space="preserve">
+		<value>빈칸 음식 거리 탐험 🍜</value>
+	</data>
+	<data name="SearchPlaceholder" xml:space="preserve">
+		<value>음식, 장소 검색...</value>
+	</data>
+	<data name="TopFavorites" xml:space="preserve">
+		<value>🔥 인기 맛집</value>
+	</data>
+	<data name="AllLocations" xml:space="preserve">
+		<value>모든 장소</value>
+	</data>
+	<data name="NotFoundText" xml:space="preserve">
+		<value>음식이나 장소를 찾을 수 없습니다</value>
+	</data>
+	<data name="SearchMapPlaceholder" xml:space="preserve">
+		<value>식당 검색...</value>
+	</data>
+	<data name="SearchFavoritesPlaceholder" xml:space="preserve">
+		<value>즐겨찾기에서 검색...</value>
+	</data>
+	<data name="EmptyFavoritesText" xml:space="preserve">
+		<value>즐겨찾기한 장소가 없습니다</value>
+	</data>
+	<data name="SearchMapPlaceholder" xml:space="preserve">
+		<value>식당 검색...</value>
+	</data>
+	<data name="SearchFavoritesPlaceholder" xml:space="preserve">
+		<value>즐겨찾기에서 검색...</value>
+	</data>
+	<data name="EmptyFavoritesText" xml:space="preserve">
+		<value>즐겨찾기한 장소가 없습니다</value>
+	</data>
+	<data name="HomeDistanceMeters" xml:space="preserve">
+    <value>{0}m 거리</value>
+    </data>
+	<data name="HomeDistanceKm" xml:space="preserve">
+    <value>{0}km 거리</value>
+    </data>
+
+	<data name="SettingsTitle" xml:space="preserve">
+    <value>설정</value>
+  </data>
+	<data name="SettingsSubtitle" xml:space="preserve">
+    <value>경험을 맞춤 설정하세요</value>
+  </data>
+
+	<data name="HomeGreeting" xml:space="preserve">
+    <value>안녕하세요 👋</value>
+  </data>
+	<data name="HomeReviews" xml:space="preserve">
+    <value>리뷰</value>
+  </data>
+	<data name="HomeSort" xml:space="preserve">
+    <value>정렬 ↕</value>
+  </data>
+	<data name="DetailDefaultDesc" xml:space="preserve">
+    <value>이 장소에 대해 더 알아보려면 탭하세요.</value>
+  </data>
+	<data name="DetailLocationDemo" xml:space="preserve">
+    <value>빈칸 푸드코트</value>
+  </data>
+	<data name="DetailMenuTitle" xml:space="preserve">
+    <value>인기 메뉴</value>
+  </data>
+	<data name="DetailMenuUpdating" xml:space="preserve">
+    <value>메뉴 업데이트 중...</value>
+  </data>
+	<data name="DetailMenuEmpty" xml:space="preserve">
+    <value>메뉴 정보가 없습니다.</value>
+  </data>
+	<data name="DetailReviewTitle" xml:space="preserve">
+    <value>평가 및 리뷰</value>
+  </data>
+	<data name="DetailWriteReview" xml:space="preserve">
+    <value>리뷰 쓰기</value>
+  </data>
+	<data name="DetailYourReview" xml:space="preserve">
+    <value>귀하의 리뷰</value>
+  </data>
+	<data name="DetailReviewPlaceholder" xml:space="preserve">
+    <value>여기에 경험을 공유해주세요...</value>
+  </data>
+	<data name="DetailCancel" xml:space="preserve">
+    <value>취소</value>
+  </data>
+	<data name="DetailSubmitReview" xml:space="preserve">
+    <value>리뷰 제출</value>
+  </data>
+	<data name="DetailAddFavorite" xml:space="preserve">
+    <value>❤️ 즐겨찾기에 추가</value>
+  </data>
+	<data name="DetailRemoveFavorite" xml:space="preserve">
+    <value>💔 즐겨찾기에서 제거</value>
+  </data>
+	<data name="ToastAddedFavorite" xml:space="preserve">
+    <value>{0}을(를) 즐겨찾기에 저장했습니다</value>
+  </data>
+	<data name="ToastRemovedFavorite" xml:space="preserve">
+    <value>즐겨찾기에서 {0}을(를) 제거했습니다</value>
+  </data>
+	<data name="AlertLoginRequiredTitle" xml:space="preserve">
+    <value>로그인 필요</value>
+  </data>
+	<data name="AlertLoginToFavorite" xml:space="preserve">
+    <value>즐겨찾는 장소를 저장하려면 로그인이 필요합니다. 지금 로그인하시겠습니까?</value>
+  </data>
+	<data name="AlertLoginToReview" xml:space="preserve">
+    <value>리뷰를 작성하려면 로그인이 필요합니다. 지금 로그인하시겠습니까?</value>
+  </data>
+	<data name="AlertAgree" xml:space="preserve">
+    <value>동의</value>
+  </data>
+	<data name="AlertLater" xml:space="preserve">
+    <value>나중에</value>
+  </data>
+	<data name="AlertNotice" xml:space="preserve">
+    <value>알림</value>
+  </data>
+	<data name="AlertSelectStar" xml:space="preserve">
+    <value>별점을 선택해 주세요 (1~5점).</value>
+  </data>
+	<data name="AlertOK" xml:space="preserve">
+    <value>확인</value>
+  </data>
+	<data name="DetailYouDemo" xml:space="preserve">
+    <value>나 (데모)</value>
+  </data>
+	<data name="AlertThankYou" xml:space="preserve">
+    <value>감사합니다!</value>
+  </data>
+	<data name="AlertReviewSuccess" xml:space="preserve">
+    <value>리뷰가 성공적으로 기록되었습니다.</value>
+  </data>
+
+	<!-- ── 설정 페이지: 언어 섹션 ── -->
+	<data name="SettingsSectionLanguage" xml:space="preserve">
+    <value>언어 및 지역</value>
+  </data>
+	<data name="SettingsLanguageTitle" xml:space="preserve">
+    <value>표시 언어</value>
+  </data>
+	<data name="SettingsLanguageDesc" xml:space="preserve">
+    <value>앱 콘텐츠 언어를 선택하세요</value>
+  </data>
+
+	<!-- ── 설정 페이지: 도구 섹션 ── -->
+	<data name="SettingsSectionTools" xml:space="preserve">
+    <value>도구</value>
+  </data>
+	<data name="SettingsQrTitle" xml:space="preserve">
+    <value>QR 코드 스캔</value>
+  </data>
+	<data name="SettingsQrDesc" xml:space="preserve">
+    <value>QR 코드로 장소 세부 정보 보기</value>
+  </data>
+	<data name="SettingsQrOpen" xml:space="preserve">
+    <value>열기 →</value>
+  </data>
+
+	<!-- ── 설정 페이지: 알림 섹션 ── -->
+	<data name="SettingsSectionNotifications" xml:space="preserve">
+    <value>알림</value>
+  </data>
+	<data name="SettingsPushTitle" xml:space="preserve">
+    <value>푸시 알림</value>
+  </data>
+	<data name="SettingsPushDesc" xml:space="preserve">
+    <value>근처 새 장소 알림 받기</value>
+  </data>
+	<data name="SettingsSoundTitle" xml:space="preserve">
+    <value>알림 소리</value>
+  </data>
+	<data name="SettingsSoundDesc" xml:space="preserve">
+    <value>새 알림 시 소리 재생</value>
+  </data>
+
+	<!-- ── 설정 페이지: 정보 섹션 ── -->
+	<data name="SettingsSectionInfo" xml:space="preserve">
+    <value>정보</value>
+  </data>
+	<data name="SettingsAboutTitle" xml:space="preserve">
+    <value>앱 정보</value>
+  </data>
+	<data name="SettingsAboutDesc" xml:space="preserve">
+    <value>버전 1.0.0</value>
+  </data>
+	<data name="SettingsRateTitle" xml:space="preserve">
+    <value>앱 평가하기</value>
+  </data>
+	<data name="SettingsRateDesc" xml:space="preserve">
+    <value>경험을 공유해 주세요</value>
+  </data>
+
+	<!-- ── 설정 페이지: 푸터 ── -->
+	<data name="SettingsFooterTagline" xml:space="preserve">
+    <value>빈칸 음식 거리 탐험</value>
+  </data>
+	<data name="SettingsFooterVersion" xml:space="preserve">
+    <value>v1.0.0  ·  Made with ❤️ in Vietnam</value>
+  </data>
+
+	<!-- ── 언어 변경 후 알림 ── -->
+	<data name="SettingsLanguageChangedTitle" xml:space="preserve">
+    <value>언어 변경 완료</value>
+  </data>
+	<data name="SettingsLanguageChangedMsg" xml:space="preserve">
+    <value>다음으로 변경됨:</value>
+    <comment>Displayed as: "다음으로 변경됨: 한국어 🇰🇷" — language name appended in code</comment>
+  </data>
+
+	<!-- ── 탭 바 이름 ── -->
+	<data name="TabHome" xml:space="preserve">
+    <value>홈</value>
+  </data>
+	<data name="TabMap" xml:space="preserve">
+    <value>지도</value>
+  </data>
+	<data name="TabFavorites" xml:space="preserve">
+    <value>즐겨찾기</value>
+  </data>
+	<data name="TabSettings" xml:space="preserve">
+    <value>설정</value>
+  </data>
+
+	<!-- ── FavoritesPage Title ── -->
+	<data name="FavoritesTitle" xml:space="preserve">
+    <value>내 즐겨찾기</value>
+  </data>
+</root>
