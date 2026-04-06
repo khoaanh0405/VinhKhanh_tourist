@@ -76,7 +76,8 @@
                         BackgroundColor="#0AFFFFFF"/>
 
                 <!-- Teal border frame -->
-                <Border StrokeShape="RoundRectangle 16"
+                <Border x:Name="ScannerOverlay"
+                        StrokeShape="RoundRectangle 16"
                         StrokeThickness="2"
                         Stroke="#1ABC9C"
                         BackgroundColor="Transparent"/>

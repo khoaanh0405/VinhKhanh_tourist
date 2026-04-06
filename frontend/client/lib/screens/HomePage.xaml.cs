@@ -30,7 +30,7 @@ namespace client.lib.screens
             }
         }
 
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
@@ -60,10 +60,7 @@ namespace client.lib.screens
 
             if (_viewModel != null && (_viewModel.Pois == null || !_viewModel.Pois.Any()))
             {
-                Task.Run(async () =>
-                {
-                    await _viewModel.LoadDataAsync();
-                });
+                await _viewModel.LoadDataAsync();
             }
         }
 

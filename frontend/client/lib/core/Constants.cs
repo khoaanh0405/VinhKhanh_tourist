@@ -6,8 +6,7 @@ namespace client.lib.core
     {
         public const string AppName = "Vĩnh Khánh Food Street";
 
-        // 1. [ĐÃ SỬA] Đổi toàn bộ thành IP LAN của máy tính để test trên điện thoại thật
-        public static readonly string BaseUrl = "http://192.168.88.239:5280";
+        public static readonly string BaseUrl = "https://sln71gls-7284.asse.devtunnels.ms";
 
         // 2. ApiBaseUrl sẽ kế thừa từ BaseUrl và thêm /api/
         public static readonly string ApiBaseUrl = $"{BaseUrl}/api/";

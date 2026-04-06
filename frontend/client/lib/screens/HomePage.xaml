@@ -7,7 +7,7 @@
     xmlns:widgets="clr-namespace:client.lib.widgets"
     xmlns:loc="clr-namespace:client.lib.core" 
     x:Class="client.lib.screens.HomePage"
-    BackgroundColor="#F5F6FA"
+    BackgroundColor="White"
     x:DataType="vm:HomeViewModel"
     Shell.NavBarIsVisible="False">
 
@@ -85,45 +85,50 @@
                         <Label Grid.Column="0" Text="{Binding Path=[TopFavorites], Source={x:Static loc:LocalizationResourceManager.Instance}}" FontSize="18" FontAttributes="Bold" TextColor="#1A1A2E" VerticalOptions="Center"/>
                     </Grid>
 
-                    <CarouselView ItemsSource="{Binding FeaturedPois}" HeightRequest="195" HorizontalScrollBarVisibility="Never" Loop="False">
+                    <CarouselView ItemsSource="{Binding FeaturedPois}" HeightRequest="290" HorizontalScrollBarVisibility="Never" Loop="False">
                         <CarouselView.ItemTemplate>
                             <DataTemplate x:DataType="models:POI">
-                                <Border Margin="0,0,14,4" Padding="0" StrokeShape="RoundRectangle 18" StrokeThickness="0" BackgroundColor="White">
-                                    <Border.Shadow>
-                                        <Shadow Brush="Black" Opacity="0.10" Radius="12" Offset="0,4"/>
-                                    </Border.Shadow>
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnNavigateToDetail" CommandParameter="{Binding .}"/>
-                                    </Border.GestureRecognizers>
-                                    <Grid>
-                                        <Image Source="{Binding ImageUrl}" Aspect="AspectFill"/>
-                                        <BoxView VerticalOptions="End" HeightRequest="100">
-                                            <BoxView.Background>
-                                                <LinearGradientBrush EndPoint="0,1">
-                                                    <GradientStop Color="Transparent" Offset="0.0"/>
-                                                    <GradientStop Color="#CC000000" Offset="1.0"/>
-                                                </LinearGradientBrush>
-                                            </BoxView.Background>
-                                        </BoxView>
-                                        <VerticalStackLayout VerticalOptions="End" Margin="14,0,14,12" Spacing="4">
-                                            <Label Text="{Binding Name}" TextColor="White" FontAttributes="Bold" FontSize="16" MaxLines="1" LineBreakMode="TailTruncation"/>
-                                            <HorizontalStackLayout Spacing="5">
-                                                <Border WidthRequest="56" HeightRequest="22" StrokeShape="RoundRectangle 11" StrokeThickness="0" BackgroundColor="#CC1ABC9C" VerticalOptions="Center">
-                                                    <HorizontalStackLayout Spacing="3" HorizontalOptions="Center" VerticalOptions="Center">
-                                                        <Label Text="⭐" FontSize="10"/>
-                                                        <Label Text="{Binding AverageRating, StringFormat='{0:F1}'}" TextColor="White" FontSize="11" FontAttributes="Bold"/>
-                                                    </HorizontalStackLayout>
-                                                </Border>
-                                                <HorizontalStackLayout Spacing="3" VerticalOptions="Center">
-                                                    <Label Text="(" TextColor="#DDDDDD" FontSize="11"/>
-                                                    <Label Text="{Binding ReviewCount}" TextColor="#DDDDDD" FontSize="11"/>
-                                                    <Label Text="{Binding Path=[HomeReviews], Source={x:Static loc:LocalizationResourceManager.Instance}}" TextColor="#DDDDDD" FontSize="11"/>
-                                                    <Label Text=")" TextColor="#DDDDDD" FontSize="11"/>
+
+                                <Grid Padding="10,5,20,30">
+
+                                    <Border Padding="0" 
+                        StrokeShape="RoundRectangle 16" 
+                        StrokeThickness="0" 
+                        BackgroundColor="White">
+
+                                        <Border.Shadow>
+                                            <Shadow Brush="Black" Opacity="0.15" Radius="15" Offset="0,8"/>
+                                        </Border.Shadow>
+
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="OnNavigateToDetail" CommandParameter="{Binding .}"/>
+                                        </Border.GestureRecognizers>
+
+                                        <Grid RowDefinitions="*, Auto">
+                                            <Border Grid.Row="0" StrokeShape="RoundRectangle 16,16,0,0" StrokeThickness="0" Margin="0">
+                                                <Image Source="{Binding ImageUrl}" Aspect="AspectFill"/>
+                                            </Border>
+
+                                            <VerticalStackLayout Grid.Row="1" Padding="12,12,12,14">
+                                                <Label Text="{Binding Name}" 
+                                   TextColor="#1A1A2E" 
+                                   FontAttributes="Bold" 
+                                   FontSize="16" 
+                                   MaxLines="1" 
+                                   LineBreakMode="TailTruncation" />
+
+                                                <HorizontalStackLayout Spacing="4" Margin="0,4,0,0">
+                                                    <Label Text="⭐" FontSize="12" VerticalOptions="Center"/>
+                                                    <Label Text="{Binding AverageRating, StringFormat='{0:F1}'}" FontSize="13" FontAttributes="Bold" TextColor="#E67E22" VerticalOptions="Center"/>
+                                                    <Label Text="•" TextColor="#AAAAAA" FontSize="12" VerticalOptions="Center" Margin="4,0"/>
+                                                    <Label Text="{Binding DistanceDisplay}" FontSize="12" TextColor="#636E72" VerticalOptions="Center" MaxLines="1" LineBreakMode="TailTruncation"/>
                                                 </HorizontalStackLayout>
-                                            </HorizontalStackLayout>
-                                        </VerticalStackLayout>
-                                    </Grid>
-                                </Border>
+                                            </VerticalStackLayout>
+                                        </Grid>
+
+                                    </Border>
+                                </Grid>
+
                             </DataTemplate>
                         </CarouselView.ItemTemplate>
                     </CarouselView>
@@ -141,20 +146,17 @@
 
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:POI">
-                    <Border Margin="20,0,20,14" Padding="0" StrokeShape="RoundRectangle 16" StrokeThickness="0" BackgroundColor="White">
-                        <Border.Shadow>
-                            <Shadow Brush="Black" Opacity="0.07" Radius="10" Offset="0,3"/>
-                        </Border.Shadow>
+                    <Border Margin="20,0,20,10" Padding="10" StrokeShape="RoundRectangle 16" StrokeThickness="1" Stroke="#DDDDDD" BackgroundColor="White">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnNavigateToDetail" CommandParameter="{Binding .}"/>
                         </Border.GestureRecognizers>
 
-                        <Grid ColumnDefinitions="115, *" HeightRequest="110">
-                            <Border Grid.Column="0" StrokeShape="RoundRectangle 16,0,0,16" StrokeThickness="0">
+                        <Grid ColumnDefinitions="Auto, *">
+                            <Border Grid.Column="0" WidthRequest="80" HeightRequest="80" StrokeShape="RoundRectangle 12" StrokeThickness="0" VerticalOptions="Center">
                                 <Image Source="{Binding ImageUrl}" Aspect="AspectFill"/>
                             </Border>
 
-                            <VerticalStackLayout Grid.Column="1" Padding="14,12,14,12" Spacing="4" VerticalOptions="Center">
+                            <VerticalStackLayout Grid.Column="1" Padding="12,0,0,0" Spacing="4" VerticalOptions="Center">
                                 <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="15" TextColor="#1A1A2E" MaxLines="1" LineBreakMode="TailTruncation"/>
 
                                 <HorizontalStackLayout Spacing="4">
@@ -162,13 +164,11 @@
                                     <Label Text="{Binding DistanceDisplay}" FontSize="12" TextColor="#636E72" VerticalOptions="Center" MaxLines="1" LineBreakMode="TailTruncation"/>
                                 </HorizontalStackLayout>
 
-                                <HorizontalStackLayout Spacing="6" Margin="0,2,0,0">
-                                    <Border HeightRequest="22" Padding="8,0" StrokeShape="RoundRectangle 11" StrokeThickness="0" BackgroundColor="#FFF8E6" VerticalOptions="Center">
-                                        <HorizontalStackLayout Spacing="3" VerticalOptions="Center">
-                                            <Label Text="⭐" FontSize="11"/>
-                                            <Label Text="{Binding AverageRating, StringFormat='{0:F1}'}" FontSize="12" FontAttributes="Bold" TextColor="#E67E22"/>
-                                        </HorizontalStackLayout>
-                                    </Border>
+                                <HorizontalStackLayout Spacing="8" Margin="0,2,0,0">
+                                    <HorizontalStackLayout Spacing="3" VerticalOptions="Center">
+                                        <Label Text="⭐" FontSize="11" VerticalOptions="Center"/>
+                                        <Label Text="{Binding AverageRating, StringFormat='{0:F1}'}" FontSize="13" FontAttributes="Bold" TextColor="#E67E22" VerticalOptions="Center"/>
+                                    </HorizontalStackLayout>
                                     <HorizontalStackLayout Spacing="3" VerticalOptions="Center">
                                         <Label Text="·" TextColor="#AAAAAA" FontSize="12" FontAttributes="Bold"/>
                                         <Label Text="{Binding ReviewCount}" TextColor="#AAAAAA" FontSize="12"/>

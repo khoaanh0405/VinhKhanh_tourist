@@ -22,6 +22,9 @@ namespace client
                 .UseMauiMaps()
                 .UseMauiCommunityToolkit()
                 .UseBarcodeReader();
+
+
+
             builder.Services.AddSingleton<ApiService>();
             builder.Services.AddSingleton<AudioService>();
             builder.Services.AddSingleton<IAudioManager>(AudioManager.Current);

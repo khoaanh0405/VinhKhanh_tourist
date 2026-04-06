@@ -105,13 +105,20 @@ namespace client.lib.services
                 {
                     poi.DistanceInMeters = distMeters;
 
+                    // 1. Lấy chuỗi format từ LocalizationResourceManager
+                    string formatMeters = client.lib.core.LocalizationResourceManager.Instance["HomeDistanceMeters"]?.ToString() ?? "Cách bạn {0}m";
+                    string formatKm = client.lib.core.LocalizationResourceManager.Instance["HomeDistanceKm"]?.ToString() ?? "Cách bạn {0}km";
+
+                    // 2. Điền số vào vị trí {0}
                     if (distMeters < 1000)
                     {
-                        poi.DistanceDisplay = $"📍 Cách bạn {Math.Round(distMeters)}m";
+                        // Thay thế {0} bằng số mét (VD: sinh ra "Cách bạn 65m" hoặc "65m away")
+                        poi.DistanceDisplay = string.Format(formatMeters, Math.Round(distMeters));
                     }
                     else
                     {
-                        poi.DistanceDisplay = $"📍 Cách bạn {distKm:F1}km";
+                        // Thay thế {0} bằng số Km (VD: sinh ra "Cách bạn 1.5km" hoặc "1.5km away")
+                        poi.DistanceDisplay = string.Format(formatKm, distKm.ToString("F1"));
                     }
                 });
             }

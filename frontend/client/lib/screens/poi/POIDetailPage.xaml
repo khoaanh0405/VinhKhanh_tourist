@@ -1,9 +1,4 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!--
-  POIDetailPage.xaml  —  Theme: Teal Explorer
-  Mở từ luồng QR scanner (POIDetailPage.xaml.cs nhận poiId và bind ViewModel).
-  Code-behind: POIDetailPage.xaml.cs (KHÔNG THAY ĐỔI GÌ)
--->
 <ContentPage
     x:Class="client.lib.screens.poi.POIDetailPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -12,17 +7,21 @@
     Shell.NavBarIsVisible="False">
 
     <Grid RowDefinitions="*, Auto">
-        <ScrollView Grid.Row="0">
+        <ActivityIndicator x:Name="LoadingIndicator"
+                           IsVisible="False" IsRunning="False"
+                           Color="#1ABC9C"
+                           HorizontalOptions="Center" VerticalOptions="Center"
+                           Grid.RowSpan="2" ZIndex="10" />
+
+        <ScrollView x:Name="ContentScrollView" Grid.Row="0">
             <VerticalStackLayout Spacing="0">
 
-                <!-- ─── HERO IMAGE ─── -->
                 <Grid HeightRequest="280">
-                    <Image Source="{Binding Poi.ImageUrl}"
+                    <Image x:Name="HeroImage"
                            Aspect="AspectFill"
                            HorizontalOptions="Fill"
                            VerticalOptions="Fill"/>
 
-                    <!-- Bottom gradient -->
                     <BoxView VerticalOptions="End" HeightRequest="140">
                         <BoxView.Background>
                             <LinearGradientBrush EndPoint="0,1">
@@ -32,7 +31,6 @@
                         </BoxView.Background>
                     </BoxView>
 
-                    <!-- Top gradient for back button -->
                     <BoxView VerticalOptions="Start" HeightRequest="90">
                         <BoxView.Background>
                             <LinearGradientBrush EndPoint="0,1">
@@ -42,7 +40,6 @@
                         </BoxView.Background>
                     </BoxView>
 
-                    <!-- Back button -->
                     <Border WidthRequest="38" HeightRequest="38"
                             StrokeShape="RoundRectangle 19"
                             StrokeThickness="0"
@@ -56,7 +53,6 @@
                                HorizontalOptions="Center" VerticalOptions="Center"/>
                     </Border>
 
-                    <!-- QR badge -->
                     <Border WidthRequest="80" HeightRequest="26"
                             StrokeShape="RoundRectangle 13"
                             StrokeThickness="0"
@@ -68,8 +64,7 @@
                                HorizontalOptions="Center" VerticalOptions="Center"/>
                     </Border>
 
-                    <!-- Name overlay -->
-                    <Label Text="{Binding Poi.Name}"
+                    <Label x:Name="LblName"
                            TextColor="White"
                            FontSize="22" FontAttributes="Bold"
                            VerticalOptions="End"
@@ -77,7 +72,6 @@
                            MaxLines="2" LineBreakMode="TailTruncation"/>
                 </Grid>
 
-                <!-- ─── INFO CARD ─── -->
                 <Border BackgroundColor="White"
                         StrokeShape="RoundRectangle 28,28,0,0"
                         StrokeThickness="0"
@@ -88,12 +82,10 @@
                     </Border.Shadow>
                     <VerticalStackLayout Spacing="16">
 
-                        <!-- Drag handle -->
                         <BoxView WidthRequest="40" HeightRequest="4"
                                  CornerRadius="2" BackgroundColor="#E0E0E0"
                                  HorizontalOptions="Center"/>
 
-                        <!-- Location -->
                         <HorizontalStackLayout Spacing="6">
                             <Label Text="📍" FontSize="14" TextColor="#1ABC9C"
                                    VerticalOptions="Center"/>
@@ -102,40 +94,35 @@
                                    VerticalOptions="Center"/>
                         </HorizontalStackLayout>
 
-                        <!-- Narration text -->
-                        <Label Text="{Binding CurrentNarration.Text}"
+                        <Label x:Name="LblDescription"
                                FontSize="14" TextColor="#636E72"
                                LineHeight="1.6"/>
 
-                        <!-- Action buttons -->
-                        <Grid ColumnDefinitions="*, *" ColumnSpacing="12"
-                              Margin="0,4,0,20">
-                            <Button Grid.Column="0"
-                                    Text="▶  Phát thuyết minh"
-                                    Command="{Binding PlayAudioCommand}"
+                        <Grid ColumnDefinitions="*, *" ColumnSpacing="12" Margin="0,4,0,20">
+                            <Button x:Name="BtnPlayAudio" Grid.Column="0"
+                                    Text="▶ Phát thuyết minh"
+                                    Clicked="OnPlayAudioClicked"
                                     HeightRequest="50"
                                     CornerRadius="25"
                                     BackgroundColor="#1ABC9C"
                                     TextColor="White"
                                     FontAttributes="Bold"
                                     FontSize="13"/>
-                            <Button Grid.Column="1"
-                                    Text="{Binding IsFavorite, Converter={StaticResource BoolToFavoriteTextConverter}}"
-                                    Command="{Binding ToggleFavoriteCommand}"
+                            <Button x:Name="BtnTogglePause" Grid.Column="1"
+                                    Text="⏸ Tạm dừng"
+                                    IsVisible="False"
+                                    Clicked="OnTogglePauseClicked"
                                     HeightRequest="50"
                                     CornerRadius="25"
-                                    TextColor="{Binding IsFavorite, Converter={StaticResource BoolToColorConverter}}"
-                                    BackgroundColor="#FFF0F2"
+                                    TextColor="White"
+                                    BackgroundColor="#636E72"
                                     FontAttributes="Bold"
-                                    FontSize="13"
-                                    BorderColor="#FFDDDD"
-                                    BorderWidth="1"/>
+                                    FontSize="13"/>
                         </Grid>
 
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- ─── NEARBY RESTAURANTS ─── -->
                 <VerticalStackLayout BackgroundColor="#F5F6FA"
                                      Padding="22,20,22,20"
                                      Spacing="14">
@@ -146,13 +133,12 @@
                                 StrokeThickness="0"
                                 BackgroundColor="#1ABC9C"
                                 VerticalOptions="Center"/>
-                        <Label Text="Quán ăn gần đây"
+                        <Label Text="Quán ăn thuộc địa điểm"
                                FontSize="18" FontAttributes="Bold"
                                TextColor="#1A1A2E" VerticalOptions="Center"/>
                     </HorizontalStackLayout>
 
-                    <CollectionView ItemsSource="{Binding Poi.Restaurants}"
-                                    SelectionMode="None">
+                    <CollectionView x:Name="RestaurantsList" SelectionMode="None">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <Border Margin="0,0,0,10"
