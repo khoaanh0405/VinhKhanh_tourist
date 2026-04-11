@@ -19,8 +19,9 @@ namespace Server.Models
 
         [MaxLength(500)]
         public string? Description { get; set; }
+		public bool IsLocked { get; set; }
 
-        [Required]
+		[Required]
         [ForeignKey("POI")]
         public int PoiId { get; set; }
 

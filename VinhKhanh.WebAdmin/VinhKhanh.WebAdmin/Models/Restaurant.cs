@@ -31,6 +31,7 @@ namespace VinhKhanh.WebAdmin.Models
 
 		[JsonPropertyName("longitude")]
 		public double Longitude { get; set; }
+		public bool IsLocked { get; set; }
 	}
 
 	// 2. Request để gán Quản lý

@@ -7,25 +7,27 @@
 @using FuzzySharp
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
+@inject HttpClient Http
 
 <style>
     .custom-search-box {
         transition: all 0.3s ease-in-out;
         border-radius: 50rem;
         border: 2px solid #dee2e6;
-        background-color: #fff;
+        background-color: #f8f9fa;
         overflow: hidden;
     }
 
         .custom-search-box:hover {
             border-color: #86b7fe;
             box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
-            transform: translateY(-1px);
+            background-color: #fff;
         }
 
         .custom-search-box:focus-within {
             border-color: #0d6efd;
             box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            background-color: #fff;
         }
 
         .custom-search-box .form-control {
@@ -43,45 +45,58 @@
         .custom-search-box:focus-within .input-group-text {
             color: #0d6efd;
         }
+
+    /* Làm đẹp giao diện bảng */
+    .table-custom-row {
+        transition: background-color 0.2s ease;
+    }
+
+        .table-custom-row:hover {
+            background-color: #f1f8ff !important;
+        }
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="text-primary fw-bold"><i class="bi bi-shop"></i> Quản lý Quán ăn & Địa điểm</h3>
+    <h3 class="text-primary fw-bold"><i class="bi bi-shop me-2"></i>Quản lý Quán ăn & Địa điểm</h3>
     <AuthorizeView Roles="Admin">
-        <button class="btn btn-primary fw-bold" @onclick="OpenAddModal"><i class="bi bi-plus-circle"></i> Thêm Quán ăn mới</button>
+        <button class="btn btn-primary fw-bold shadow-sm" @onclick="OpenAddModal">
+            <i class="bi bi-plus-circle me-1"></i> Thêm Quán ăn mới
+        </button>
     </AuthorizeView>
 </div>
 
 @if (restaurants == null)
 {
-    <div class="text-center mt-5">
-        <div class="spinner-border text-primary" role="status"></div>
-        <p class="mt-2 text-muted">Đang tải dữ liệu...</p>
+    <div class="text-center mt-5 p-5">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+        <p class="mt-3 fw-bold text-muted">Đang tải dữ liệu, vui lòng chờ...</p>
     </div>
 }
 else
 {
-    <div class="card shadow-sm border-primary">
-        <div class="card-body">
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-4">
             <div class="row mb-4">
-                <div class="col-md-6">
-                    <div class="input-group custom-search-box px-2 py-1">
+                <div class="col-md-6 col-lg-5">
+                    <div class="input-group custom-search-box px-3 py-2 shadow-sm">
                         <span class="input-group-text"><i class="bi bi-search fs-5"></i></span>
-                        <input type="text" class="form-control form-control-lg fs-6"
-                               placeholder="Tìm tên quán"
+                        <input type="text" class="form-control fs-6"
+                               placeholder="Tìm kiếm tên quán ăn..."
                                @bind="searchRestaurantString" @bind:event="oninput" />
                     </div>
                 </div>
             </div>
+
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-primary">
+                <table class="table align-middle">
+                    <thead class="table-light">
                         <tr>
-                            <th>ID</th>
-                            <th>Tên Quán</th>
-                            <th>Chủ quán</th>
-                            <th>Địa chỉ & Tọa độ</th>
-                            <th class="text-end">Hành động</th>
+                            <th class="text-center" style="width: 80px;">ID</th>
+                            <th style="width: 20%;">Thông tin Quán</th>
+                            <th style="width: 15%;">Trạng thái</th>
+                            <th style="width: 15%;">Chủ quán</th>
+                            <th style="width: 20%;">Địa chỉ</th>
+                            <th class="text-end" style="min-width: 380px;">Bảng điều khiển</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -89,53 +104,98 @@ else
                         {
                             @foreach (var r in filteredRestaurants)
                             {
-                                <tr>
-                                    <td class="fw-bold text-secondary">#@r.RestaurantId</td>
-                                    <td class="fw-bold">@r.Name</td>
+                                <tr class="table-custom-row @(r.IsLocked ? "opacity-75 bg-light" : "")" style="border-bottom: 1px solid #eee;">
+                                    <td class="text-center fw-bold text-secondary">#@r.RestaurantId</td>
+
                                     <td>
-                                        @if (string.IsNullOrEmpty(r.ManagerName))
+                                        <div class="fw-bold fs-6 text-dark">@r.Name</div>
+                                    </td>
+
+                                    <td>
+                                        @if (r.IsLocked)
                                         {
-                                            <span class="badge bg-secondary">Chưa gán</span>
+                                            <span class="badge bg-secondary px-3 py-2 rounded-pill"><i class="bi bi-lock-fill me-1"></i> Tạm khóa</span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-info text-dark fw-bold">
-                                                <i class="bi bi-person-fill"></i> @r.ManagerName
-                                            </span>
+                                            <span class="badge bg-success px-3 py-2 rounded-pill"><i class="bi bi-shop me-1"></i> Hoạt động</span>
                                         }
                                     </td>
-                                    <td>
-                                        <div>@r.Address</div>
-                                        <small class="text-muted"><i class="bi bi-geo-alt"></i> @r.Latitude, @r.Longitude</small>
-                                    </td>
-                                    <td class="text-end" style="min-width: 320px;">
-                                        <div class="d-flex justify-content-end gap-2 flex-wrap">
-                                            <button class="btn btn-sm btn-info text-white fw-bold" @onclick="() => GoToMenu(r.RestaurantId)">
-                                                <i class="bi bi-list-ul"></i> Menu
-                                            </button>
-                                            <button class="btn btn-sm btn-dark fw-bold" @onclick="() => GoToQR(r.RestaurantId)">
-                                                <i class="bi bi-qr-code-scan"></i> QR
-                                            </button>
-                                            <button class="btn btn-sm btn-success fw-bold" @onclick="() => GoToReviews(r.PoiId)">
-                                                <i class="bi bi-star-fill"></i> Đánh giá
-                                            </button>
 
+                                    <td>
+                                        @if (string.IsNullOrEmpty(r.ManagerName))
+                                        {
+                                            <span class="badge bg-light text-muted border px-2 py-1">Chưa gán chủ</span>
+                                        }
+                                        else
+                                        {
+                                            <div class="fw-bold text-primary"><i class="bi bi-person-circle me-1"></i> @r.ManagerName</div>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <div class="text-wrap" style="max-width: 250px;">@r.Address</div>
+                                        <small class="text-muted"><i class="bi bi-geo-alt-fill text-danger me-1"></i>@r.Latitude, @r.Longitude</small>
+                                    </td>
+
+                                    <td class="text-end">
+                                        <div class="d-flex flex-column gap-2 align-items-end">
+
+                                            @* NHÓM 1: CÁC CHỨC NĂNG NỘI DUNG (Ai cũng thấy) *@
+                                            <div class="d-flex gap-2 justify-content-end flex-wrap">
+                                                <button class="btn btn-sm btn-info text-white fw-bold shadow-sm" @onclick="() => GoToMenu(r.RestaurantId)">
+                                                    <i class="bi bi-card-list me-1"></i> Thực đơn
+                                                </button>
+                                                <button class="btn btn-sm btn-dark fw-bold shadow-sm" @onclick="() => GoToQR(r.RestaurantId)">
+                                                    <i class="bi bi-qr-code me-1"></i> Mã QR
+                                                </button>
+                                                <button class="btn btn-sm btn-success fw-bold shadow-sm" @onclick="() => GoToReviews(r.PoiId)">
+                                                    <i class="bi bi-star-fill text-warning me-1"></i> Đánh giá
+                                                </button>
+                                            </div>
+
+                                            @* NHÓM 2: CÁC CHỨC NĂNG QUẢN TRỊ (Chỉ Admin) *@
                                             <AuthorizeView Context="adminContext" Roles="Admin">
-                                                @* 👇 THAY ĐỔI: Truyền nguyên object r vào để xử lý *@
-                                                <button class="btn btn-sm btn-warning fw-bold" @onclick="() => OpenAssignModal(r)">
-                                                    <i class="bi bi-person-badge"></i> Gán
-                                                </button>
-                                                <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenEditModal(r)">
-                                                    <i class="bi bi-pencil"></i> Sửa
-                                                </button>
-                                                <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteRestaurant(r.RestaurantId)">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
+                                                <div class="d-flex gap-2 justify-content-end flex-wrap mt-1">
+
+                                                    @if (r.IsLocked)
+                                                    {
+                                                        <button class="btn btn-sm btn-outline-success fw-bold bg-white" @onclick="() => ToggleLockRestaurant(r)">
+                                                            <i class="bi bi-unlock-fill me-1"></i> Mở khóa
+                                                        </button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button class="btn btn-sm btn-outline-secondary fw-bold bg-white" @onclick="() => ToggleLockRestaurant(r)">
+                                                            <i class="bi bi-lock-fill me-1"></i> Khóa quán
+                                                        </button>
+                                                    }
+
+                                                    <button class="btn btn-sm btn-warning fw-bold text-dark shadow-sm" @onclick="() => OpenAssignModal(r)">
+                                                        <i class="bi bi-person-lines-fill me-1"></i> Gán chủ
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-primary fw-bold bg-white" @onclick="() => OpenEditModal(r)">
+                                                        <i class="bi bi-pencil-square me-1"></i> Sửa
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-danger fw-bold bg-white" @onclick="() => DeleteRestaurant(r.RestaurantId)">
+                                                        <i class="bi bi-trash3-fill me-1"></i> Xóa
+                                                    </button>
+                                                </div>
                                             </AuthorizeView>
+
                                         </div>
                                     </td>
                                 </tr>
                             }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted p-5">
+                                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                    Không tìm thấy quán ăn nào phù hợp với tìm kiếm của bạn.
+                                </td>
+                            </tr>
                         }
                     </tbody>
                 </table>
@@ -144,45 +204,67 @@ else
     </div>
 }
 
-@* --- MODAL THÊM / SỬA QUÁN ĂN --- *@
+@* ================================================================ *@
+@* CÁC MODAL BÊN DƯỚI GIỮ NGUYÊN HOÀN TOÀN LOGIC, CHỈ CHỈNH LẠI UI ĐẸP *@
+@* ================================================================ *@
+
 @if (showEditModal)
 {
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6); backdrop-filter: blur(2px);">
         <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content shadow-lg border-primary">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold">@(isEdit ? "Cập nhật Quán ăn" : "Thêm Quán ăn mới")</h5>
+            <div class="modal-content shadow-lg border-0 rounded-4">
+                <div class="modal-header text-white @(isEdit ? "bg-primary" : "bg-success") border-0 rounded-top-4">
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi @(isEdit ? "bi-pencil-square" : "bi-plus-circle") me-2"></i>
+                        @(isEdit ? "Cập nhật thông tin Quán ăn" : "Thêm mới Quán ăn")
+                    </h5>
                     <button type="button" class="btn-close btn-close-white" @onclick="() => showEditModal = false"></button>
                 </div>
-                <div class="modal-body p-4">
+                <div class="modal-body p-4 bg-light">
                     <EditForm Model="editingRes" OnValidSubmit="HandleSubmit">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Tên Quán ăn</label>
-                                <InputText @bind-Value="editingRes.Name" class="form-control" required />
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Địa chỉ</label>
-                                <InputText @bind-Value="editingRes.Address" class="form-control" required />
-                            </div>
-                        </div>
-                        <div class="row bg-light p-3 rounded mb-3 border">
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label fw-bold">Vĩ độ (Latitude)</label>
-                                <InputNumber @bind-Value="editingRes.Latitude" class="form-control" step="any" required />
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label fw-bold">Kinh độ (Longitude)</label>
-                                <InputNumber @bind-Value="editingRes.Longitude" class="form-control" step="any" required />
+                        <div class="card border-0 shadow-sm mb-3">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold text-muted">Tên Quán ăn <span class="text-danger">*</span></label>
+                                        <InputText @bind-Value="editingRes.Name" class="form-control form-control-lg" placeholder="Nhập tên quán..." required />
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold text-muted">Địa chỉ <span class="text-danger">*</span></label>
+                                        <InputText @bind-Value="editingRes.Address" class="form-control form-control-lg" placeholder="Nhập địa chỉ..." required />
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Mô tả Quán</label>
-                            <InputTextArea @bind-Value="editingRes.Description" class="form-control" rows="3" />
+
+                        <div class="card border-0 shadow-sm mb-3 border-start border-4 border-danger">
+                            <div class="card-body">
+                                <h6 class="text-danger fw-bold mb-3"><i class="bi bi-geo-alt-fill me-1"></i>Tọa độ trên Bản đồ GPS</h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-2">
+                                        <label class="form-label fw-bold text-muted">Vĩ độ (Latitude)</label>
+                                        <InputNumber @bind-Value="editingRes.Latitude" class="form-control" step="any" required />
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label class="form-label fw-bold text-muted">Kinh độ (Longitude)</label>
+                                        <InputNumber @bind-Value="editingRes.Longitude" class="form-control" step="any" required />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="text-end mt-4">
-                            <button type="button" class="btn btn-secondary" @onclick="() => showEditModal = false">Hủy</button>
-                            <button type="submit" class="btn btn-primary fw-bold px-4">Lưu Dữ liệu</button>
+
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-body">
+                                <label class="form-label fw-bold text-muted">Mô tả chi tiết Quán</label>
+                                <InputTextArea @bind-Value="editingRes.Description" class="form-control" rows="3" placeholder="Giới thiệu về quán..." />
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-light border fw-bold px-4" @onclick="() => showEditModal = false">Hủy bỏ</button>
+                            <button type="submit" class="btn @(isEdit ? "btn-primary" : "btn-success") fw-bold px-5 shadow-sm">
+                                <i class="bi bi-floppy-fill me-1"></i> Lưu Dữ Liệu
+                            </button>
                         </div>
                     </EditForm>
                 </div>
@@ -191,53 +273,57 @@ else
     </div>
 }
 
-@* --- MODAL GÁN CHỦ QUÁN (ĐÃ CẬP NHẬT) --- *@
 @if (showAssignModal)
 {
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6);">
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6); backdrop-filter: blur(2px);">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content shadow-lg border-warning">
-                <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title fw-bold"><i class="bi bi-person-badge"></i> Gán Chủ Quán</h5>
+            <div class="modal-content shadow-lg border-0 rounded-4">
+                <div class="modal-header bg-warning text-dark border-0 rounded-top-4">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-person-rolodex me-2"></i>Quản lý Chủ Quán</h5>
                     <button type="button" class="btn-close" @onclick="CloseAssignModal"></button>
                 </div>
-                <div class="modal-body p-4">
-                    <p>Chọn quản lý cho quán: <strong class="text-primary">@selectedRestaurantName</strong></p>
+                <div class="modal-body p-4 bg-light">
+                    <p class="mb-4 fs-5 text-center">Đang thao tác quán: <strong class="text-primary">@selectedRestaurantName</strong></p>
 
-                    @* 👇 HIỆN CHỦ CŨ VÀ NÚT XÓA NẾU CÓ *@
                     @if (hasCurrentManager)
                     {
-                        <div class="alert alert-info d-flex justify-content-between align-middle py-2 px-3 mb-4 border-info">
-                            <div class="mt-1">Chủ hiện tại: <strong>@currentManagerName</strong></div>
-                            <button class="btn btn-danger btn-sm fw-bold" @onclick="RemoveManager">
-                                <i class="bi bi-person-x-fill"></i> Gỡ chủ quán
-                            </button>
+                        <div class="card border-info mb-4 shadow-sm">
+                            <div class="card-body bg-info bg-opacity-10 d-flex justify-content-between align-items-center rounded">
+                                <div>
+                                    <span class="text-muted d-block small fw-bold">CHỦ QUÁN HIỆN TẠI</span>
+                                    <strong class="fs-5 text-dark">@currentManagerName</strong>
+                                </div>
+                                <button class="btn btn-danger fw-bold shadow-sm" @onclick="RemoveManager" disabled="@isSubmitting">
+                                    <i class="bi bi-person-dash-fill me-1"></i> Gỡ quyền
+                                </button>
+                            </div>
                         </div>
-                        <hr />
                     }
 
-                    <div class="mb-4">
-                        <label class="form-label fw-bold small text-uppercase text-muted">Chọn Manager mới (Chưa có quán)</label>
-                        <select class="form-select" @bind="selectedManagerId">
-                            <option value="0">-- Vui lòng chọn một người --</option>
-                            @* 👇 HIỂN THỊ DANH SÁCH ĐÃ LỌC *@
-                            @foreach (var m in AvailableManagers)
-                            {
-                                <option value="@m.UserId">@m.DisplayName (@m.Username)</option>
-                            }
-                        </select>
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body">
+                            <label class="form-label fw-bold text-muted mb-3"><i class="bi bi-person-plus-fill me-1"></i>CHỌN NGƯỜI QUẢN LÝ MỚI</label>
+                            <select class="form-select form-select-lg mb-2" @bind="selectedManagerId">
+                                <option value="0">-- Vui lòng chọn một người --</option>
+                                @foreach (var m in AvailableManagers)
+                                {
+                                    <option value="@m.UserId">@m.DisplayName (@m.Username)</option>
+                                }
+                            </select>
+                            <small class="text-muted fst-italic">* Danh sách chỉ hiển thị những Manager chưa được gán quán nào.</small>
+                        </div>
                     </div>
 
                     @if (!string.IsNullOrEmpty(errorMessage))
                     {
-                        <div class="alert alert-danger py-2 small">@errorMessage</div>
+                        <div class="alert alert-danger py-2 fw-bold text-center"><i class="bi bi-exclamation-triangle-fill me-1"></i>@errorMessage</div>
                     }
 
-                    <div class="d-flex justify-content-end gap-2">
-                        <button class="btn btn-secondary" @onclick="CloseAssignModal">Đóng</button>
-                        <button class="btn btn-warning fw-bold px-4" @onclick="SubmitAssignManager"
+                    <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                        <button class="btn btn-light border fw-bold px-4" @onclick="CloseAssignModal">Đóng</button>
+                        <button class="btn btn-warning text-dark fw-bold px-5 shadow-sm" @onclick="SubmitAssignManager"
                                 disabled="@(isSubmitting || selectedManagerId == 0)">
-                            Xác nhận gán
+                            <i class="bi bi-check-circle-fill me-1"></i> Xác nhận Gán
                         </button>
                     </div>
                 </div>
@@ -262,7 +348,6 @@ else
     private bool isSubmitting = false;
     private string errorMessage = "";
 
-    // 👇 LOGIC LỌC MANAGER: Chỉ lấy những ông chưa có trong bất kỳ quán nào
     private List<UserModel> AvailableManagers => managers?
         .Where(m => !restaurants!.Any(r => r.ManagerUserId == m.UserId))
         .ToList() ?? new List<UserModel>();
@@ -306,6 +391,32 @@ else
         else restaurants = await RestaurantService.GetMyAsync();
     }
 
+    private async Task ToggleLockRestaurant(Restaurant r)
+    {
+        string actionText = r.IsLocked ? "mở lại" : "khóa kinh doanh";
+        bool confirm = await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc chắn muốn {actionText} quán: {r.Name}?");
+        if (!confirm) return;
+
+        try
+        {
+            var response = await Http.PutAsync($"api/Restaurant/{r.RestaurantId}/toggle-lock", null);
+            if (response.IsSuccessStatusCode)
+            {
+                r.IsLocked = !r.IsLocked;
+                StateHasChanged();
+                await JS.InvokeVoidAsync("alert", $"Đã {actionText} nhà hàng thành công!");
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("alert", "Lỗi: Không thể thay đổi trạng thái lúc này.");
+            }
+        }
+        catch
+        {
+            await JS.InvokeVoidAsync("alert", "Lỗi kết nối tới Server!");
+        }
+    }
+
     private void GoToMenu(int restaurantId) => Navigation.NavigateTo($"/restaurants/{restaurantId}/foods");
     private void GoToQR(int restaurantId) => Navigation.NavigateTo($"/qrcodes?restaurantId={restaurantId}");
     private void GoToReviews(int poiId) => Navigation.NavigateTo($"/reviews?poiId={poiId}");
@@ -326,7 +437,6 @@ else
         showEditModal = true;
     }
 
-    // 👇 THAY ĐỔI: Hàm mở Modal gán giờ nhận object Restaurant
     private void OpenAssignModal(Restaurant r)
     {
         selectedRestaurantId = r.RestaurantId;
@@ -338,13 +448,11 @@ else
         showAssignModal = true;
     }
 
-    // 👇 HÀM XỬ LÝ GỠ CHỦ QUÁN
     private async Task RemoveManager()
     {
-        if (!await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc muốn gỡ {currentManagerName} khỏi quán này?")) return;
+        if (!await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc muốn gỡ quyền quản lý của {currentManagerName} khỏi quán này?")) return;
 
         isSubmitting = true;
-        // Gán 0 để Backend hiểu là xóa trắng manager
         bool success = await RestaurantService.AssignManagerAsync(selectedRestaurantId, 0);
         if (success)
         {
@@ -374,12 +482,12 @@ else
             : await RestaurantService.CreateAsync(new CreateRestaurantReq(editingRes.Name, editingRes.Address, editingRes.Description, editingRes.Latitude, editingRes.Longitude));
 
         if (success) { showEditModal = false; await LoadData(); }
-        else await JS.InvokeVoidAsync("alert", "Lưu thất bại!");
+        else await JS.InvokeVoidAsync("alert", "Lưu dữ liệu thất bại!");
     }
 
     private async Task DeleteRestaurant(int id)
     {
-        if (await JS.InvokeAsync<bool>("confirm", "Xóa quán?"))
+        if (await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn xóa vĩnh viễn quán ăn này không? Hành động này sẽ xóa luôn cả vị trí trên bản đồ."))
         {
             if (await RestaurantService.DeleteAsync(id)) await LoadData();
         }

@@ -198,5 +198,18 @@ namespace Server.Controllers
 			await _context.SaveChangesAsync();
 			return NoContent();
 		}
+
+		[HttpPut("{id}/toggle-lock")]
+		[Authorize(Roles = "Admin")] // Chỉ Admin mới có quyền khóa quán
+		public async Task<IActionResult> ToggleLock(int id)
+		{
+			var restaurant = await _context.Restaurants.FindAsync(id);
+			if (restaurant == null) return NotFound(new { message = "Không tìm thấy quán ăn" });
+
+			restaurant.IsLocked = !restaurant.IsLocked; // Đảo ngược trạng thái
+			await _context.SaveChangesAsync();
+
+			return Ok(new { isLocked = restaurant.IsLocked });
+		}
 	}
 }	
