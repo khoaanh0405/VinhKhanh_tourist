@@ -36,6 +36,7 @@ namespace Server.Models
         public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
         public virtual ICollection<PoiTranslation> PoiTranslations { get; set; } = new List<PoiTranslation>();
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; set; }
-    }
+		[NotMapped]
+		public DateTime? UpdatedAt { get; set; }
+	}
 }

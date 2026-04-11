@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Server.Data;
 using Server.Models;
@@ -71,5 +72,48 @@ namespace Server.Controllers
 
             return NoContent();
         }
-    }
+		// 1. Lấy mã QR trực tiếp bằng mã Quán (PoiId) thay vì QRCodeId
+		[HttpGet("poi/{poiId}")]
+		public async Task<IActionResult> GetByPoiId(int poiId)
+		{
+			var qr = await _context.QRCodes.FirstOrDefaultAsync(q => q.PoiId == poiId);
+			if (qr == null) return NotFound(new { message = "Chưa có mã QR" });
+
+			return Ok(qr);
+		}
+
+		// 2. Nút bấm "Tạo nhanh QR" từ giao diện
+		[Authorize]
+		[HttpPost("generate/{poiId}")]
+		public async Task<IActionResult> GenerateForPoi(int poiId)
+		{
+			try
+			{
+				var existingQr = await _context.QRCodes.FirstOrDefaultAsync(q => q.PoiId == poiId);
+				if (existingQr != null) return Ok(existingQr);
+
+				string uniqueCode = $"app://vinhkhanh/poi/{poiId}";
+
+				var newQr = new QRCode
+				{
+					PoiId = poiId,
+					CodeValue = uniqueCode
+				};
+
+				_context.QRCodes.Add(newQr);
+				await _context.SaveChangesAsync();
+
+				return Ok(newQr);
+			}
+			catch (Exception ex)
+			{
+				// 👇 Dòng này sẽ in cái lỗi "thật sự" ra màn hình đen (Terminal) của bạn 👇
+				Console.WriteLine("LỖI LƯU QR: " + ex.Message);
+				if (ex.InnerException != null)
+					Console.WriteLine("CHI TIẾT: " + ex.InnerException.Message);
+
+				return BadRequest(new { message = ex.Message });
+			}
+		}
+	}
 }

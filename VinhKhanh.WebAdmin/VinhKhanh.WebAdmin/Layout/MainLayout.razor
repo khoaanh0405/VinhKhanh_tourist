@@ -1,0 +1,79 @@
+﻿@inherits LayoutComponentBase
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavManager
+
+<div class="d-flex flex-column min-vh-100">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4 shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand text-warning fw-bold" href="/"><i class="bi bi-compass"></i> VĨNH KHÁNH ADMIN</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-3">
+
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/" Match="NavLinkMatch.All"><i class="bi bi-speedometer2"></i> Tổng quan</NavLink>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="javascript:void(0)" id="navData" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-geo-alt"></i> Dữ liệu Địa điểm
+                        </a>
+                        <ul class="dropdown-menu shadow" aria-labelledby="navData">
+                            <li><NavLink class="dropdown-item" href="/restaurants"><i class="bi bi-shop text-success"></i> Quán ăn & Gian hàng</NavLink></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="javascript:void(0)" id="navContent" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-globe"></i> Nội dung số
+                        </a>
+                        <ul class="dropdown-menu shadow" aria-labelledby="navContent">
+                            <li><NavLink class="dropdown-item" href="/languages"><i class="bi bi-translate text-info"></i> Quản lý Ngôn ngữ</NavLink></li>
+                        </ul>
+                    </li>
+                    <AuthorizeView Roles="Admin">
+                        <Authorized>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-danger fw-bold" href="javascript:void(0)" id="navSystem" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-gear-fill"></i> Hệ thống
+                                </a>
+                                <ul class="dropdown-menu shadow" aria-labelledby="navSystem">
+                                    <li><NavLink class="dropdown-item" href="/users"><i class="bi bi-people-fill text-danger"></i> Quản lý Người dùng</NavLink></li>
+                                </ul>
+                            </li>
+                        </Authorized>
+                    </AuthorizeView>
+
+                </ul>
+
+                <div class="d-flex align-items-center">
+                    <AuthorizeView>
+                        <Authorized>
+                            <span class="text-light me-3"><i class="bi bi-person-circle"></i> Xin chào, <strong>@context.User.Identity?.Name</strong></span>
+                        </Authorized>
+                    </AuthorizeView>
+                    <button class="btn btn-outline-danger btn-sm fw-bold" @onclick="HandleLogout"><i class="bi bi-box-arrow-right"></i> Đăng xuất</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow-1 p-4 bg-light">
+        <div class="container bg-white shadow-sm p-4 rounded-3" style="min-height: 80vh;">
+            @Body
+        </div>
+    </main>
+</div>
+
+@code {
+    private async Task HandleLogout()
+    {
+        await LocalStorage.RemoveItemAsync("authToken");
+        NavManager.NavigateTo("/login", true);
+    }
+}

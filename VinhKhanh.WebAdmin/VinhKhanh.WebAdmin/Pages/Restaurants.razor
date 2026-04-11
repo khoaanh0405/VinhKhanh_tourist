@@ -1,0 +1,387 @@
+﻿@page "/restaurants"
+@attribute [Authorize(Roles = "Admin, Manager")]
+@using VinhKhanh.WebAdmin.Models
+@inject VinhKhanh.WebAdmin.Services.IRestaurantService RestaurantService
+@inject VinhKhanh.WebAdmin.Services.IUserService UserService
+@inject AuthenticationStateProvider AuthStateProvider
+@using FuzzySharp
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<style>
+    .custom-search-box {
+        transition: all 0.3s ease-in-out;
+        border-radius: 50rem;
+        border: 2px solid #dee2e6;
+        background-color: #fff;
+        overflow: hidden;
+    }
+
+        .custom-search-box:hover {
+            border-color: #86b7fe;
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .custom-search-box:focus-within {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        .custom-search-box .form-control {
+            border: none;
+            box-shadow: none;
+            background: transparent;
+        }
+
+        .custom-search-box .input-group-text {
+            border: none;
+            background: transparent;
+            color: #6c757d;
+        }
+
+        .custom-search-box:focus-within .input-group-text {
+            color: #0d6efd;
+        }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="text-primary fw-bold"><i class="bi bi-shop"></i> Quản lý Quán ăn & Địa điểm</h3>
+    <AuthorizeView Roles="Admin">
+        <button class="btn btn-primary fw-bold" @onclick="OpenAddModal"><i class="bi bi-plus-circle"></i> Thêm Quán ăn mới</button>
+    </AuthorizeView>
+</div>
+
+@if (restaurants == null)
+{
+    <div class="text-center mt-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2 text-muted">Đang tải dữ liệu...</p>
+    </div>
+}
+else
+{
+    <div class="card shadow-sm border-primary">
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="input-group custom-search-box px-2 py-1">
+                        <span class="input-group-text"><i class="bi bi-search fs-5"></i></span>
+                        <input type="text" class="form-control form-control-lg fs-6"
+                               placeholder="Tìm tên quán"
+                               @bind="searchRestaurantString" @bind:event="oninput" />
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên Quán</th>
+                            <th>Chủ quán</th>
+                            <th>Địa chỉ & Tọa độ</th>
+                            <th class="text-end">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (filteredRestaurants != null && filteredRestaurants.Any())
+                        {
+                            @foreach (var r in filteredRestaurants)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-secondary">#@r.RestaurantId</td>
+                                    <td class="fw-bold">@r.Name</td>
+                                    <td>
+                                        @if (string.IsNullOrEmpty(r.ManagerName))
+                                        {
+                                            <span class="badge bg-secondary">Chưa gán</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-info text-dark fw-bold">
+                                                <i class="bi bi-person-fill"></i> @r.ManagerName
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div>@r.Address</div>
+                                        <small class="text-muted"><i class="bi bi-geo-alt"></i> @r.Latitude, @r.Longitude</small>
+                                    </td>
+                                    <td class="text-end" style="min-width: 320px;">
+                                        <div class="d-flex justify-content-end gap-2 flex-wrap">
+                                            <button class="btn btn-sm btn-info text-white fw-bold" @onclick="() => GoToMenu(r.RestaurantId)">
+                                                <i class="bi bi-list-ul"></i> Menu
+                                            </button>
+                                            <button class="btn btn-sm btn-dark fw-bold" @onclick="() => GoToQR(r.RestaurantId)">
+                                                <i class="bi bi-qr-code-scan"></i> QR
+                                            </button>
+                                            <button class="btn btn-sm btn-success fw-bold" @onclick="() => GoToReviews(r.PoiId)">
+                                                <i class="bi bi-star-fill"></i> Đánh giá
+                                            </button>
+
+                                            <AuthorizeView Context="adminContext" Roles="Admin">
+                                                @* 👇 THAY ĐỔI: Truyền nguyên object r vào để xử lý *@
+                                                <button class="btn btn-sm btn-warning fw-bold" @onclick="() => OpenAssignModal(r)">
+                                                    <i class="bi bi-person-badge"></i> Gán
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenEditModal(r)">
+                                                    <i class="bi bi-pencil"></i> Sửa
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteRestaurant(r.RestaurantId)">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </AuthorizeView>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@* --- MODAL THÊM / SỬA QUÁN ĂN --- *@
+@if (showEditModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content shadow-lg border-primary">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">@(isEdit ? "Cập nhật Quán ăn" : "Thêm Quán ăn mới")</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="() => showEditModal = false"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <EditForm Model="editingRes" OnValidSubmit="HandleSubmit">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Tên Quán ăn</label>
+                                <InputText @bind-Value="editingRes.Name" class="form-control" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Địa chỉ</label>
+                                <InputText @bind-Value="editingRes.Address" class="form-control" required />
+                            </div>
+                        </div>
+                        <div class="row bg-light p-3 rounded mb-3 border">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label fw-bold">Vĩ độ (Latitude)</label>
+                                <InputNumber @bind-Value="editingRes.Latitude" class="form-control" step="any" required />
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label fw-bold">Kinh độ (Longitude)</label>
+                                <InputNumber @bind-Value="editingRes.Longitude" class="form-control" step="any" required />
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mô tả Quán</label>
+                            <InputTextArea @bind-Value="editingRes.Description" class="form-control" rows="3" />
+                        </div>
+                        <div class="text-end mt-4">
+                            <button type="button" class="btn btn-secondary" @onclick="() => showEditModal = false">Hủy</button>
+                            <button type="submit" class="btn btn-primary fw-bold px-4">Lưu Dữ liệu</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@* --- MODAL GÁN CHỦ QUÁN (ĐÃ CẬP NHẬT) --- *@
+@if (showAssignModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow-lg border-warning">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-person-badge"></i> Gán Chủ Quán</h5>
+                    <button type="button" class="btn-close" @onclick="CloseAssignModal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p>Chọn quản lý cho quán: <strong class="text-primary">@selectedRestaurantName</strong></p>
+
+                    @* 👇 HIỆN CHỦ CŨ VÀ NÚT XÓA NẾU CÓ *@
+                    @if (hasCurrentManager)
+                    {
+                        <div class="alert alert-info d-flex justify-content-between align-middle py-2 px-3 mb-4 border-info">
+                            <div class="mt-1">Chủ hiện tại: <strong>@currentManagerName</strong></div>
+                            <button class="btn btn-danger btn-sm fw-bold" @onclick="RemoveManager">
+                                <i class="bi bi-person-x-fill"></i> Gỡ chủ quán
+                            </button>
+                        </div>
+                        <hr />
+                    }
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-uppercase text-muted">Chọn Manager mới (Chưa có quán)</label>
+                        <select class="form-select" @bind="selectedManagerId">
+                            <option value="0">-- Vui lòng chọn một người --</option>
+                            @* 👇 HIỂN THỊ DANH SÁCH ĐÃ LỌC *@
+                            @foreach (var m in AvailableManagers)
+                            {
+                                <option value="@m.UserId">@m.DisplayName (@m.Username)</option>
+                            }
+                        </select>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger py-2 small">@errorMessage</div>
+                    }
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <button class="btn btn-secondary" @onclick="CloseAssignModal">Đóng</button>
+                        <button class="btn btn-warning fw-bold px-4" @onclick="SubmitAssignManager"
+                                disabled="@(isSubmitting || selectedManagerId == 0)">
+                            Xác nhận gán
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Restaurant>? restaurants;
+    private List<UserModel>? managers;
+    private bool isAdmin = false;
+    private string searchRestaurantString = "";
+
+    // BIẾN CHO GÁN QUẢN LÝ
+    private bool showAssignModal = false;
+    private int selectedRestaurantId = 0;
+    private string selectedRestaurantName = "";
+    private string currentManagerName = "";
+    private bool hasCurrentManager = false;
+    private int selectedManagerId = 0;
+    private bool isSubmitting = false;
+    private string errorMessage = "";
+
+    // 👇 LOGIC LỌC MANAGER: Chỉ lấy những ông chưa có trong bất kỳ quán nào
+    private List<UserModel> AvailableManagers => managers?
+        .Where(m => !restaurants!.Any(r => r.ManagerUserId == m.UserId))
+        .ToList() ?? new List<UserModel>();
+
+    // BIẾN CHO THÊM/SỬA QUÁN ĂN
+    private bool showEditModal = false;
+    private bool isEdit = false;
+    private int currentId;
+    private int currentPoiId;
+
+    private class FormModel
+    {
+        public string Name { get; set; } = "";
+        public string Address { get; set; } = "";
+        public string Description { get; set; } = "";
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
+    }
+    private FormModel editingRes = new();
+
+    private IEnumerable<Restaurant>? filteredRestaurants =>
+        string.IsNullOrWhiteSpace(searchRestaurantString)
+            ? restaurants
+            : restaurants?.Where(r => Fuzz.PartialRatio(searchRestaurantString.ToLower(), r.Name.ToLower()) > 65);
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        isAdmin = authState.User.IsInRole("Admin");
+        await LoadData();
+        if (isAdmin)
+        {
+            var allUsers = await UserService.GetUsersAsync();
+            managers = allUsers.Where(u => u.Role == "Manager").ToList();
+        }
+    }
+
+    private async Task LoadData()
+    {
+        if (isAdmin) restaurants = await RestaurantService.GetAllAsync();
+        else restaurants = await RestaurantService.GetMyAsync();
+    }
+
+    private void GoToMenu(int restaurantId) => Navigation.NavigateTo($"/restaurants/{restaurantId}/foods");
+    private void GoToQR(int restaurantId) => Navigation.NavigateTo($"/qrcodes?restaurantId={restaurantId}");
+    private void GoToReviews(int poiId) => Navigation.NavigateTo($"/reviews?poiId={poiId}");
+
+    private void OpenAddModal()
+    {
+        isEdit = false;
+        editingRes = new FormModel { Latitude = 10.7615, Longitude = 106.7042 };
+        showEditModal = true;
+    }
+
+    private void OpenEditModal(Restaurant r)
+    {
+        isEdit = true;
+        currentId = r.RestaurantId;
+        currentPoiId = r.PoiId;
+        editingRes = new FormModel { Name = r.Name, Address = r.Address ?? "", Description = r.Description ?? "", Latitude = r.Latitude, Longitude = r.Longitude };
+        showEditModal = true;
+    }
+
+    // 👇 THAY ĐỔI: Hàm mở Modal gán giờ nhận object Restaurant
+    private void OpenAssignModal(Restaurant r)
+    {
+        selectedRestaurantId = r.RestaurantId;
+        selectedRestaurantName = r.Name;
+        currentManagerName = r.ManagerName ?? "";
+        hasCurrentManager = r.ManagerUserId.HasValue && r.ManagerUserId > 0;
+        selectedManagerId = 0;
+        errorMessage = "";
+        showAssignModal = true;
+    }
+
+    // 👇 HÀM XỬ LÝ GỠ CHỦ QUÁN
+    private async Task RemoveManager()
+    {
+        if (!await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc muốn gỡ {currentManagerName} khỏi quán này?")) return;
+
+        isSubmitting = true;
+        // Gán 0 để Backend hiểu là xóa trắng manager
+        bool success = await RestaurantService.AssignManagerAsync(selectedRestaurantId, 0);
+        if (success)
+        {
+            showAssignModal = false;
+            await LoadData();
+        }
+        else errorMessage = "Gỡ chủ quán thất bại!";
+        isSubmitting = false;
+    }
+
+    private async Task SubmitAssignManager()
+    {
+        if (selectedManagerId == 0) return;
+        isSubmitting = true;
+        bool success = await RestaurantService.AssignManagerAsync(selectedRestaurantId, selectedManagerId);
+        if (success) { showAssignModal = false; await LoadData(); }
+        else errorMessage = "Gán thất bại!";
+        isSubmitting = false;
+    }
+
+    private void CloseAssignModal() => showAssignModal = false;
+
+    private async Task HandleSubmit()
+    {
+        bool success = isEdit
+            ? await RestaurantService.UpdateAsync(currentId, new UpdateRestaurantReq(editingRes.Name, editingRes.Address, editingRes.Description, editingRes.Latitude, editingRes.Longitude, currentPoiId))
+            : await RestaurantService.CreateAsync(new CreateRestaurantReq(editingRes.Name, editingRes.Address, editingRes.Description, editingRes.Latitude, editingRes.Longitude));
+
+        if (success) { showEditModal = false; await LoadData(); }
+        else await JS.InvokeVoidAsync("alert", "Lưu thất bại!");
+    }
+
+    private async Task DeleteRestaurant(int id)
+    {
+        if (await JS.InvokeAsync<bool>("confirm", "Xóa quán?"))
+        {
+            if (await RestaurantService.DeleteAsync(id)) await LoadData();
+        }
+    }
+}

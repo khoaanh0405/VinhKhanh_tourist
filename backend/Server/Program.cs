@@ -1,13 +1,15 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Server.Authorization; // Để nhận diện Policies và Handler
 using Server.Data;
 using Server.Models;
 using Server.Services; // Đảm bảo namespace này chứa ICloudinaryService và CloudinaryService
-using System.Text;
-
+using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 // ============================
@@ -49,7 +51,12 @@ builder.Services.AddAuthentication(options =>
 // ============================
 // 3. CONTROLLERS + SWAGGER
 // ============================
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+	.AddJsonOptions(options =>
+	{
+		options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+		options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+	});
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(c =>
@@ -102,12 +109,38 @@ builder.Services.AddCors(options =>
 // ============================
 // 5. REGISTER SERVICES
 // ============================
+builder.Services.AddHttpContextAccessor(); // Cực kỳ quan trọng để kiểm tra quyền sở hữu
 builder.Services.AddScoped<INarrationService, NarrationService>();
+
+// --- THÊM MẤY DÒNG NÀY VÀO ---
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IRestaurantService, RestaurantService>();
+builder.Services.AddScoped<IFoodService, FoodService>();
+
+// Đăng ký "Anh bảo vệ" kiểm tra chủ quán
+builder.Services.AddScoped<IAuthorizationHandler, ManagerRestaurantHandler>();
 
 // ============================
 // 6. CLOUDINARY STORAGE
 // ============================
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+
+
+// ============================
+// 8. AUTHORIZATION POLICIES
+// ============================
+builder.Services.AddAuthorization(options =>
+{
+	// Quyền chỉ dành cho Admin
+	options.AddPolicy(Policies.AdminOnly, policy => policy.RequireRole("Admin"));
+
+	// Quyền cho Admin hoặc Manager
+	options.AddPolicy(Policies.ManagerOrAdmin, policy => policy.RequireRole("Admin", "Manager"));
+
+	// Quyền đặc biệt: Phải là Admin HOẶC là chủ của chính quán ăn đó
+	options.AddPolicy(Policies.OwnsRestaurant, policy =>
+		policy.Requirements.Add(new ManagerRestaurantRequirement()));
+});
 
 // ============================
 // 7. LOGGING
@@ -117,6 +150,7 @@ builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
 var app = builder.Build();
+
 
 // ============================
 // PIPELINE

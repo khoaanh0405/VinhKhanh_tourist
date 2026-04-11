@@ -1,0 +1,287 @@
+﻿@page "/users"
+@attribute [Authorize(Roles = "Admin")]
+@using VinhKhanh.WebAdmin.Models
+@inject VinhKhanh.WebAdmin.Services.IUserService UserService
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="text-danger fw-bold"><i class="bi bi-people-fill"></i> Quản lý Người dùng</h3>
+    <button class="btn btn-success fw-bold" @onclick="OpenModal"><i class="bi bi-plus-circle"></i> Cấp tài khoản mới</button>
+</div>
+
+@if (users == null)
+{
+    <p class="text-center mt-5 text-muted">Đang tải dữ liệu...</p>
+}
+else
+{
+    <div class="card shadow-sm border-danger">
+        <div class="card-body">
+            <table class="table table-hover align-middle">
+                <thead class="table-danger">
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên hiển thị</th>
+                        <th>Tài khoản</th>
+                        <th>Quyền</th>
+                        <th>Trạng thái</th> @* THÊM CỘT TRẠNG THÁI *@
+                        <th>Ngày tạo</th>
+                        <th class="text-end">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var u in users)
+                    {
+                        <tr style="@(u.IsLocked ? "opacity: 0.6; background-color: #f8f9fa;" : "")">
+                            <td class="fw-bold text-secondary">#@u.UserId</td>
+                            <td class="fw-bold">@u.DisplayName</td>
+                            <td>@u.Username</td>
+                            <td>
+                                <span class="badge @(u.Role == "Admin" ? "bg-danger" : (u.Role == "Manager" ? "bg-warning text-dark" : "bg-secondary"))">@u.Role</span>
+                            </td>
+                            <td>
+                                @* HIỂN THỊ LABEL KHÓA/MỞ *@
+                                @if (u.IsLocked)
+                                {
+                                    <span class="badge bg-dark"><i class="bi bi-lock-fill"></i> Đã khóa</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success"><i class="bi bi-check-circle"></i> Hoạt động</span>
+                                }
+                            </td>
+                            <td>@u.CreatedAt.ToString("dd/MM/yyyy")</td>
+
+                            <td class="text-end">
+                                @* NÚT BẤM KHÓA / MỞ KHÓA *@
+                                <button class="btn btn-sm @(u.IsLocked ? "btn-success" : "btn-dark") me-1"
+                                        @onclick="() => ToggleLock(u)" title="@(u.IsLocked ? "Mở khóa" : "Khóa tài khoản")">
+                                    <i class="bi @(u.IsLocked ? "bi-unlock-fill" : "bi-lock-fill")"></i>
+                                </button>
+
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => OpenPasswordModal(u.UserId, u.Username)">
+                                    <i class="bi bi-key"></i> Đổi MK
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@* --- MODAL TẠO TÀI KHOẢN (GIỮ NGUYÊN) --- *@
+@if (showModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow-lg">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-person-plus"></i> Cấp tài khoản quản lý</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger py-2">@errorMessage</div>
+                    }
+
+                    <EditForm Model="newUser" OnValidSubmit="HandleSubmit">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tên hiển thị</label>
+                            <InputText @bind-Value="newUser.DisplayName" class="form-control" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tài khoản đăng nhập</label>
+                            <InputText @bind-Value="newUser.Username" class="form-control" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mật khẩu</label>
+                            <InputText @bind-Value="newUser.Password" type="password" class="form-control" required />
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Chức vụ</label>
+                            <InputSelect @bind-Value="newUser.Role" class="form-select">
+                                <option value="Manager">Quản lý quán (Manager)</option>
+                                <option value="Admin">Tổng quản lý (Admin)</option>
+                                <option value="Tourist">Khách du lịch (Tourist)</option>
+                            </InputSelect>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-secondary" @onclick="CloseModal">Hủy bỏ</button>
+                            <button type="submit" class="btn btn-danger" disabled="@isSubmitting">
+                                @(isSubmitting ? "Đang xử lý..." : "Lưu tài khoản")
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@* --- MODAL ĐỔI MẬT KHẨU (GIỮ NGUYÊN) --- *@
+@if (showPasswordModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow-lg border-danger">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-key-fill"></i> Đổi mật khẩu</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="ClosePasswordModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Cấp lại mật khẩu cho tài khoản: <strong class="text-primary">@editUsername</strong></p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mật khẩu mới</label>
+                        <input type="password" @bind="newPassword" class="form-control" placeholder="Nhập mật khẩu mới..." />
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger py-2">@errorMessage</div>
+                    }
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <button class="btn btn-secondary" @onclick="ClosePasswordModal">Hủy</button>
+                        <button class="btn btn-danger" @onclick="SubmitChangePassword" disabled="@isSubmitting">
+                            @(isSubmitting ? "Đang xử lý..." : "Lưu mật khẩu")
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<UserModel>? users;
+
+    // --- BIẾN CHO POPUP TẠO TÀI KHOẢN ---
+    private bool showModal = false;
+    private bool isSubmitting = false;
+    private string errorMessage = "";
+    private RegisterRequest newUser = new RegisterRequest();
+
+    // --- BIẾN CHO POPUP ĐỔI MẬT KHẨU ---
+    private bool showPasswordModal = false;
+    private int editUserId = 0;
+    private string editUsername = "";
+    private string newPassword = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUsers();
+    }
+
+    private async Task LoadUsers()
+    {
+        users = await UserService.GetUsersAsync();
+    }
+
+    // 👇 HÀM XỬ LÝ KHÓA/MỞ KHÓA TÀI KHOẢN 👇
+    private async Task ToggleLock(UserModel u)
+    {
+        string actionText = u.IsLocked ? "mở khóa" : "khóa";
+        bool confirm = await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc chắn muốn {actionText} tài khoản {u.Username}?");
+
+        if (!confirm) return;
+
+        try
+        {
+            // Gọi API Update DB ở Backend
+            var response = await Http.PutAsync($"api/User/{u.UserId}/toggle-lock", null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Thay đổi trạng thái trên giao diện ngay lập tức
+                u.IsLocked = !u.IsLocked;
+                StateHasChanged();
+                await JS.InvokeVoidAsync("alert", $"Đã {actionText} tài khoản thành công!");
+            }
+            else
+            {
+                var errorMsg = await response.Content.ReadAsStringAsync();
+                await JS.InvokeVoidAsync("alert", $"Thao tác thất bại: {errorMsg}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("alert", "Lỗi kết nối tới Server!");
+        }
+    }
+
+    // --- HÀM XỬ LÝ POPUP TẠO TÀI KHOẢN ---
+    private void OpenModal()
+    {
+        newUser = new RegisterRequest();
+        errorMessage = "";
+        showModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+    }
+
+    private async Task HandleSubmit()
+    {
+        isSubmitting = true;
+        errorMessage = "";
+
+        bool success = await UserService.CreateUserAsync(newUser);
+
+        if (success)
+        {
+            await LoadUsers();
+            showModal = false;
+        }
+        else
+        {
+            errorMessage = "Lỗi! Tài khoản đã tồn tại hoặc có lỗi xảy ra.";
+        }
+
+        isSubmitting = false;
+    }
+
+    // --- HÀM XỬ LÝ POPUP ĐỔI MẬT KHẨU ---
+    private void OpenPasswordModal(int id, string username)
+    {
+        editUserId = id;
+        editUsername = username;
+        newPassword = "";
+        errorMessage = "";
+        showPasswordModal = true;
+    }
+
+    private void ClosePasswordModal()
+    {
+        showPasswordModal = false;
+    }
+
+    private async Task SubmitChangePassword()
+    {
+        if (string.IsNullOrWhiteSpace(newPassword))
+        {
+            errorMessage = "Vui lòng nhập mật khẩu mới!";
+            return;
+        }
+
+        isSubmitting = true;
+        errorMessage = "";
+        bool success = await UserService.ChangePasswordAsync(editUserId, newPassword);
+
+        if (success)
+        {
+            showPasswordModal = false;
+            await LoadUsers();
+        }
+        else
+        {
+            errorMessage = "Đổi mật khẩu thất bại!";
+        }
+        isSubmitting = false;
+    }
+}

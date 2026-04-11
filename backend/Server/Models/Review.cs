@@ -14,7 +14,8 @@ namespace Server.Models
         public int Rating { get; set; }
         [MaxLength(1000)]
         public string? Comment { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+		public bool IsHidden { get; set; }
+		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [ForeignKey("PoiId")]
         public virtual POI POI { get; set; }

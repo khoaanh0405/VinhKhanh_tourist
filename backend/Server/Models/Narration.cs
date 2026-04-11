@@ -44,6 +44,7 @@ namespace Server.Models
         public virtual Language Language { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; set; }
-    }
+		[NotMapped]
+		public DateTime? UpdatedAt { get; set; }
+	}
 }

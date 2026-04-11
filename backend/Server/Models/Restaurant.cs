@@ -29,7 +29,10 @@ namespace Server.Models
         public virtual ICollection<Food> Foods { get; set; }
         public virtual ICollection<RestaurantTranslation> RestaurantTranslations { get; set; } = new List<RestaurantTranslation>();
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; set; }
-    }
+        //public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        //public DateTime? UpdatedAt { get; set; }
+
+		public int? ManagerUserId { get; set; }
+		public User? Manager { get; set; }
+	}
 }

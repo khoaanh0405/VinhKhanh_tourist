@@ -1,0 +1,88 @@
+﻿@page "/languages"
+@attribute [Authorize(Roles = "Admin, Manager")]
+@using VinhKhanh.WebAdmin.Models
+@inject VinhKhanh.WebAdmin.Services.ILanguageService LanguageService
+@inject IJSRuntime JS
+
+<div class="d-flex justify-content-between mb-4">
+    <h3 class="text-primary fw-bold"><i class="bi bi-globe"></i> Quản lý Ngôn ngữ</h3>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-primary">
+            <div class="card-header bg-primary text-white fw-bold">Thêm Ngôn ngữ mới</div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="fw-bold">Mã ngôn ngữ (VD: en, ko, ja)</label>
+                    <input type="text" class="form-control" @bind="newLang.LanguageCode" />
+                </div>
+                <div class="mb-3">
+                    <label class="fw-bold">Tên hiển thị (VD: Tiếng Anh)</label>
+                    <input type="text" class="form-control" @bind="newLang.LanguageName" />
+                </div>
+                <button class="btn btn-success w-100 fw-bold" @onclick="SaveLanguage">Thêm Ngôn ngữ</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Mã CODE</th>
+                            <th>Tên Ngôn ngữ</th>
+                            <th class="text-end">Xóa</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var l in languages)
+                        {
+                            <tr>
+                                <td class="fw-bold text-primary">@l.LanguageCode</td>
+                                <td>@l.LanguageName</td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteLanguage(l.LanguageCode)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<LanguageDto> languages = new();
+    private LanguageDto newLang = new();
+
+    protected override async Task OnInitializedAsync() => await LoadData();
+
+    private async Task LoadData() => languages = await LanguageService.GetAllAsync();
+
+    private async Task SaveLanguage()
+    {
+        if (string.IsNullOrEmpty(newLang.LanguageCode) || string.IsNullOrEmpty(newLang.LanguageName))
+        {
+            await JS.InvokeVoidAsync("alert", "Vui lòng nhập đủ thông tin!"); return;
+        }
+        if (await LanguageService.CreateAsync(newLang))
+        {
+            newLang = new(); await LoadData();
+        }
+        else { await JS.InvokeVoidAsync("alert", "Lỗi: Mã này có thể đã tồn tại!"); }
+    }
+
+    private async Task DeleteLanguage(string code)
+    {
+        if (await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc muốn xóa ngôn ngữ '{code}'?"))
+        {
+            await LanguageService.DeleteAsync(code); await LoadData();
+        }
+    }
+}

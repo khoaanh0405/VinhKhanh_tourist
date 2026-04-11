@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using BCrypt.Net; // Thư viện mã hóa
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Server.Data;
 using Server.Models;
-using BCrypt.Net; // Thư viện mã hóa
-
+using Microsoft.AspNetCore.Authorization; // 👈 THÊM DÒNG NÀY VÀO
 namespace VServer.Controllers
 {
     [Route("api/[controller]")]
@@ -117,9 +117,81 @@ namespace VServer.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+        // ==========================================
+        // CÁC API DÀNH RIÊNG CHO ADMIN WEB ADMIN
+        // ==========================================
 
-        // API Test thử xem Token có hoạt động không
-        [HttpGet("me")]
+        // 4. LẤY DANH SÁCH NGƯỜI DÙNG (Admin Only)
+        [HttpGet]
+        [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            // Lấy danh sách nhưng TUYỆT ĐỐI KHÔNG trả về cột Password
+            var users = await _context.Users
+                .Select(u => new 
+                { 
+                    u.UserId, 
+                    u.DisplayName, 
+                    u.Username, 
+                    u.Role, 
+                    u.CreatedAt,
+					u.IsLocked
+				})
+                .ToListAsync();
+                
+            return Ok(users);
+        }
+
+        // 5. ADMIN TẠO TÀI KHOẢN (Được phép chọn Role là Manager/Admin)
+        [HttpPost("admin-create")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreateUserByAdmin([FromBody] RegisterRequest request)
+        {
+            if (await _context.Users.AnyAsync(u => u.Username == request.Username))
+            {
+                return BadRequest("Tên đăng nhập đã tồn tại.");
+            }
+
+            // Mã hóa mật khẩu
+            string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
+            var newUser = new User
+            {
+                DisplayName = request.DisplayName,
+                Username = request.Username,
+                Password = passwordHash,
+                // Điểm khác biệt: Lấy Role do Admin chỉ định (thay vì ép thành Tourist)
+                Role = request.Role, 
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Users.Add(newUser);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Message = "Tạo tài khoản thành công!", UserId = newUser.UserId });
+        }
+		// DTO nhận mật khẩu mới
+		public class AdminChangePasswordRequest
+		{
+			public string NewPassword { get; set; }
+		}
+
+		// 6. ADMIN ĐỔI MẬT KHẨU NGƯỜI DÙNG
+		[HttpPut("admin-change-password/{id}")]
+		[Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+		public async Task<IActionResult> AdminChangePassword(int id, [FromBody] AdminChangePasswordRequest req)
+		{
+			var user = await _context.Users.FindAsync(id);
+			if (user == null) return NotFound("Không tìm thấy người dùng.");
+
+			// Mã hóa mật khẩu mới và lưu lại
+			user.Password = BCrypt.Net.BCrypt.HashPassword(req.NewPassword);
+			await _context.SaveChangesAsync();
+
+			return Ok(new { Message = "Đổi mật khẩu thành công!" });
+		}
+		// API Test thử xem Token có hoạt động không
+		[HttpGet("me")]
         [Microsoft.AspNetCore.Authorization.Authorize] // Yêu cầu phải có Token mới vào được
         public IActionResult GetMyInfo()
         {
@@ -127,5 +199,23 @@ namespace VServer.Controllers
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
             return Ok(new { Message = $"Xin chào {username}, bạn là {role}" });
         }
-    }
+
+		[HttpPut("{id}/toggle-lock")]
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> ToggleLock(int id)
+		{
+			var user = await _context.Users.FindAsync(id);
+			if (user == null) return NotFound();
+
+			// Không cho Admin tự khóa chính mình (để tránh bị kẹt)
+			var currentAdminId = int.Parse(User.FindFirst("sub")?.Value ?? "0");
+			if (user.UserId == currentAdminId) return BadRequest("Bạn không thể tự khóa chính mình.");
+
+			user.IsLocked = !user.IsLocked; // Đảo ngược trạng thái
+			await _context.SaveChangesAsync();
+
+			return Ok(new { isLocked = user.IsLocked });
+		}
+
+	}
 }

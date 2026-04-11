@@ -1,0 +1,427 @@
+﻿@page "/restaurants/{RestaurantId:int}/foods"
+@attribute [Authorize(Roles = "Admin, Manager")]
+@using VinhKhanh.WebAdmin.Models
+@inject VinhKhanh.WebAdmin.Services.IRestaurantService RestaurantService
+@inject VinhKhanh.WebAdmin.Services.IFoodService FoodService
+@inject AuthenticationStateProvider AuthStateProvider
+@using FuzzySharp
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject VinhKhanh.WebAdmin.Services.IFoodTranslationService TransService
+@inject VinhKhanh.WebAdmin.Services.ILanguageService LanguageService
+<style>
+    /* Khung bọc ngoài thanh tìm kiếm - Tông màu xanh lá cho phần Thực đơn */
+    .custom-search-box {
+        transition: all 0.3s ease-in-out;
+        border-radius: 50rem;
+        border: 2px solid #dee2e6;
+        background-color: #fff;
+        overflow: hidden;
+    }
+
+        .custom-search-box:hover {
+            border-color: #75b798;
+            box-shadow: 0 4px 12px rgba(25, 135, 84, 0.15); /* Bóng mờ màu xanh lá */
+            transform: translateY(-1px);
+        }
+
+        .custom-search-box:focus-within {
+            border-color: #198754;
+            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+        }
+
+        .custom-search-box .form-control {
+            border: none;
+            box-shadow: none;
+            background: transparent;
+        }
+
+        .custom-search-box .input-group-text {
+            border: none;
+            background: transparent;
+            color: #6c757d;
+        }
+
+        .custom-search-box:focus-within .input-group-text {
+            color: #198754; /* Kính lúp đổi màu xanh lá khi click */
+        }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="text-success fw-bold"><i class="bi bi-menu-button-wide"></i> Thực đơn: @restaurantName</h3>
+    <button class="btn btn-secondary btn-sm" @onclick='() => Navigation.NavigateTo("/restaurants")'>
+        <i class="bi bi-arrow-left"></i> Quay lại
+    </button>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold text-success m-0">Danh sách Món ăn</h5>
+            <button class="btn btn-success btn-sm fw-bold" @onclick="OpenAddModal"><i class="bi bi-plus-circle"></i> Thêm món mới</button>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="input-group custom-search-box px-2 py-1">
+                    <span class="input-group-text">
+                        <i class="bi bi-search fs-5"></i>
+                    </span>
+                    <input type="text" class="form-control form-control-lg fs-6"
+                           placeholder="Tìm tên món ăn"
+                           @bind="searchFoodString" @bind:event="oninput" />
+                </div>
+            </div>
+        </div>
+        <table class="table table-hover align-middle">
+            <thead class="table-success">
+                <tr>
+                    <th>ID</th>
+                    <th>Tên món</th>
+                    <th>Giá tiền</th>
+                    <th>Mô tả</th>
+                    <th class="text-end">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (displayFoods != null && displayFoods.Any())
+                {
+                    @foreach (var f in displayFoods)
+                    {
+                        <tr>
+                            <td class="fw-bold text-secondary">#@f.FoodId</td>
+                            <td class="fw-bold fs-6">@f.Name</td>
+                            <td class="text-danger fw-bold">@f.Price.ToString("N0") VNĐ</td>
+                            <td>@f.Description</td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenEditModal(f)"><i class="bi bi-pencil"></i> Sửa</button>
+                                <button class="btn btn-sm btn-outline-info ms-1" @onclick="() => OpenTransModal(f)">
+                                    <i class="bi bi-translate"></i> Dịch
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger ms-1" @onclick="() => DeleteFood(f.FoodId)"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-5">
+                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                            Không tìm thấy món ăn nào phù hợp.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@if (showTransModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6);">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-info shadow-lg">
+                <div class="modal-header bg-info text-dark">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-translate"></i> Dịch Món: @selectedFoodName</h5>
+                    <button type="button" class="btn-close" @onclick="() => showTransModal = false"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row bg-light p-3 rounded border mb-4">
+                        <div class="col-md-3 mb-2">
+                            <label class="fw-bold small mb-1">Ngôn ngữ</label>
+                            <select class="form-select" @bind="newTrans.LanguageCode">
+                                @if (availableLanguages != null && availableLanguages.Any())
+                                {
+                                    @foreach (var lang in availableLanguages)
+                                    {
+                                        <option value="@lang.LanguageCode">@lang.LanguageName (@lang.LanguageCode)</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option value="">Chưa có ngôn ngữ nào. Hãy thêm ở trang Quản lý Ngôn ngữ.</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="fw-bold small mb-1">Tên món (Dịch)</label>
+                            <input type="text" class="form-control" @bind="newTrans.Name" placeholder="VD: Seafood Hotpot" />
+                        </div>
+                        <div class="col-md-5 mb-2">
+                            <label class="fw-bold small mb-1">Mô tả (Dịch)</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" @bind="newTrans.Description" placeholder="Mô tả..." />
+                                <button class="btn btn-primary fw-bold" @onclick="SaveTrans" disabled="@isTransSaving">
+                                    <i class="bi bi-plus-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive" style="max-height: 300px;">
+                        <table class="table table-sm table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center">Mã</th>
+                                    <th>Tên món dịch</th>
+                                    <th>Mô tả dịch</th>
+                                    <th class="text-center">Xóa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (foodTranslations != null && foodTranslations.Any())
+                                {
+                                    @foreach (var t in foodTranslations)
+                                    {
+                                        <tr>
+                                            <td class="text-center"><span class="badge bg-secondary">@t.LanguageCode</span></td>
+                                            <td class="fw-bold">@t.Name</td>
+                                            <td><small class="text-muted">@t.Description</small></td>
+                                            <td class="text-center">
+                                                <button class="btn btn-link text-danger p-0" @onclick="() => DeleteTrans(t.TranslationId)">
+                                                    <i class="bi bi-x-circle-fill"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr><td colspan="4" class="text-center text-muted py-3">Chưa có bản dịch nào.</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@if (showModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow-lg border-success">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi @(isEditMode ? "bi-pencil-square" : "bi-plus-circle")"></i>
+                        @(isEditMode ? "Sửa món ăn" : "Thêm món mới")
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger py-2">@errorMessage</div>
+                    }
+
+                    <EditForm Model="editingFood" OnValidSubmit="SubmitFood">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tên món ăn</label>
+                            <InputText @bind-Value="editingFood.Name" class="form-control" required placeholder="VD: Ốc hương rang muối..." />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Giá tiền (VNĐ)</label>
+                            <InputNumber @bind-Value="editingFood.Price" class="form-control" required placeholder="VD: 150000" />
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Mô tả (Không bắt buộc)</label>
+                            <InputTextArea @bind-Value="editingFood.Description" class="form-control" rows="3" placeholder="Nguyên liệu, cách chế biến..." />
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-secondary" @onclick="CloseModal">Hủy bỏ</button>
+                            <button type="submit" class="btn btn-success fw-bold" disabled="@isSubmitting">
+                                @(isSubmitting ? "Đang xử lý..." : "Lưu món ăn")
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int RestaurantId { get; set; }
+
+    private bool isAdmin = false;
+    private string restaurantName = "Đang tải...";
+    private List<Food>? allFoods;
+
+    // Biến cho tính năng tìm kiếm
+    private string searchFoodString = "";
+
+    // Biến cho Popup Modal (Món ăn)
+    private bool showModal = false;
+    private bool isEditMode = false;
+    private bool isSubmitting = false;
+    private string errorMessage = "";
+    private Food editingFood = new Food();
+
+    // Biến cho Popup Modal (Dịch thuật)
+    private bool showTransModal = false;
+    private bool isTransSaving = false;
+    private string selectedFoodName = "";
+    private int selectedFoodId = 0;
+    private List<FoodTranslationDto> foodTranslations = new();
+    private CreateFoodTranslationReq newTrans = new(0, "en", "", "");
+
+    // 👉 BIẾN ĐỂ LƯU DANH SÁCH NGÔN NGỮ TỪ DB
+    private List<LanguageDto> availableLanguages = new();
+
+    // ==============================================================
+    // 👉 ĐÂY LÀ HÀM OnInitializedAsync ĐÃ ĐƯỢC GỘP LẠI DUY NHẤT 1 LẦN
+    // ==============================================================
+    protected override async Task OnInitializedAsync()
+    {
+        // 1. Kiểm tra quyền
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        isAdmin = authState.User.IsInRole("Admin");
+
+        // 2. Load danh sách ngôn ngữ từ DB (Thay thế việc hardcode)
+        availableLanguages = await LanguageService.GetAllAsync();
+
+        // 3. Load danh sách món ăn
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        List<Restaurant> allRestaurants;
+        if (isAdmin)
+            allRestaurants = await RestaurantService.GetAllAsync();
+        else
+            allRestaurants = await RestaurantService.GetMyAsync();
+
+        var res = allRestaurants.FirstOrDefault(x => x.RestaurantId == RestaurantId);
+        restaurantName = res?.Name ?? "Không rõ tên quán";
+
+        if (isAdmin)
+            allFoods = await FoodService.GetAllAsync();
+        else
+            allFoods = await FoodService.GetMyFoodsAsync();
+    }
+
+    // Hàm lọc sử dụng FuzzySharp
+    private IEnumerable<Food>? displayFoods =>
+        allFoods?.Where(f => f.RestaurantId == RestaurantId &&
+                            (string.IsNullOrWhiteSpace(searchFoodString) ||
+                             Fuzz.PartialRatio(searchFoodString.ToLower(), f.Name.ToLower()) > 65));
+
+    // ==========================================
+    // PHẦN LOGIC THÊM/SỬA MÓN ĂN (FOOD)
+    // ==========================================
+    private void OpenAddModal()
+    {
+        isEditMode = false;
+        editingFood = new Food { RestaurantId = this.RestaurantId };
+        errorMessage = "";
+        showModal = true;
+    }
+
+    private void OpenEditModal(Food food)
+    {
+        isEditMode = true;
+        editingFood = new Food
+        {
+            FoodId = food.FoodId,
+            Name = food.Name,
+            Price = food.Price,
+            Description = food.Description,
+            RestaurantId = food.RestaurantId
+        };
+        errorMessage = "";
+        showModal = true;
+    }
+
+    private void CloseModal() => showModal = false;
+
+    private async Task SubmitFood()
+    {
+        isSubmitting = true;
+        errorMessage = "";
+        bool success = isEditMode
+            ? await FoodService.UpdateFoodAsync(editingFood.FoodId, editingFood)
+            : await FoodService.CreateFoodAsync(editingFood);
+
+        if (success)
+        {
+            await LoadData();
+            showModal = false;
+        }
+        else
+        {
+            errorMessage = "Lỗi! Vui lòng kiểm tra lại dữ liệu hoặc API.";
+        }
+        isSubmitting = false;
+    }
+
+    private async Task DeleteFood(int id)
+    {
+        if (await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn xóa món ăn này không?"))
+        {
+            if (await FoodService.DeleteFoodAsync(id)) await LoadData();
+            else await JS.InvokeVoidAsync("alert", "Xóa thất bại!");
+        }
+    }
+
+    // ==========================================
+    // PHẦN LOGIC DỊCH THUẬT (TRANSLATION)
+    // ==========================================
+    private async Task OpenTransModal(Food f)
+    {
+        selectedFoodId = f.FoodId;
+        selectedFoodName = f.Name;
+
+        // 👇 TẠO DANH SÁCH LỌC BỎ TIẾNG VIỆT (Mã "vi")
+        var transLangs = availableLanguages.Where(l => l.LanguageCode.ToLower() != "vi").ToList();
+
+        // Lấy ngôn ngữ đầu tiên trong danh sách ĐÃ LỌC
+        string firstLang = transLangs.FirstOrDefault()?.LanguageCode ?? "en";
+
+        newTrans = new CreateFoodTranslationReq(f.FoodId, firstLang, "", "");
+
+        await LoadTranslations();
+        showTransModal = true;
+    }
+
+    private async Task LoadTranslations()
+    {
+        foodTranslations = await TransService.GetByFoodIdAsync(selectedFoodId);
+        StateHasChanged();
+    }
+
+    private async Task SaveTrans()
+    {
+        if (string.IsNullOrWhiteSpace(newTrans.Name))
+        {
+            await JS.InvokeVoidAsync("alert", "Vui lòng nhập tên món ăn đã dịch!");
+            return;
+        }
+
+        isTransSaving = true;
+        var (success, msg) = await TransService.CreateAsync(newTrans);
+
+        if (success)
+        {
+            // Giữ lại ngôn ngữ vừa chọn, xóa chữ để nhập món tiếp theo cho lẹ
+            newTrans = new CreateFoodTranslationReq(selectedFoodId, newTrans.LanguageCode, "", "");
+            await LoadTranslations();
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Lỗi: " + msg);
+        }
+        isTransSaving = false;
+    }
+
+    private async Task DeleteTrans(int id)
+    {
+        if (await JS.InvokeAsync<bool>("confirm", "Bạn muốn xóa bản dịch này?"))
+        {
+            await TransService.DeleteAsync(id);
+            await LoadTranslations();
+        }
+    }
+}

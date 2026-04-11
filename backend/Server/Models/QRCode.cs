@@ -19,6 +19,6 @@ namespace Server.Models
         // Navigation properties
         public virtual POI POI { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        //public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }    

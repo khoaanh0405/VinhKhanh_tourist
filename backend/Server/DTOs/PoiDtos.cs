@@ -29,4 +29,6 @@ namespace Server.DTOs
         public string LanguageCode { get; set; }
         public NarrationDto Narration { get; set; }
     }
+	public record CreatePoiAdminRequest(string Name, double Latitude, double Longitude, string? Description);
+	public record UpdatePoiAdminRequest(string Name, double Latitude, double Longitude, string? Description);
 }

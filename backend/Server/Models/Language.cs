@@ -21,6 +21,7 @@ namespace Server.Models
         public virtual ICollection<RestaurantTranslation> RestaurantTranslations { get; set; } = new List<RestaurantTranslation>();
         public virtual ICollection<FoodTranslation> FoodTranslations { get; set; } = new List<FoodTranslation>();
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    }
+		[NotMapped]
+		public DateTime CreatedAt { get; set; }
+	}
 }

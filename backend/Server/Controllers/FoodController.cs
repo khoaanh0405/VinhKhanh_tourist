@@ -1,63 +1,97 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Server.Data;
+using Microsoft.AspNetCore.Authorization;
+using Server.Services;
+using Server.DTOs;
+using System.Security.Claims;
 using Server.Models;
 
-[Route("api/[controller]")]
-[ApiController]
-public class FoodController : ControllerBase
+namespace Server.Controllers
 {
-    private readonly AppDbContext _context;
-
-    public FoodController(AppDbContext context)
+    [ApiController]
+    [Route("api/[controller]")]
+    [Authorize]
+    public class FoodController : ControllerBase
     {
-        _context = context;
+        private readonly IFoodService _service;
+
+        public FoodController(IFoodService service)
+        {
+            _service = service;
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAll() => Ok(await _service.GetAllAsync());
+
+        [HttpGet("my")]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> GetMyFoods()
+        {
+            var userId = GetCurrentUserId();
+            var result = await _service.GetMyAsync(userId);
+            return Ok(result);
+        }
+
+        // 👇 DÙNG KHUÔN "FoodSubmitRequest" TỪ FILE DTO CỦA BẠN
+        [HttpPost]
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> CreateFood([FromBody] FoodSubmitRequest req)
+        {
+            var isAdmin = User.IsInRole("Admin");
+            if (isAdmin)
+            {
+                var newFood = new Food
+                {
+                    Name = req.Name,
+                    Price = req.Price,
+                    Description = req.Description,
+                    RestaurantId = req.RestaurantId
+                };
+                var success = await _service.CreateAdminAsync(newFood);
+                if (success) return Ok();
+                return BadRequest("Lỗi khi thêm món.");
+            }
+            else
+            {
+                var userId = GetCurrentUserId();
+                var createReq = new CreateFoodRequest(req.Name, req.Price, req.Description);
+                var result = await _service.CreateMyAsync(userId, createReq);
+                if (result == null) return BadRequest(new { message = "Bạn không quản lý quán ăn nào." });
+                return Ok(result);
+            }
+        }
+
+        // 👇 TƯƠNG TỰ CHO HÀM SỬA
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> UpdateFood(int id, [FromBody] FoodSubmitRequest req)
+        {
+            var userId = GetCurrentUserId();
+            var isAdmin = User.IsInRole("Admin");
+
+            var updateReq = new UpdateFoodRequest(req.Name, req.Price, req.Description);
+
+            var success = await _service.UpdateAsync(id, userId, updateReq, isAdmin);
+            if (!success) return Forbid();
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> DeleteFood(int id)
+        {
+            var userId = GetCurrentUserId();
+            var isAdmin = User.IsInRole("Admin");
+
+            var success = await _service.DeleteAsync(id, userId, isAdmin);
+            if (!success) return Forbid();
+            return NoContent();
+        }
+
+        private int GetCurrentUserId()
+        {
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            return int.TryParse(claim, out var id) ? id : 0;
+        }
     }
-
-    // GET: api/Food/ByRestaurant/5 (Lấy menu của 1 quán)
-    [HttpGet("ByRestaurant/{restaurantId}")]
-    public async Task<ActionResult<IEnumerable<Food>>> GetFoodsByRestaurant(int restaurantId)
-    {
-        return await _context.Foods
-                             .Where(f => f.RestaurantId == restaurantId)
-                             .ToListAsync();
-    }
-
-    // POST: api/Food (Thêm món mới)
-    [HttpPost]
-    public async Task<ActionResult<Food>> PostFood(Food food)
-    {
-        var resExists = await _context.Restaurants.AnyAsync(r => r.RestaurantId == food.RestaurantId);
-        if (!resExists) return BadRequest("Restaurant ID không tồn tại.");
-
-        _context.Foods.Add(food);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetFoodsByRestaurant), new { restaurantId = food.RestaurantId }, food);
-    }
-
-    // PUT: api/Food/5 (Cập nhật giá/tên món)
-    [HttpPut("{id}")]
-    public async Task<IActionResult> PutFood(int id, Food food)
-    {
-        if (id != food.FoodId) return BadRequest();
-
-        _context.Entry(food).State = EntityState.Modified;
-        food.UpdatedAt = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync();
-        return NoContent();
-    }
-
-    // DELETE: api/Food/5
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteFood(int id)
-    {
-        var food = await _context.Foods.FindAsync(id);
-        if (food == null) return NotFound();
-
-        _context.Foods.Remove(food);
-        await _context.SaveChangesAsync();
-        return NoContent();
-    }
-}
+}   

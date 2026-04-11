@@ -31,5 +31,8 @@ namespace Server.Models
 
         [NotMapped]
         public DateTime? UpdatedAt { get; set; }
-    }
+
+		public Restaurant? ManagedRestaurant { get; set; }
+		public bool IsLocked { get; set; }
+	}
 }
