@@ -22,6 +22,7 @@ CREATE TABLE Users (
     UserId INT IDENTITY(1,1) PRIMARY KEY,
     DisplayName NVARCHAR(100) NOT NULL,
     Username NVARCHAR(100) NOT NULL UNIQUE,
+    Email NVARCHAR(200) NOT NULL, -- Đã thêm Email vào đây
     Password NVARCHAR(200) NOT NULL,
     Role NVARCHAR(50) NOT NULL
         CHECK (Role IN ('Admin','Manager','Tourist')),
@@ -293,3 +294,12 @@ INSERT INTO FoodTranslations (FoodId, LanguageCode, Name, Description) VALUES
 (4, 'ko', N'모듬 소고기 전골', N'12시간 끓인 사골 육수에 힘줄, 꼬리, 소고기가 듬뿍 들어간 전골.'),
 (5, 'ko', N'태국식 매운 전골', N'특제 소스를 곁들인 숯불 돼지갈비 구이.');
 GO
+
+INSERT INTO Users (DisplayName, Username, Email, Password, Role)
+VALUES (
+    N'Quản trị viên Hệ thống',    -- Tên hiển thị (DisplayName)
+    'admin',                      -- Tên đăng nhập (Username)
+    'admin@vinhkhanh.com',        -- Email (bạn có thể đổi lại nếu muốn)
+    '$2a$12$DtQn17/piuDv2TPjriFBc.H2KN9qMfzccwU140LSnf4GXuDeKBQIS', -- Mật khẩu đã mã hóa
+    'Admin'                       -- Quyền (Role)
+);

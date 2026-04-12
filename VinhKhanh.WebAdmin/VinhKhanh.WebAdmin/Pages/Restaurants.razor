@@ -174,9 +174,12 @@ else
                                                     <button class="btn btn-sm btn-warning fw-bold text-dark shadow-sm" @onclick="() => OpenAssignModal(r)">
                                                         <i class="bi bi-person-lines-fill me-1"></i> Gán chủ
                                                     </button>
-                                                    <button class="btn btn-sm btn-outline-primary fw-bold bg-white" @onclick="() => OpenEditModal(r)">
+
+                                                    @* 👇 NÚT SỬA ĐÃ ĐƯỢC CHUYỂN SANG TRANG MỚI 👇 *@
+                                                    <button class="btn btn-sm btn-outline-primary fw-bold bg-white" @onclick="() => GoToEdit(r.RestaurantId)">
                                                         <i class="bi bi-pencil-square me-1"></i> Sửa
                                                     </button>
+
                                                     <button class="btn btn-sm btn-outline-danger fw-bold bg-white" @onclick="() => DeleteRestaurant(r.RestaurantId)">
                                                         <i class="bi bi-trash3-fill me-1"></i> Xóa
                                                     </button>
@@ -208,15 +211,15 @@ else
 @* CÁC MODAL BÊN DƯỚI GIỮ NGUYÊN HOÀN TOÀN LOGIC, CHỈ CHỈNH LẠI UI ĐẸP *@
 @* ================================================================ *@
 
+@* 👇 Vẫn giữ Modal này để dùng cho tính năng "THÊM MỚI" 👇 *@
 @if (showEditModal)
 {
     <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6); backdrop-filter: blur(2px);">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content shadow-lg border-0 rounded-4">
-                <div class="modal-header text-white @(isEdit ? "bg-primary" : "bg-success") border-0 rounded-top-4">
+                <div class="modal-header text-white bg-success border-0 rounded-top-4">
                     <h5 class="modal-title fw-bold">
-                        <i class="bi @(isEdit ? "bi-pencil-square" : "bi-plus-circle") me-2"></i>
-                        @(isEdit ? "Cập nhật thông tin Quán ăn" : "Thêm mới Quán ăn")
+                        <i class="bi bi-plus-circle me-2"></i> Thêm mới Quán ăn
                     </h5>
                     <button type="button" class="btn-close btn-close-white" @onclick="() => showEditModal = false"></button>
                 </div>
@@ -262,7 +265,7 @@ else
 
                         <div class="d-flex justify-content-end gap-2">
                             <button type="button" class="btn btn-light border fw-bold px-4" @onclick="() => showEditModal = false">Hủy bỏ</button>
-                            <button type="submit" class="btn @(isEdit ? "btn-primary" : "btn-success") fw-bold px-5 shadow-sm">
+                            <button type="submit" class="btn btn-success fw-bold px-5 shadow-sm">
                                 <i class="bi bi-floppy-fill me-1"></i> Lưu Dữ Liệu
                             </button>
                         </div>
@@ -352,7 +355,7 @@ else
         .Where(m => !restaurants!.Any(r => r.ManagerUserId == m.UserId))
         .ToList() ?? new List<UserModel>();
 
-    // BIẾN CHO THÊM/SỬA QUÁN ĂN
+    // BIẾN CHO THÊM QUÁN ĂN
     private bool showEditModal = false;
     private bool isEdit = false;
     private int currentId;
@@ -417,23 +420,19 @@ else
         }
     }
 
+    // 👇 CÁC HÀM ĐIỀU HƯỚNG TRANG 👇
     private void GoToMenu(int restaurantId) => Navigation.NavigateTo($"/restaurants/{restaurantId}/foods");
     private void GoToQR(int restaurantId) => Navigation.NavigateTo($"/qrcodes?restaurantId={restaurantId}");
     private void GoToReviews(int poiId) => Navigation.NavigateTo($"/reviews?poiId={poiId}");
 
+    // 👇 HÀM MỚI: CHUYỂN TỚI TRANG SỬA (THAY VÌ MỞ POPUP) 👇
+    private void GoToEdit(int restaurantId) => Navigation.NavigateTo($"/restaurants/edit/{restaurantId}");
+
+    // Hàm mở Popup (Giờ chỉ dùng cho Thêm Mới)
     private void OpenAddModal()
     {
         isEdit = false;
         editingRes = new FormModel { Latitude = 10.7615, Longitude = 106.7042 };
-        showEditModal = true;
-    }
-
-    private void OpenEditModal(Restaurant r)
-    {
-        isEdit = true;
-        currentId = r.RestaurantId;
-        currentPoiId = r.PoiId;
-        editingRes = new FormModel { Name = r.Name, Address = r.Address ?? "", Description = r.Description ?? "", Latitude = r.Latitude, Longitude = r.Longitude };
         showEditModal = true;
     }
 
@@ -477,9 +476,8 @@ else
 
     private async Task HandleSubmit()
     {
-        bool success = isEdit
-            ? await RestaurantService.UpdateAsync(currentId, new UpdateRestaurantReq(editingRes.Name, editingRes.Address, editingRes.Description, editingRes.Latitude, editingRes.Longitude, currentPoiId))
-            : await RestaurantService.CreateAsync(new CreateRestaurantReq(editingRes.Name, editingRes.Address, editingRes.Description, editingRes.Latitude, editingRes.Longitude));
+        // Giờ chỉ xử lý thêm mới ở đây thôi (CreateAsync)
+        bool success = await RestaurantService.CreateAsync(new CreateRestaurantReq(editingRes.Name, editingRes.Address, editingRes.Description, editingRes.Latitude, editingRes.Longitude));
 
         if (success) { showEditModal = false; await LoadData(); }
         else await JS.InvokeVoidAsync("alert", "Lưu dữ liệu thất bại!");
