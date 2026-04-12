@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!--
-  MapPage.xaml  —  Theme: Teal Explorer
-  Code-behind: MapPage.xaml.cs (không thay đổi)
+  MapPage.xaml — Theme: Teal Explorer
+  🔥 NÂNG CẤP:
+    - Sort theo DistanceKm (double) thay vì DistanceStr (string)
+    - Thêm 2 nút: "Dẫn đường" + "Chi tiết" trên mỗi card
+    - Fuzzy search (code-behind)
 -->
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:maps="http://schemas.microsoft.com/dotnet/2021/maui/maps"
              x:Class="client.lib.screens.map.MapPage"
+             xmlns:loc="clr-namespace:client.lib.core"
              Shell.NavBarIsVisible="False">
 
     <Grid>
@@ -35,7 +39,6 @@
                        BackgroundColor="Transparent"
                        VerticalOptions="Center"
                        TextColor="#1A1A2E"/>
-                <!-- Location pin button -->
                 <Border Grid.Column="2"
                         WidthRequest="34" HeightRequest="34"
                         StrokeShape="RoundRectangle 10"
@@ -104,10 +107,12 @@
                    HorizontalOptions="Center" VerticalOptions="Center"/>
         </Border>
 
-        <!-- ─── BOTTOM RESTAURANT CARDS ─── -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- 🔥 NÂNG CẤP: BOTTOM RESTAURANT CARDS + 2 NÚT              -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
         <CollectionView x:Name="RestaurantList"
                         VerticalOptions="End"
-                        HeightRequest="140"
+                        HeightRequest="175"
                         Margin="0,0,0,20"
                         SelectionMode="None">
             <CollectionView.ItemsLayout>
@@ -128,37 +133,73 @@
                             <TapGestureRecognizer Tapped="OnRestaurantTapped"
                                                   CommandParameter="{Binding .}"/>
                         </Border.GestureRecognizers>
-                        <Grid ColumnDefinitions="104, *">
-                            <Border Grid.Column="0"
+                        <Grid ColumnDefinitions="104, *" RowDefinitions="*, Auto">
+                            <!-- Thumbnail -->
+                            <Border Grid.Column="0" Grid.RowSpan="2"
                                     StrokeShape="RoundRectangle 16,0,0,16"
                                     StrokeThickness="0">
                                 <Image Source="{Binding ImageUrl}"
                                        Aspect="AspectFill"
-                                       HeightRequest="132" WidthRequest="104"/>
+                                       HeightRequest="170" WidthRequest="104"/>
                             </Border>
-                            <VerticalStackLayout Grid.Column="1"
-                                                 Margin="12,12,12,10"
-                                                 Spacing="4"
-                                                 VerticalOptions="Center">
+
+                            <!-- Info -->
+                            <VerticalStackLayout Grid.Column="1" Grid.Row="0"
+                                                 Margin="12,10,12,0"
+                                                 Spacing="3"
+                                                 VerticalOptions="Start">
                                 <Label Text="{Binding Name}"
-                                       FontAttributes="Bold" FontSize="15"
+                                       FontAttributes="Bold" FontSize="14"
                                        TextColor="#1A1A2E"
                                        MaxLines="1" LineBreakMode="TailTruncation"/>
                                 <HorizontalStackLayout Spacing="5">
-                                    <Label Text="⭐" FontSize="12"
+                                    <Label Text="⭐" FontSize="11"
                                            VerticalOptions="Center" TextColor="#FFB800"/>
                                     <Label Text="{Binding AverageRating}"
                                            TextColor="#1A1A2E"
-                                           FontAttributes="Bold" FontSize="13"/>
-                                    <Label Text="·" TextColor="#CCCCCC" FontSize="13"/>
+                                           FontAttributes="Bold" FontSize="12"/>
+                                    <Label Text="·" TextColor="#CCCCCC" FontSize="12"/>
                                     <Label Text="{Binding DistanceStr}"
                                            TextColor="#1ABC9C"
-                                           FontAttributes="Bold" FontSize="13"/>
+                                           FontAttributes="Bold" FontSize="12"/>
                                 </HorizontalStackLayout>
                                 <Label Text="{Binding Description}"
-                                       FontSize="12" TextColor="#636E72"
-                                       MaxLines="2" LineBreakMode="TailTruncation"/>
+                                       FontSize="11" TextColor="#636E72"
+                                       MaxLines="1" LineBreakMode="TailTruncation"/>
                             </VerticalStackLayout>
+
+                            <!-- 🔥 MỚI: 2 nút Dẫn đường + Chi tiết -->
+                            <Grid Grid.Column="1" Grid.Row="1"
+                                  ColumnDefinitions="*, *"
+                                  ColumnSpacing="6"
+                                  Margin="12,4,12,10">
+
+                                <!-- Nút Dẫn đường -->
+                                <Button Grid.Column="0"
+                                    Text="{Binding Path=[MapButtonNavigate], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                                    HeightRequest="32"
+                                    CornerRadius="16"
+                                    BackgroundColor="#1ABC9C"
+                                    TextColor="White"
+                                    FontSize="12"
+                                    FontAttributes="Bold"
+                                    Padding="0"
+                                    Clicked="OnNavigateButtonClicked"
+                                    CommandParameter="{Binding .}"/>
+
+                                <!-- Nút Xem chi tiết -->
+                                <Button Grid.Column="1"
+                                    Text="{Binding Path=[MapButtonDetail], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                                    HeightRequest="32"
+                                    CornerRadius="16"
+                                    BackgroundColor="#F5F6FA"
+                                    TextColor="#1A1A2E"
+                                    FontSize="12"
+                                    FontAttributes="Bold"
+                                    Padding="0"
+                                    Clicked="OnDetailButtonClicked"
+                                    CommandParameter="{Binding .}"/>
+                            </Grid>
                         </Grid>
                     </Border>
                 </DataTemplate>

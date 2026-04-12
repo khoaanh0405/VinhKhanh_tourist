@@ -8,6 +8,9 @@ namespace client.lib.model
         [JsonPropertyName("reviewId")]
         public int ReviewId { get; set; }
 
+        [JsonPropertyName("userId")]
+        public int UserId { get; set; }
+
         [JsonPropertyName("userName")]
         public string UserName { get; set; } = string.Empty;
 

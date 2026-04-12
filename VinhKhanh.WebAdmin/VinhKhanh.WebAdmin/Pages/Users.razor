@@ -24,8 +24,9 @@ else
                         <th>ID</th>
                         <th>Tên hiển thị</th>
                         <th>Tài khoản</th>
+                        <th>Email</th> @* 👈 THÊM CỘT EMAIL VÀO BẢNG *@
                         <th>Quyền</th>
-                        <th>Trạng thái</th> @* THÊM CỘT TRẠNG THÁI *@
+                        <th>Trạng thái</th>
                         <th>Ngày tạo</th>
                         <th class="text-end">Hành động</th>
                     </tr>
@@ -37,11 +38,11 @@ else
                             <td class="fw-bold text-secondary">#@u.UserId</td>
                             <td class="fw-bold">@u.DisplayName</td>
                             <td>@u.Username</td>
+                            <td>@u.Email</td> @* 👈 HIỂN THỊ EMAIL *@
                             <td>
                                 <span class="badge @(u.Role == "Admin" ? "bg-danger" : (u.Role == "Manager" ? "bg-warning text-dark" : "bg-secondary"))">@u.Role</span>
                             </td>
                             <td>
-                                @* HIỂN THỊ LABEL KHÓA/MỞ *@
                                 @if (u.IsLocked)
                                 {
                                     <span class="badge bg-dark"><i class="bi bi-lock-fill"></i> Đã khóa</span>
@@ -54,7 +55,6 @@ else
                             <td>@u.CreatedAt.ToString("dd/MM/yyyy")</td>
 
                             <td class="text-end">
-                                @* NÚT BẤM KHÓA / MỞ KHÓA *@
                                 <button class="btn btn-sm @(u.IsLocked ? "btn-success" : "btn-dark") me-1"
                                         @onclick="() => ToggleLock(u)" title="@(u.IsLocked ? "Mở khóa" : "Khóa tài khoản")">
                                     <i class="bi @(u.IsLocked ? "bi-unlock-fill" : "bi-lock-fill")"></i>
@@ -72,7 +72,7 @@ else
     </div>
 }
 
-@* --- MODAL TẠO TÀI KHOẢN (GIỮ NGUYÊN) --- *@
+@* --- MODAL TẠO TÀI KHOẢN --- *@
 @if (showModal)
 {
     <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6);">
@@ -96,6 +96,11 @@ else
                         <div class="mb-3">
                             <label class="form-label fw-bold">Tài khoản đăng nhập</label>
                             <InputText @bind-Value="newUser.Username" class="form-control" required />
+                        </div>
+                        @* 👇 THÊM Ô NHẬP EMAIL VÀO ĐÂY 👇 *@
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Email</label>
+                            <InputText @bind-Value="newUser.Email" type="email" class="form-control" placeholder="vidu@email.com" required />
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold">Mật khẩu</label>
@@ -122,7 +127,7 @@ else
     </div>
 }
 
-@* --- MODAL ĐỔI MẬT KHẨU (GIỮ NGUYÊN) --- *@
+@* --- MODAL ĐỔI MẬT KHẨU --- *@
 @if (showPasswordModal)
 {
     <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6);">
@@ -181,7 +186,6 @@ else
         users = await UserService.GetUsersAsync();
     }
 
-    // 👇 HÀM XỬ LÝ KHÓA/MỞ KHÓA TÀI KHOẢN 👇
     private async Task ToggleLock(UserModel u)
     {
         string actionText = u.IsLocked ? "mở khóa" : "khóa";
@@ -191,12 +195,10 @@ else
 
         try
         {
-            // Gọi API Update DB ở Backend
             var response = await Http.PutAsync($"api/User/{u.UserId}/toggle-lock", null);
 
             if (response.IsSuccessStatusCode)
             {
-                // Thay đổi trạng thái trên giao diện ngay lập tức
                 u.IsLocked = !u.IsLocked;
                 StateHasChanged();
                 await JS.InvokeVoidAsync("alert", $"Đã {actionText} tài khoản thành công!");
@@ -213,7 +215,6 @@ else
         }
     }
 
-    // --- HÀM XỬ LÝ POPUP TẠO TÀI KHOẢN ---
     private void OpenModal()
     {
         newUser = new RegisterRequest();
@@ -240,13 +241,12 @@ else
         }
         else
         {
-            errorMessage = "Lỗi! Tài khoản đã tồn tại hoặc có lỗi xảy ra.";
+            errorMessage = "Lỗi! Tài khoản đã tồn tại hoặc thiếu thông tin.";
         }
 
         isSubmitting = false;
     }
 
-    // --- HÀM XỬ LÝ POPUP ĐỔI MẬT KHẨU ---
     private void OpenPasswordModal(int id, string username)
     {
         editUserId = id;

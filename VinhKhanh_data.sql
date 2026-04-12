@@ -22,6 +22,7 @@ CREATE TABLE Users (
     UserId INT IDENTITY(1,1) PRIMARY KEY,
     DisplayName NVARCHAR(100) NOT NULL,
     Username NVARCHAR(100) NOT NULL UNIQUE,
+    Email NVARCHAR(200) NOT NULL, -- Đã thêm Email vào đây
     Password NVARCHAR(200) NOT NULL,
     Role NVARCHAR(50) NOT NULL
         CHECK (Role IN ('Admin','Manager','Tourist')),
@@ -147,10 +148,9 @@ CREATE INDEX IX_QRCodes_PoiId ON QRCodes(PoiId);
 CREATE TABLE Reviews (
     ReviewId INT IDENTITY(1,1) PRIMARY KEY,
     PoiId INT NOT NULL,
-    UserName NVARCHAR(100) NOT NULL DEFAULT N'Khách ẩn danh',
+    UserId INT NOT NULL,
     Rating INT NOT NULL CHECK (Rating >= 1 AND Rating <= 5),
     Comment NVARCHAR(1000) NULL,
-    IsHidden BIT NOT NULL DEFAULT 0, -- Tích hợp: Ẩn/Hiện đánh giá
     CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
     FOREIGN KEY (PoiId) REFERENCES POIs(PoiId) ON DELETE CASCADE
 );
@@ -197,7 +197,36 @@ CREATE TABLE FoodTranslations (
 GO
 
 /* =========================================================================
-   12. BƠM DỮ LIỆU MẪU (DEMO DATA) 
+   12. TRIGGER TỰ ĐỘNG CẬP NHẬT RATING
+========================================================================= */
+CREATE TRIGGER trg_UpdatePoiRating
+ON Reviews
+AFTER INSERT, UPDATE, DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @AffectedPois TABLE (PoiId INT);
+    
+    INSERT INTO @AffectedPois (PoiId)
+    SELECT DISTINCT PoiId FROM inserted
+    UNION
+    SELECT DISTINCT PoiId FROM deleted;
+
+    UPDATE p
+    SET 
+        p.ReviewCount = (SELECT COUNT(*) FROM Reviews r WHERE r.PoiId = p.PoiId),
+        p.AverageRating = ISNULL(
+            (SELECT ROUND(AVG(CAST(Rating AS FLOAT)), 1) 
+             FROM Reviews r WHERE r.PoiId = p.PoiId), 
+        0)
+    FROM POIs p
+    INNER JOIN @AffectedPois a ON p.PoiId = a.PoiId;
+END;
+GO
+
+/* =========================================================================
+   13. BƠM DỮ LIỆU MẪU (DEMO DATA) 
 ========================================================================= */
 
 -- 1. Thêm Ngôn ngữ
@@ -207,12 +236,11 @@ INSERT INTO Languages (LanguageCode, LanguageName) VALUES
 ('ko', N'한국어 (Korean)');
 
 -- 2. Thêm dữ liệu POI
-INSERT INTO POIs (Name, Latitude, Longitude, Description, AverageRating, ReviewCount) 
-VALUES 
-(N'Ốc Oanh', 10.761500, 106.704200, N'Quán ốc nổi tiếng và đông khách nhất khu phố ẩm thực Vĩnh Khánh với hải sản tươi sống và nước chấm đặc trưng.', 4.8, 1250),
-(N'Ốc Vũ', 10.762000, 106.704500, N'Không gian thoáng mát, menu đa dạng. Đặc biệt nổi tiếng với các món ốc rang muối ớt và càng ghẹ rang me.', 4.5, 840),
-(N'Ốc Thảo', 10.761000, 106.703800, N'Hoạt động lâu năm với không gian rộng rãi và menu ốc đa dạng.', 4.2, 560),
-(N'Ớt Xiêm Quán', 10.762500, 106.705000, N'Quán nhậu có không gian ấm cúng, phục vụ phong phú từ thịt đến hải sản.', 4.7, 920);
+INSERT INTO POIs (Name, Latitude, Longitude, Description) VALUES 
+(N'Ốc Oanh', 10.761500, 106.704200, N'Quán ốc nổi tiếng và đông khách nhất khu phố ẩm thực Vĩnh Khánh với hải sản tươi sống và nước chấm đặc trưng.'),
+(N'Ốc Vũ', 10.762000, 106.704500, N'Không gian thoáng mát, menu đa dạng. Đặc biệt nổi tiếng với các món ốc rang muối ớt và càng ghẹ rang me.'),
+(N'Ốc Thảo', 10.761000, 106.703800, N'Hoạt động lâu năm với không gian rộng rãi và menu ốc đa dạng.'),
+(N'Ớt Xiêm Quán', 10.762500, 106.705000, N'Quán nhậu có không gian ấm cúng, phục vụ phong phú từ thịt đến hải sản.');
 
 -- 3. Thêm Ảnh cho POI
 INSERT INTO PoiImages (PoiId, ImageUrl, DisplayOrder) VALUES 
@@ -251,11 +279,19 @@ INSERT INTO Narrations (PoiId, LanguageCode, Text, UseAudioFile, VoiceName) VALU
 (3, 'ko', N'신선한 해산물이 먹고 싶다면 바로 옆에 있는 옥타오가 탁월한 선택입니다.', 0, 'ko-KR'),
 (4, 'ko', N'옷시엠 식당은 4군 유명 먹자골목의 활기찬 분위기를 사랑하는 이들에게 이상적인 장소입니다.', 0, 'ko-KR');
 
--- 7. Thêm Reviews
-INSERT INTO Reviews (PoiId, UserName, Rating, Comment) VALUES 
-(1, N'Tuấn Anh', 5, N'Hải sản ở đây cực kỳ tươi. Món ốc hương rang muối ớt đậm đà, ăn là ghiền!'),
-(1, N'Mai Phương', 4, N'Quán hơi đông nên phục vụ có lúc chậm, nhưng bù lại đồ ăn rất ngon và nóng hổi.'),
-(2, N'Lê Đình Hoàng', 5, N'Không gian thoáng, giá cả hợp lý. Sò điệp nướng mỡ hành ở đây là chân ái.');
+INSERT INTO Users (DisplayName, Username, Email, Password, Role) VALUES 
+(N'Tuấn Anh', 'tuananh', 'tuananh@email.com', 'hashed_password_here', 'Tourist'),
+(N'Mai Phương', 'maiphuong', 'maiphuong@email.com', 'hashed_password_here', 'Tourist'),
+(N'Lê Đình Hoàng', 'ledinhhoang', 'hoangle@email.com', 'hashed_password_here', 'Tourist');
+GO
+
+INSERT INTO Reviews (PoiId, UserId, Rating, Comment) VALUES 
+(1, 2, 5, N'Hải sản ở đây cực kỳ tươi. Món ốc hương rang muối ớt đậm đà, ăn là ghiền!'),
+(1, 3, 4, N'Quán hơi đông nên phục vụ có lúc chậm, nhưng bù lại đồ ăn rất ngon và nóng hổi.'),
+(1, 4, 5, N'Nước chấm ốc ở đây đỉnh thực sự, không đâu làm giống được.'),
+(2, 4, 5, N'Không gian thoáng, giá cả hợp lý. Sò điệp nướng mỡ hành ở đây là chân ái.'),
+(2, 2, 4, N'Ốc ngon, nhân viên nhiệt tình nhưng gửi xe hơi bất tiện xíu.'),
+(3, 3, 4, N'Lẩu ngon, topping nhiều, ăn no nê luôn.');
 GO
 
 -- 8. POI Translations
@@ -293,3 +329,13 @@ INSERT INTO FoodTranslations (FoodId, LanguageCode, Name, Description) VALUES
 (4, 'ko', N'모듬 소고기 전골', N'12시간 끓인 사골 육수에 힘줄, 꼬리, 소고기가 듬뿍 들어간 전골.'),
 (5, 'ko', N'태국식 매운 전골', N'특제 소스를 곁들인 숯불 돼지갈비 구이.');
 GO
+
+INSERT INTO Users (DisplayName, Username, Email, Password, Role)
+VALUES (
+    N'Quản trị viên Hệ thống',    
+    'admin',                   
+    'admin@vinhkhanh.com',        
+    '$2a$12$DtQn17/piuDv2TPjriFBc.H2KN9qMfzccwU140LSnf4GXuDeKBQIS', 
+    'Admin'                       
+);
+

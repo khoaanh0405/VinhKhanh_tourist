@@ -1,8 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using System.Text.Json;
 using System.Windows.Input;
+using client.lib.core; // FuzzySearchHelper
 using client.lib.model;
-using client.lib.screens.home; // Thêm để gọi DetailScreen
+using client.lib.screens.home; // DetailScreen
 
 namespace client.lib.screens.search
 {
@@ -19,7 +20,6 @@ namespace client.lib.screens.search
             {
                 _searchText = value;
                 OnPropertyChanged();
-                // Tùy chọn: Nếu muốn user xóa trắng ô search thì hiện lại gợi ý
                 if (string.IsNullOrWhiteSpace(value))
                 {
                     ShowSuggestions();
@@ -47,7 +47,6 @@ namespace client.lib.screens.search
         public ICommand SelectResultCommand { get; }
         public ICommand GoBackCommand { get; }
 
-        // Nhận dữ liệu thực tế từ Home truyền sang
         public SearchViewModel(IEnumerable<POI> allPois)
         {
             _allPois = allPois ?? new List<POI>();
@@ -65,7 +64,8 @@ namespace client.lib.screens.search
             ClearHistoryCommand = new Command(ClearHistory);
             SelectResultCommand = new Command<POI>(OnResultSelected);
 
-            GoBackCommand = new Command(async () => {
+            GoBackCommand = new Command(async () =>
+            {
                 await Application.Current.MainPage.Navigation.PopAsync();
             });
         }
@@ -97,7 +97,6 @@ namespace client.lib.screens.search
 
         private void LoadSuggestions()
         {
-            // Lấy 4 quán có Rating cao nhất hoặc ngẫu nhiên từ DATA THẬT
             var topPois = _allPois.OrderByDescending(p => p.AverageRating).Take(4).ToList();
             foreach (var poi in topPois)
             {
@@ -105,41 +104,50 @@ namespace client.lib.screens.search
             }
         }
 
+        // ══════════════════════════════════════════════════════════════
+        // 🔥 NÂNG CẤP: Fuzzy Search + Relevance Scoring
+        // ══════════════════════════════════════════════════════════════
         private void PerformSearch()
         {
             if (string.IsNullOrWhiteSpace(SearchText)) return;
 
-            string keyword = SearchText.Trim().ToLower();
+            string keyword = SearchText.Trim();
+            string normalizedQuery = FuzzySearchHelper.NormalizeText(keyword);
 
-            // 1. Lọc dữ liệu thật (Tìm theo Tên POI, Mô tả, Tên Quán, Tên Món ăn)
-            var results = _allPois.Where(p =>
-                (p.Name != null && p.Name.ToLower().Contains(keyword)) ||
-                (p.Description != null && p.Description.ToLower().Contains(keyword)) ||
-                (p.Restaurants != null && p.Restaurants.Any(r =>
-                    (r.Name != null && r.Name.ToLower().Contains(keyword)) ||
-                    (r.Foods != null && r.Foods.Any(f => f.Name != null && f.Name.ToLower().Contains(keyword)))
-                ))
-            ).ToList();
+            // Tính điểm liên quan cho từng POI
+            var scoredResults = _allPois
+                .Select(p => new
+                {
+                    Poi = p,
+                    Score = FuzzySearchHelper.CalculateRelevanceScore(
+                        name: p.Name,
+                        description: p.Description,
+                        foodNames: p.Restaurants?
+                            .Where(r => r.Foods != null)
+                            .SelectMany(r => r.Foods.Select(f => f.Name)),
+                        normalizedQuery: normalizedQuery
+                    )
+                })
+                .Where(x => x.Score > 0)             // Chỉ lấy kết quả khớp
+                .OrderByDescending(x => x.Score)      // Liên quan nhất lên đầu
+                .ThenByDescending(x => x.Poi.AverageRating) // Cùng điểm → rating cao hơn
+                .Select(x => x.Poi)
+                .ToList();
 
             SearchResults.Clear();
-            foreach (var item in results)
+            foreach (var item in scoredResults)
             {
                 SearchResults.Add(item);
             }
 
-            // 2. Lưu vào lịch sử (Chỉ lưu khi thực hiện search, đưa lên đầu)
+            // Lưu vào lịch sử
             if (SearchHistory.Contains(SearchText))
                 SearchHistory.Remove(SearchText);
-
             SearchHistory.Insert(0, SearchText);
-
-            // Giữ tối đa 10 lịch sử gần nhất
             if (SearchHistory.Count > 10)
                 SearchHistory.RemoveAt(SearchHistory.Count - 1);
-
             SaveHistory();
 
-            // 3. Đổi view sang hiển thị kết quả
             IsShowingSuggestions = false;
         }
 
@@ -151,15 +159,13 @@ namespace client.lib.screens.search
 
         private void OnSuggestionSelected(POI suggestion)
         {
-            SearchText = suggestion.Name; // Điền text
-            PerformSearch(); // Search luôn
+            SearchText = suggestion.Name;
+            PerformSearch();
         }
 
         private async void OnResultSelected(POI selectedPoi)
         {
             if (selectedPoi == null) return;
-
-            // Điều hướng sang DetailScreen (sử dụng constructor như bạn đã khai báo ở DetailScreen.xaml.cs)
             await Application.Current.MainPage.Navigation.PushAsync(new DetailScreen(selectedPoi));
         }
 

@@ -1,5 +1,6 @@
 ﻿@page "/restaurants/edit/{Id:int}"
 @attribute [Authorize(Roles = "Admin, Manager")]
+@using System.Net.Http.Headers
 @using VinhKhanh.WebAdmin.Models
 @inject VinhKhanh.WebAdmin.Services.IRestaurantService RestaurantService
 @inject VinhKhanh.WebAdmin.Services.INarrationService NarrationService
@@ -7,6 +8,8 @@
 @inject IJSRuntime JS
 @inject VinhKhanh.WebAdmin.Services.IPoiTranslationService PoiTransService
 @inject VinhKhanh.WebAdmin.Services.ILanguageService LanguageService
+@inject HttpClient Http
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="text-primary fw-bold"><i class="bi bi-pencil-square"></i> Cập nhật Quán ăn & Địa điểm</h3>
     <button class="btn btn-outline-secondary fw-bold" @onclick="GoBack"><i class="bi bi-arrow-left"></i> Quay lại</button>
@@ -40,6 +43,12 @@ else
                         <i class="bi bi-translate"></i> Giới thiệu đa ngôn ngữ
                     </button>
                 </li>
+                @* 👇 THÊM TAB QUẢN LÝ HÌNH ẢNH 👇 *@
+                <li class="nav-item">
+                    <button class="nav-link @(activeTab == "images" ? "active fw-bold text-primary" : "text-muted")" @onclick='LoadImages'>
+                        <i class="bi bi-images"></i> Quản lý Hình ảnh
+                    </button>
+                </li>
             </ul>
         </div>
 
@@ -68,7 +77,7 @@ else
                         </div>
                     </div>
                     <div class="mb-4">
-                        <label class="form-label fw-bold">Mô tả Quán</label>
+                        <label class="form-label fw-bold">Mô tả Quán (Tiếng Việt Mặc định)</label>
                         <InputTextArea @bind-Value="editingRes.Description" class="form-control" rows="4" />
                     </div>
                     <div class="text-end">
@@ -76,15 +85,25 @@ else
                     </div>
                 </EditForm>
             }
+
             @if (activeTab == "intro")
             {
-                <div class="d-flex justify-content-between mb-3 mt-3">
+                <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
                     <h5 class="text-primary fw-bold"><i class="bi bi-chat-left-text"></i> Bản dịch giới thiệu quán</h5>
-                    <button class="btn btn-sm btn-success fw-bold" @onclick="() => OpenPoiTransModal()">
-                        <i class="bi bi-plus-circle"></i> Thêm/Sửa bản dịch
-                    </button>
+                    <div>
+                        <button class="btn btn-sm btn-info text-white fw-bold me-2 shadow-sm" @onclick="AutoTranslateIntro" disabled="@isTranslatingIntro">
+                            <i class="bi bi-magic"></i> @(isTranslatingIntro ? "Đang dịch..." : "Dịch tự động bằng AI")
+                        </button>
+
+                        <button class="btn btn-sm btn-success fw-bold shadow-sm" @onclick="() => OpenPoiTransModal()">
+                            <i class="bi bi-plus-circle"></i> Thêm thủ công
+                        </button>
+                    </div>
                 </div>
-                <table class="table table-bordered align-middle">
+                <div class="alert alert-light border small text-muted">
+                    <i class="bi bi-info-circle"></i> Tính năng <strong>Dịch tự động</strong> sẽ tự động lấy <em>"Mô tả Quán"</em> ở Tab Thông tin (Tiếng Việt) để dịch ra tất cả các ngôn ngữ có trong hệ thống.
+                </div>
+                <table class="table table-bordered align-middle shadow-sm">
                     <thead class="table-light">
                         <tr>
                             <th width="150">Ngôn ngữ</th>
@@ -107,16 +126,26 @@ else
                     </tbody>
                 </table>
             }
+
             @if (activeTab == "audio")
             {
-                <div class="d-flex justify-content-between mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="text-primary fw-bold"><i class="bi bi-megaphone"></i> Danh sách Thuyết minh</h5>
-                    <button class="btn btn-sm btn-success fw-bold" @onclick="OpenAddNarrationModal">
-                        <i class="bi bi-plus-circle"></i> Thêm Bản dịch
-                    </button>
+                    <div>
+                        <button class="btn btn-sm btn-info text-white fw-bold me-2 shadow-sm" @onclick="AutoTranslateAudio" disabled="@isTranslatingAudio">
+                            <i class="bi bi-magic"></i> @(isTranslatingAudio ? "Đang dịch..." : "Dịch tự động bằng AI")
+                        </button>
+
+                        <button class="btn btn-sm btn-success fw-bold shadow-sm" @onclick="OpenAddNarrationModal">
+                            <i class="bi bi-plus-circle"></i> Thêm thủ công
+                        </button>
+                    </div>
+                </div>
+                <div class="alert alert-light border small text-muted">
+                    <i class="bi bi-info-circle"></i> Hãy tạo một bản Thuyết minh <strong>Tiếng Việt (vi)</strong> trước, sau đó ấn <strong>Dịch tự động</strong> để AI tạo ra các ngôn ngữ còn lại.
                 </div>
 
-                <table class="table table-bordered align-middle">
+                <table class="table table-bordered align-middle shadow-sm">
                     <thead class="table-light">
                         <tr>
                             <th>Ngôn ngữ</th>
@@ -142,7 +171,6 @@ else
                                         }
                                         else
                                         {
-
                                             <span class="badge bg-info text-dark"><i class="bi bi-robot"></i> Đọc AI (@n.VoiceName)</span>
                                         }
                                     </td>
@@ -160,10 +188,49 @@ else
                     </tbody>
                 </table>
             }
+
+            @* 👇 THÊM NỘI DUNG TAB HÌNH ẢNH 👇 *@
+            @if (activeTab == "images")
+            {
+                <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
+                    <h5 class="text-primary fw-bold"><i class="bi bi-images"></i> Thư viện ảnh của Quán</h5>
+                    <div class="btn btn-success position-relative overflow-hidden shadow-sm fw-bold">
+                        <i class="bi bi-cloud-upload"></i> Thêm ảnh mới
+                        <InputFile OnChange="UploadImage" accept="image/*" multiple class="position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor: pointer;" />
+                    </div>
+                </div>
+
+                @if (isUploadingImage)
+                {
+                    <div class="alert alert-info text-center"><span class="spinner-border spinner-border-sm me-2"></span> Đang tải ảnh lên Cloudinary...</div>
+                }
+
+                <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4 mt-2">
+                    @if (poiImages != null && poiImages.Any())
+                    {
+                        @foreach (var img in poiImages)
+                        {
+                            <div class="col">
+                                <div class="card h-100 shadow-sm border-0 position-relative">
+                                    <img src="@img.ImageUrl" class="card-img-top" alt="Hình ảnh quán" style="height: 200px; object-fit: cover; border-radius: 8px;">
+                                    <button class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2 rounded-circle" style="width: 32px; height: 32px;" @onclick="() => DeleteImage(img.ImageId)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12 text-center text-muted py-4">Chưa có hình ảnh nào. Bạn có thể chọn nhiều ảnh cùng lúc.</div>
+                    }
+                </div>
+            }
         </div>
     </div>
 }
 
+@* --- CÁC MODAL BÊN DƯỚI GIỮ NGUYÊN --- *@
 @if (showNarrationModal)
 {
     <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
@@ -181,7 +248,6 @@ else
                             <select class="form-select" @bind="editingNarration.LanguageCode" disabled="@isEditNarration">
                                 @if (availableLanguages != null && availableLanguages.Any())
                                 {
-                                    @* 👉 Ở Tab này, hiển thị TẤT CẢ ngôn ngữ (bao gồm cả Tiếng Việt) *@
                                     @foreach (var lang in availableLanguages)
                                     {
                                         <option value="@lang.LanguageCode">@lang.LanguageName (@lang.LanguageCode)</option>
@@ -223,7 +289,6 @@ else
                                 <select class="form-select" @bind="editingNarration.LanguageCode" disabled="@isEditNarration">
                                     @if (availableLanguages != null && availableLanguages.Any())
                                     {
-                                        @* 👉 Ở Tab này, hiển thị TẤT CẢ ngôn ngữ (bao gồm cả Tiếng Việt) *@
                                         @foreach (var lang in availableLanguages)
                                         {
                                             <option value="@lang.LanguageCode">@lang.LanguageName (@lang.LanguageCode)</option>
@@ -266,7 +331,6 @@ else
                             <select class="form-select" @bind="editingNarration.LanguageCode" disabled="@isEditNarration">
                                 @if (availableLanguages != null && availableLanguages.Any())
                                 {
-                                    @* 👉 Ở Tab này, hiển thị TẤT CẢ ngôn ngữ (bao gồm cả Tiếng Việt) *@
                                     @foreach (var lang in availableLanguages)
                                     {
                                         <option value="@lang.LanguageCode">@lang.LanguageName (@lang.LanguageCode)</option>
@@ -300,6 +364,7 @@ else
         </div>
     </div>
 }
+
 @code {
     [Parameter] public int Id { get; set; }
 
@@ -313,22 +378,24 @@ else
     private bool isEditNarration = false;
     private NarrationDto editingNarration = new();
 
-    // 👉 Thêm biến chứa ngôn ngữ
     private List<LanguageDto> availableLanguages = new();
+
+    // Biến trạng thái Dịch tự động
+    private bool isTranslatingIntro = false;
+    private bool isTranslatingAudio = false;
+
+    // 👇 CÁC BIẾN CHO TAB HÌNH ẢNH 👇
+    private class PoiImageDto { public int ImageId { get; set; } public string ImageUrl { get; set; } = ""; }
+    private List<PoiImageDto> poiImages = new();
+    private bool isUploadingImage = false;
 
     protected override async Task OnInitializedAsync()
     {
         editingRes = await RestaurantService.GetByIdAsync(Id);
-
-        // 👉 Tải danh sách ngôn ngữ từ DB
         availableLanguages = await LanguageService.GetAllAsync();
-
         isLoading = false;
     }
 
-    // ==========================================
-    // XỬ LÝ TAB 1: THÔNG TIN CHUNG
-    // ==========================================
     private async Task HandleSubmitInfo()
     {
         if (editingRes == null) return;
@@ -341,6 +408,152 @@ else
     private void GoBack() => Navigation.NavigateTo("/restaurants");
 
     // ==========================================
+    // XỬ LÝ TAB: HÌNH ẢNH
+    // ==========================================
+    private async Task LoadImages()
+    {
+        activeTab = "images";
+        if (editingRes != null)
+        {
+            try
+            {
+                // Gọi API lấy danh sách ảnh
+                poiImages = await Http.GetFromJsonAsync<List<PoiImageDto>>($"api/PoiImages/{editingRes.PoiId}") ?? new();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                // Nếu lỗi, hiện thông báo cho dễ sửa
+                Console.WriteLine("Lỗi tải ảnh: " + ex.Message);
+                await JS.InvokeVoidAsync("alert", "Lỗi tải danh sách ảnh. Hãy check tab Network (F12).");
+            }
+        }
+    }
+
+    private async Task UploadImage(InputFileChangeEventArgs e)
+    {
+        if (editingRes == null) return;
+
+        isUploadingImage = true;
+        try
+        {
+            // Tạo 1 gói hàng (Form Data) duy nhất
+            using var content = new MultipartFormDataContent();
+
+            // 1. Bỏ số ID của quán vào gói hàng (Khớp với [FromForm] int poiId)
+            content.Add(new StringContent(editingRes.PoiId.ToString()), "poiId");
+
+            // 2. Lặp qua các ảnh và bỏ tất cả vào chung cái gói hàng đó
+            foreach (var file in e.GetMultipleFiles(maximumFileCount: 10))
+            {
+                var fileContent = new StreamContent(file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024)); // Max 10MB
+                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+
+                // CHÚ Ý: Đã thêm chữ "s" vào "files" để khớp với Backend
+                content.Add(fileContent, "files", file.Name);
+            }
+
+            // 3. Gửi gói hàng đi bằng ĐÚNG ĐƯỜNG LINK
+            var response = await Http.PostAsync("api/PoiImages/upload-multiple", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadImages(); // Tải lại danh sách ảnh
+                await JS.InvokeVoidAsync("alert", "Upload thành công rực rỡ!"); // Báo tin vui
+            }
+            else
+            {
+                // Nếu Backend chửi, in câu chửi đó ra màn hình
+                var errorMsg = await response.Content.ReadAsStringAsync();
+                await JS.InvokeVoidAsync("alert", $"Báo lỗi từ Server: {errorMsg}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("alert", "Lỗi code UI: " + ex.Message);
+        }
+        finally
+        {
+            isUploadingImage = false;
+        }
+    }
+
+    private async Task DeleteImage(int imageId)
+    {
+        if (await JS.InvokeAsync<bool>("confirm", "Bạn có chắc muốn xóa ảnh này khỏi hệ thống?"))
+        {
+            var response = await Http.DeleteAsync($"api/PoiImages/{imageId}");
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadImages();
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("alert", "Lỗi khi xóa ảnh!");
+            }
+        }
+    }
+
+    // ==========================================
+    // 👇 HÀM DỊCH TỰ ĐỘNG - INTRO (BẢN DỊCH)
+    // ==========================================
+    private async Task AutoTranslateIntro()
+    {
+        if (string.IsNullOrWhiteSpace(editingRes?.Description))
+        {
+            await JS.InvokeVoidAsync("alert", "Vui lòng nhập 'Mô tả Quán' bằng Tiếng Việt ở tab [Thông tin chung] trước khi dịch!");
+            return;
+        }
+
+        if (!await JS.InvokeAsync<bool>("confirm", "Hệ thống sẽ dịch tự động sang các ngôn ngữ khác (Ghi đè bản cũ). Bạn có chắc chắn?")) return;
+
+        isTranslatingIntro = true;
+        try
+        {
+            var response = await Http.PostAsJsonAsync($"api/Translate/auto-intro/{editingRes.PoiId}", new { Text = editingRes.Description });
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadPoiTranslations();
+                await JS.InvokeVoidAsync("alert", "Tự động dịch thành công!");
+            }
+            else await JS.InvokeVoidAsync("alert", "Lỗi dịch tự động từ Server!");
+        }
+        catch { await JS.InvokeVoidAsync("alert", "Lỗi kết nối máy chủ!"); }
+
+        isTranslatingIntro = false;
+    }
+
+    // ==========================================
+    // 👇 HÀM DỊCH TỰ ĐỘNG - AUDIO (THUYẾT MINH)
+    // ==========================================
+    private async Task AutoTranslateAudio()
+    {
+        var viNarration = narrations.FirstOrDefault(n => n.LanguageCode == "vi");
+        if (viNarration == null || string.IsNullOrWhiteSpace(viNarration.Text))
+        {
+            await JS.InvokeVoidAsync("alert", "Vui lòng tạo một bản Thuyết minh bằng Tiếng Việt (vi) trước để làm mẫu dịch!");
+            return;
+        }
+
+        if (!await JS.InvokeAsync<bool>("confirm", "Hệ thống sẽ dùng bản Tiếng Việt để dịch tự động bài thuyết minh sang các ngôn ngữ khác. Chắc chắn chứ?")) return;
+
+        isTranslatingAudio = true;
+        try
+        {
+            var response = await Http.PostAsJsonAsync($"api/Translate/auto-audio/{editingRes!.PoiId}", new { Text = viNarration.Text });
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadNarrations();
+                await JS.InvokeVoidAsync("alert", "Tự động tạo bản thuyết minh thành công!");
+            }
+            else await JS.InvokeVoidAsync("alert", "Lỗi dịch tự động từ Server!");
+        }
+        catch { await JS.InvokeVoidAsync("alert", "Lỗi kết nối máy chủ!"); }
+
+        isTranslatingAudio = false;
+    }
+
+    // ==========================================
     // XỬ LÝ TAB 2: ÂM THANH / THUYẾT MINH
     // ==========================================
     private async Task LoadNarrations()
@@ -348,10 +561,7 @@ else
         activeTab = "audio";
         if (editingRes != null)
         {
-            // Lấy dữ liệu từ Backend
             narrations = await NarrationService.GetByPoiIdAsync(editingRes.PoiId);
-
-            // 👇 Ép Blazor phải vẽ lại giao diện ngay lập tức
             StateHasChanged();
         }
     }
@@ -380,14 +590,13 @@ else
 
     private async Task SaveNarration()
     {
-        // 👇 1. KIỂM TRA TRÙNG NGÔN NGỮ NGAY TẠI ĐÂY (Theo yêu cầu của Tài)
-        if (!isEditNarration) // Chỉ kiểm tra khi Thêm mới
+        if (!isEditNarration)
         {
             bool isExisted = narrations.Any(n => n.LanguageCode.ToLower() == editingNarration.LanguageCode.ToLower());
             if (isExisted)
             {
                 await JS.InvokeVoidAsync("alert", $"Lỗi: Ngôn ngữ '{editingNarration.LanguageCode}' này đã có bản dịch. Vui lòng xóa bản cũ trước khi thêm mới hoặc chọn ngôn ngữ khác!");
-                return; // Dừng lại không lưu
+                return;
             }
         }
 
@@ -398,7 +607,6 @@ else
             bool isSuccess;
             string serverMsg;
 
-            // 2. GỬI LỆNH LƯU
             if (isEditNarration)
             {
                 var result = await NarrationService.UpdateAsync(currentNarrationId, new UpdateNarrationDto(editingNarration.Text, editingNarration.UseAudioFile, editingNarration.VoiceName));
@@ -407,7 +615,6 @@ else
             }
             else
             {
-                // Lưu ý: Đổi tên DTO cho khớp với Backend của Tài (CreateNarrationDto)
                 var result = await NarrationService.CreateAsync(new CreateNarrationDto(editingNarration.PoiId, editingNarration.LanguageCode, editingNarration.Text, editingNarration.UseAudioFile, editingNarration.VoiceName));
                 isSuccess = result.Success;
                 serverMsg = result.Message;
@@ -415,19 +622,16 @@ else
 
             if (isSuccess)
             {
-                // 3. NẾU CÓ CHỌN FILE AUDIO THÌ UPLOAD TIẾP
                 if (editingNarration.UseAudioFile && selectedAudioFile != null)
                 {
-                    // Lấy lại ID nếu là thêm mới (bạn cần chỉnh backend trả về ID hoặc load lại list)
                     await NarrationService.UploadAudioAsync(currentNarrationId, selectedAudioFile);
                 }
 
                 showNarrationModal = false;
-                await LoadNarrations(); // Tải lại bảng để thấy bản mới
+                await LoadNarrations();
             }
             else
             {
-                // 👇 HIỆN LỖI CỤ THỂ TỪ SERVER (Giúp Tài biết chính xác lỗi gì)
                 await JS.InvokeVoidAsync("alert", "Server báo lỗi: " + serverMsg);
             }
         }
@@ -435,7 +639,7 @@ else
         {
             isUploading = false;
         }
-    }   
+    }
 
     private async Task DeleteNarration(int narrationId)
     {
@@ -444,6 +648,7 @@ else
             if (await NarrationService.DeleteAsync(narrationId)) await LoadNarrations();
         }
     }
+
     // ==========================================
     // XỬ LÝ TAB 3: GIỚI THIỆU ĐA NGÔN NGỮ
     // ==========================================
@@ -465,7 +670,6 @@ else
     {
         if (t != null)
         {
-            // Chế độ Sửa
             editingPoiTrans = new PoiTranslationDto
             {
                 TranslationId = t.TranslationId,
@@ -476,15 +680,14 @@ else
         }
         else
         {
-            // Chế độ Thêm mới
             editingPoiTrans = new PoiTranslationDto
             {
                 PoiId = editingRes!.PoiId,
                 LanguageCode = "en",
-                Description = "" // Đảm bảo ô nhập liệu trống khi thêm mới
+                Description = ""
             };
         }
-        showPoiTransModal = true; // Lệnh này sẽ kích hoạt cái Modal bên trên hiện ra
+        showPoiTransModal = true;
     }
 
     private async Task SavePoiTrans()

@@ -7,47 +7,50 @@ public partial class ProfileScreen : ContentPage
         InitializeComponent();
     }
 
-    // Hàm này tự động chạy mỗi khi màn hình Profile được mở lên
     protected override void OnAppearing()
     {
         base.OnAppearing();
 
-        // Kiểm tra xem người dùng đã đăng nhập chưa
-        bool isLoggedIn = Preferences.Get("IsLoggedIn", false);
-
-        if (isLoggedIn)
+        if (Preferences.Get("IsLoggedIn", false))
         {
-            // Lấy tên đăng nhập đã lưu
             string currentUsername = Preferences.Get("CurrentUsername", "Người dùng");
-
-            // Gắn lên giao diện
             WelcomeLabel.Text = $"Chào, {currentUsername}!";
             UsernameLabel.Text = currentUsername;
         }
         else
         {
-            // Nếu chưa đăng nhập mà lỡ lạc vào trang này, đá văng về trang Đăng nhập
-            Shell.Current.GoToAsync("//LoginScreen");
+            // Tránh việc nháy UI nếu chưa đăng nhập
+            Shell.Current.GoToAsync("//MainPage"); // Đẩy thẳng về trang chủ gốc
         }
     }
 
     private async void OnLogoutClicked(object sender, EventArgs e)
     {
-        // Hỏi lại cho chắc
         bool confirm = await DisplayAlert("Đăng xuất", "Bạn có chắc chắn muốn đăng xuất khỏi tài khoản?", "Đăng xuất", "Hủy");
 
         if (confirm)
         {
-            // 1. Xóa trạng thái đăng nhập
-            Preferences.Remove("IsLoggedIn");
-            Preferences.Remove("CurrentUsername");
+            try
+            {
+                // 1. Xóa toàn bộ dữ liệu phiên làm việc
+                Preferences.Remove("IsLoggedIn");
+                Preferences.Remove("CurrentUsername");
+                Preferences.Set("AutoNarration", false);
+                SecureStorage.Default.Remove("jwt_token");
 
-            Preferences.Set("AutoNarration", false);
-
-            // 2. Chuyển hướng về Trang chủ bằng lệnh lùi lại (..)
-            await Shell.Current.GoToAsync("..");
+                // 2. CHUYỂN HƯỚNG VỀ HOMEPAGE (Đã sửa tên Route và bọc trong MainThread)
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    await Shell.Current.GoToAsync("//HomePage");
+                });
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Lỗi", $"Đã xảy ra lỗi: {ex.Message}", "OK");
+            }
         }
     }
+
     private async void OnBackButtonClicked(object sender, EventArgs e)
     {
         await Shell.Current.GoToAsync("..");

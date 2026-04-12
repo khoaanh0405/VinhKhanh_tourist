@@ -348,4 +348,37 @@
 	<data name="FavoritesTitle" xml:space="preserve">
     <value>Yêu thích của tôi</value>
   </data>
+
+	<data name="SettingsSyncTitle" xml:space="preserve">
+    <value>Tải dữ liệu Offline</value>
+  </data>
+	<data name="SettingsSyncDesc" xml:space="preserve">
+    <value>Tải danh sách quán ăn để dùng khi mất mạng</value>
+  </data>
+	<data name="SettingsSyncAction" xml:space="preserve">
+    <value>TẢI XUỐNG</value>
+  </data>
+
+	<data name="DetailAudioTitle" xml:space="preserve">
+		<value>Thuyết minh bằng giọng nói</value>
+	</data>
+	<data name="DetailAudioReady" xml:space="preserve">
+		<value>Nhấn để nghe giới thiệu</value>
+	</data>
+	<data name="DetailAudioPreparing" xml:space="preserve">
+		<value>Đang chuẩn bị...</value>
+	</data>
+	<data name="DetailAudioPlaying" xml:space="preserve">
+		<value>Đang phát thuyết minh...</value>
+	</data>
+	<data name="DetailAudioPaused" xml:space="preserve">
+		<value>Đang tạm dừng...</value>
+	</data>
+
+	<data name="MapButtonNavigate" xml:space="preserve">
+		<value>🚀 Dẫn đường</value>
+	</data>
+	<data name="MapButtonDetail" xml:space="preserve">
+		<value>📋 Chi tiết</value>
+	</data>
 </root>

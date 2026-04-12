@@ -1,3 +1,7 @@
+using client.lib.core; // FuzzySearchHelper
+using client.lib.model;
+using client.lib.screens.home; // DetailScreen
+using client.lib.screens.poi;
 using client.lib.services;
 using Microsoft.Maui.Controls.Maps;
 using Microsoft.Maui.Maps;
@@ -23,25 +27,39 @@ public partial class MapPage : ContentPage
 
     private async Task InitializeMapAsync()
     {
-        var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
-        if (status != PermissionStatus.Granted)
+        try
         {
-            status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-        }
-
-        if (status == PermissionStatus.Granted)
-        {
-            // Lấy vị trí lần đầu tiên
-            _currentUserLocation = await Geolocation.GetLocationAsync() ?? await Geolocation.GetLastKnownLocationAsync();
-
-            if (_currentUserLocation != null)
+            var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+            if (status != PermissionStatus.Granted)
             {
-                MyMap.MoveToRegion(MapSpan.FromCenterAndRadius(_currentUserLocation, Distance.FromKilometers(0.5)));
-                LoadVinhKhanhRestaurants();
+                status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
             }
 
-            // Bắt đầu lắng nghe vị trí thay đổi liên tục
-            StartRealTimeLocationTracking();
+            if (status == PermissionStatus.Granted)
+            {
+                // 🔥 FIX #1: Luôn ưu tiên lấy vị trí đã lưu gần nhất (Cực nhanh, không cần mạng)
+                _currentUserLocation = await Geolocation.GetLastKnownLocationAsync();
+
+                // 🔥 FIX #2: Nếu chưa có vị trí cũ, yêu cầu GPS tìm kiếm nhưng ÉP TIMEOUT 5 GIÂY
+                if (_currentUserLocation == null)
+                {
+                    var request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(5));
+                    _currentUserLocation = await Geolocation.GetLocationAsync(request);
+                }
+
+                if (_currentUserLocation != null)
+                {
+                    MyMap.MoveToRegion(MapSpan.FromCenterAndRadius(_currentUserLocation, Distance.FromKilometers(0.5)));
+                    LoadVinhKhanhRestaurants();
+                }
+
+                StartRealTimeLocationTracking();
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MapPage] Lỗi khởi tạo map/GPS: {ex.Message}");
+            // Bỏ qua lỗi nếu timeout hoặc máy không bật GPS để app vẫn tiếp tục chạy mượt
         }
     }
 
@@ -53,7 +71,6 @@ public partial class MapPage : ContentPage
         try
         {
             Geolocation.LocationChanged += OnLocationChanged;
-            // Lấy vị trí mỗi 5 giây với độ chính xác cao
             var request = new GeolocationListeningRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(5));
             await Geolocation.StartListeningForegroundAsync(request);
             _isTrackingStarted = true;
@@ -67,18 +84,17 @@ public partial class MapPage : ContentPage
     private async void OnLocationChanged(object sender, GeolocationLocationChangedEventArgs e)
     {
         _currentUserLocation = e.Location;
-
-        // Cập nhật lại khoảng cách trong danh sách
         UpdateDistances();
 
-        // Nếu đang trong chế độ dẫn đường, vẽ lại đường đi từ vị trí mới
         if (_isNavigating && _targetLocation != null)
         {
-            // moveCamera = false để không giật khung hình bản đồ liên tục khi người dùng đang xem
             await DrawRouteAsync(_currentUserLocation, _targetLocation, moveCamera: false);
         }
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // 🔥 FIX: Tính khoảng cách bằng DOUBLE thay vì string
+    // ══════════════════════════════════════════════════════════════
     private void UpdateDistances()
     {
         if (_currentUserLocation == null || _allRestaurants == null) return;
@@ -86,42 +102,48 @@ public partial class MapPage : ContentPage
         foreach (var res in _allRestaurants)
         {
             var resLoc = new Location(res.Lat, res.Lng);
-            double dist = Location.CalculateDistance(_currentUserLocation, resLoc, DistanceUnits.Kilometers);
-            res.DistanceStr = dist < 1 ? $"{Math.Round(dist * 1000)} m" : $"{Math.Round(dist, 1)} km";
-        }
+            double distKm = Location.CalculateDistance(_currentUserLocation, resLoc, DistanceUnits.Kilometers);
 
-        // Cập nhật lại UI nếu cần thiết (sắp xếp lại)
-        MainThread.BeginInvokeOnMainThread(() =>
-        {
-            // Tạm thời tắt để tránh giật list khi đang cuộn
-            // var sorted = _allRestaurants.OrderBy(r => r.DistanceStr).ToList();
-            // RestaurantList.ItemsSource = sorted;
-        });
+            // Lưu giá trị double để sort chính xác
+            res.DistanceKm = distKm;
+
+            // Tạo string hiển thị
+            res.DistanceStr = distKm < 1
+                ? $"{Math.Round(distKm * 1000)} m"
+                : $"{Math.Round(distKm, 1)} km";
+        }
     }
-    // ---------------------------------------------
 
     private async void OnGoToMyLocationClicked(object sender, EventArgs e)
     {
-        _currentUserLocation = await Geolocation.GetLocationAsync() ?? await Geolocation.GetLastKnownLocationAsync();
-        if (_currentUserLocation != null)
+        try
         {
-            MyMap.MoveToRegion(MapSpan.FromCenterAndRadius(_currentUserLocation, Distance.FromKilometers(0.5)));
+            // Tương tự, dùng Timeout cho nút bấm định vị
+            var request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(5));
+            _currentUserLocation = await Geolocation.GetLocationAsync(request) ?? await Geolocation.GetLastKnownLocationAsync();
+
+            if (_currentUserLocation != null)
+            {
+                MyMap.MoveToRegion(MapSpan.FromCenterAndRadius(_currentUserLocation, Distance.FromKilometers(0.5)));
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MapPage] Lỗi khi bấm nút định vị: {ex.Message}");
         }
     }
 
     private void LoadVinhKhanhRestaurants()
     {
-        // Kéo GeofenceService từ DI Container (nơi chứa dữ liệu API đã tải ở Home)
         var geofenceService = Application.Current.Handler.MauiContext.Services.GetService<GeofenceService>();
 
         if (geofenceService != null && geofenceService.Pois != null && geofenceService.Pois.Any())
         {
-            // Chuyển đổi POI thực tế thành dạng RestaurantPoi cho bản đồ
             _allRestaurants = geofenceService.Pois.Select(p => new RestaurantPoi
             {
                 PoiId = p.PoiId,
-                Name = p.Name, // Tên quán (Luôn là tiếng Việt theo yêu cầu)
-                Description = p.Description, // Mô tả (Đã được backend dịch)
+                Name = p.Name,
+                Description = p.Description,
                 Lat = p.Latitude,
                 Lng = p.Longitude,
                 AverageRating = p.AverageRating,
@@ -130,23 +152,28 @@ public partial class MapPage : ContentPage
         }
         else
         {
-            // Dự phòng nếu chưa tải được API
             _allRestaurants = new List<RestaurantPoi>();
         }
 
         UpdateDistances();
-        _allRestaurants = _allRestaurants.OrderBy(r => r.DistanceStr).ToList();
+
+        // 🔥 FIX: Sort theo DistanceKm (double) thay vì DistanceStr (string)
+        _allRestaurants = _allRestaurants.OrderBy(r => r.DistanceKm).ToList();
         RestaurantList.ItemsSource = _allRestaurants;
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // 🔥 NÂNG CẤP: Fuzzy search cho MapPage
+    // ══════════════════════════════════════════════════════════════
     private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
     {
-        var keyword = e.NewTextValue?.ToLower() ?? string.Empty;
+        var keyword = e.NewTextValue?.Trim() ?? string.Empty;
 
         if (string.IsNullOrWhiteSpace(keyword))
         {
             SearchResultsContainer.IsVisible = false;
-            RestaurantList.ItemsSource = _allRestaurants;
+            // Sort lại theo khoảng cách khi xóa search
+            RestaurantList.ItemsSource = _allRestaurants.OrderBy(r => r.DistanceKm).ToList();
 
             _isNavigating = false;
             _targetLocation = null;
@@ -154,9 +181,19 @@ public partial class MapPage : ContentPage
         }
         else
         {
+            string normalizedQuery = FuzzySearchHelper.NormalizeText(keyword);
+
             var filtered = _allRestaurants
-                .Where(r => r.Name.ToLower().Contains(keyword) ||
-                            r.Description.ToLower().Contains(keyword)).ToList();
+                .Select(r => new
+                {
+                    Restaurant = r,
+                    Score = CalculateMapSearchScore(r, normalizedQuery)
+                })
+                .Where(x => x.Score > 0)
+                .OrderByDescending(x => x.Score)
+                .ThenBy(x => x.Restaurant.DistanceKm)
+                .Select(x => x.Restaurant)
+                .ToList();
 
             SearchList.ItemsSource = filtered;
             RestaurantList.ItemsSource = filtered;
@@ -164,15 +201,41 @@ public partial class MapPage : ContentPage
         }
     }
 
+    /// <summary>
+    /// Tính điểm search riêng cho MapPage (chỉ có Name + Description)
+    /// </summary>
+    private static int CalculateMapSearchScore(RestaurantPoi r, string normalizedQuery)
+    {
+        int score = 0;
+
+        if (FuzzySearchHelper.StartsWithNormalized(r.Name, normalizedQuery))
+            score = Math.Max(score, 100);
+        else if (FuzzySearchHelper.AnyWordStartsWith(r.Name, normalizedQuery))
+            score = Math.Max(score, 90);
+        else if (FuzzySearchHelper.ContainsNormalized(r.Name, normalizedQuery))
+            score = Math.Max(score, 80);
+
+        if (FuzzySearchHelper.ContainsNormalized(r.Description, normalizedQuery))
+            score = Math.Max(score, 60);
+
+        // Fuzzy fallback
+        if (score == 0)
+        {
+            if (FuzzySearchHelper.FuzzyContains(r.Name, normalizedQuery))
+                score = 25;
+            else if (FuzzySearchHelper.FuzzyContains(r.Description, normalizedQuery))
+                score = 15;
+        }
+
+        return score;
+    }
+
     private void StartNavigationTo(RestaurantPoi selectedRes)
     {
         if (selectedRes != null && _currentUserLocation != null)
         {
-            // Bật chế độ dẫn đường và lưu tọa độ đích
             _targetLocation = new Location(selectedRes.Lat, selectedRes.Lng);
             _isNavigating = true;
-
-            // Vẽ đường ngay lập tức (cho phép camera dịch chuyển ở lần chọn đầu tiên)
             _ = DrawRouteAsync(_currentUserLocation, _targetLocation, moveCamera: true);
         }
     }
@@ -194,6 +257,55 @@ public partial class MapPage : ContentPage
         }
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // 🔥 MỚI: Xử lý nút "Dẫn đường" trên mỗi card
+    // ══════════════════════════════════════════════════════════════
+    private void OnNavigateButtonClicked(object sender, EventArgs e)
+    {
+        if (sender is Button btn && btn.CommandParameter is RestaurantPoi selectedRes)
+        {
+            StartNavigationTo(selectedRes);
+            SearchResultsContainer.IsVisible = false;
+
+            SearchEntry.TextChanged -= OnSearchTextChanged;
+            SearchEntry.Text = selectedRes.Name;
+            SearchEntry.TextChanged += OnSearchTextChanged;
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // 🔥 MỚI: Xử lý nút "Xem chi tiết" trên mỗi card
+    // ══════════════════════════════════════════════════════════════
+    private async void OnDetailButtonClicked(object sender, EventArgs e)
+    {
+        if (sender is Button btn && btn.CommandParameter is RestaurantPoi selectedRes)
+        {
+            // Tìm POI đầy đủ từ GeofenceService để có đủ data cho DetailScreen
+            var geofenceService = Application.Current.Handler.MauiContext.Services.GetService<GeofenceService>();
+            var fullPoi = geofenceService?.Pois?.FirstOrDefault(p => p.PoiId == selectedRes.PoiId);
+
+            if (fullPoi != null)
+            {
+                await Navigation.PushAsync(new POIDetailPage(selectedRes.PoiId, autoPlayAudio: false));
+            }
+            else
+            {
+                // Fallback: tạo POI cơ bản từ RestaurantPoi
+                var basicPoi = new POI
+                {
+                    PoiId = selectedRes.PoiId,
+                    Name = selectedRes.Name,
+                    Description = selectedRes.Description,
+                    Latitude = selectedRes.Lat,
+                    Longitude = selectedRes.Lng,
+                    AverageRating = selectedRes.AverageRating,
+                    ImageUrls = new List<string> { selectedRes.ImageUrl }
+                };
+                await Navigation.PushAsync(new DetailScreen(basicPoi));
+            }
+        }
+    }
+
     private void OnRestaurantTapped(object sender, TappedEventArgs e)
     {
         if (e.Parameter is RestaurantPoi selectedRes)
@@ -201,14 +313,12 @@ public partial class MapPage : ContentPage
             StartNavigationTo(selectedRes);
             SearchResultsContainer.IsVisible = false;
 
-            // Cách an toàn tuyệt đối 100% để chặn sự kiện tìm kiếm: Tháo event ra trước khi gán text
             SearchEntry.TextChanged -= OnSearchTextChanged;
             SearchEntry.Text = selectedRes.Name;
             SearchEntry.TextChanged += OnSearchTextChanged;
         }
     }
 
-    // Thêm tham số moveCamera để tránh giật bản đồ khi cập nhật ngầm
     private async Task DrawRouteAsync(Location start, Location end, bool moveCamera = true)
     {
         try
@@ -225,7 +335,6 @@ public partial class MapPage : ContentPage
 
             if (routes.GetArrayLength() > 0)
             {
-                // Sử dụng MainThread để update UI an toàn khi chạy ngầm
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     MyMap.MapElements.Clear();
@@ -248,16 +357,14 @@ public partial class MapPage : ContentPage
                 });
             }
         }
-        catch (Exception) { /* Bỏ qua lỗi mạng dể app không bị crash */ }
+        catch (Exception) { /* Bỏ qua lỗi mạng */ }
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
 
-        // Cập nhật lại Placeholder theo ngôn ngữ hiện tại mỗi khi mở Tab Bản đồ
         SearchEntry.Placeholder = client.Resources.String.AppResources.SearchMapPlaceholder;
-
         LoadVinhKhanhRestaurants();
 
         if (_isTrackingStarted)
@@ -277,6 +384,10 @@ public class RestaurantPoi
     public double Lat { get; set; }
     public double Lng { get; set; }
     public string DistanceStr { get; set; }
+
+    // 🔥 MỚI: Khoảng cách dạng double để sort chính xác
+    public double DistanceKm { get; set; } = double.MaxValue;
+
     public double AverageRating { get; set; }
     public string ImageUrl { get; set; }
 }

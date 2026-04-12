@@ -112,6 +112,16 @@
                             </Grid>
                         </Border>
 
+                        <Border HeightRequest="50" StrokeShape="RoundRectangle 8" Stroke="#EEEEEE" BackgroundColor="#F8F9FA" Padding="15,0" Margin="0,0,0,15">
+                            <Entry x:Name="EmailEntry" 
+                                   Placeholder="Địa chỉ Email" 
+                                   Keyboard="Email" 
+                                   PlaceholderColor="#AAAAAA" 
+                                   TextColor="#1A1A2E" 
+                                   FontSize="15" 
+                                   VerticalOptions="Center"/>
+                        </Border>
+
                         <!-- Password -->
                         <Border StrokeShape="RoundRectangle 14"
                                 StrokeThickness="1.5" Stroke="#EFEFEF"

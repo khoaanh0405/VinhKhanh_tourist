@@ -17,8 +17,10 @@ namespace Server.Models
         [Required]
         [MaxLength(100)]
         public string Username { get; set; }
-
-        [Required]
+		[Required]
+		[MaxLength(100)]
+		public string Email { get; set; }
+		[Required]
         [MaxLength(200)]
         public string Password { get; set; }
 

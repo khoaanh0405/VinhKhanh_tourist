@@ -32,7 +32,7 @@ public partial class DetailScreen : ContentPage
 
         LblDescription.Text = !string.IsNullOrEmpty(_poi.Description)
             ? _poi.Description
-            : LocalizationResourceManager.Instance["DetailDefaultDesc"];
+            : client.Resources.String.AppResources.DetailDefaultDesc;
 
         if (_poi.ImageUrls != null && _poi.ImageUrls.Any())
         {
@@ -58,12 +58,12 @@ public partial class DetailScreen : ContentPage
             }
             else
             {
-                ListFoodsContainer.Children.Add(new Label { Text = LocalizationResourceManager.Instance["DetailMenuUpdating"], TextColor = Colors.Gray, FontAttributes = FontAttributes.Italic });
+                ListFoodsContainer.Children.Add(new Label { Text = client.Resources.String.AppResources.DetailMenuUpdating, TextColor = Colors.Gray, FontAttributes = FontAttributes.Italic });
             }
         }
         else
         {
-            ListFoodsContainer.Children.Add(new Label { Text = LocalizationResourceManager.Instance["DetailMenuEmpty"], TextColor = Colors.Gray, FontAttributes = FontAttributes.Italic });
+            ListFoodsContainer.Children.Add(new Label { Text = client.Resources.String.AppResources.DetailMenuEmpty, TextColor = Colors.Gray, FontAttributes = FontAttributes.Italic });
         }
         LoadReviews();
     }
@@ -89,12 +89,12 @@ public partial class DetailScreen : ContentPage
     {
         if (_appViewModel != null && _appViewModel.IsPOIFavorite(_poi.PoiId))
         {
-            BtnFavorite.Text = LocalizationResourceManager.Instance["DetailRemoveFavorite"];
+            BtnFavorite.Text = client.Resources.String.AppResources.DetailRemoveFavorite; // Sửa
             BtnFavorite.BackgroundColor = Color.FromArgb("#636E72");
         }
         else
         {
-            BtnFavorite.Text = LocalizationResourceManager.Instance["DetailAddFavorite"];
+            BtnFavorite.Text = client.Resources.String.AppResources.DetailAddFavorite; // Sửa
             BtnFavorite.BackgroundColor = Color.FromArgb("#FF4757");
         }
     }

@@ -9,19 +9,35 @@ public partial class AppShell : Shell
     {
         InitializeComponent();
 
-        // CHỈ CẦN ĐĂNG KÝ CÁC ROUTE ẨN
         Routing.RegisterRoute("LoginScreen", typeof(LoginScreen));
         Routing.RegisterRoute("RegisterScreen", typeof(RegisterScreen));
         Routing.RegisterRoute("ProfileScreen", typeof(ProfileScreen));
 
         string savedLang = Preferences.Get("AppLanguage", "vi");
 
-        // Ép hệ thống dùng ngôn ngữ này ngay lập tức trước khi vẽ Tab
         var culture = new CultureInfo(savedLang);
         Thread.CurrentThread.CurrentCulture = culture;
         Thread.CurrentThread.CurrentUICulture = culture;
         client.Resources.String.AppResources.Culture = culture;
+    }
 
-        // Đã xóa BindingContext và UpdateTabsLanguage() vì chỉ dùng Icon cho TabBar
+    // THÊM HÀM NÀY ĐỂ KIỂM TRA TRẠNG THÁI ĐĂNG NHẬP KHI MỞ APP
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+
+        // Kiểm tra cờ IsLoggedIn đã lưu từ LoginScreen
+        bool isLoggedIn = Preferences.Get("IsLoggedIn", false);
+
+        if (isLoggedIn)
+        {
+            // Nếu đã đăng nhập, hệ thống sẽ tự động ở lại HomePage (hoặc Tab hiện tại)
+            // Bạn có thể không cần làm gì thêm ở đây, hoặc lấy thêm token nếu cần
+            System.Diagnostics.Debug.WriteLine("Người dùng đã đăng nhập từ phiên trước.");
+        }
+        else
+        {
+
+        }
     }
 }

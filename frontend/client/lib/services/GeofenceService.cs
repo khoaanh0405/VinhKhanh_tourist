@@ -18,7 +18,6 @@ namespace client.lib.services
 
         public List<POI> Pois => _allPOIs;
 
-        // Dùng CancellationToken thay vì Timer để quản lý luồng nền
         private CancellationTokenSource? _monitoringCts;
 
         public GeofenceService(AudioService audioService)
@@ -29,18 +28,42 @@ namespace client.lib.services
         public void SetPois(List<POI> pois)
         {
             _allPOIs = pois ?? new List<POI>();
-            System.Diagnostics.Debug.WriteLine($"GeofenceService: Đã nạp {_allPOIs.Count} địa điểm.");
+            System.Diagnostics.Debug.WriteLine($"[GeofenceService] Đã nạp {_allPOIs.Count} địa điểm.");
+
+            if (_currentLocation != null)
+            {
+                UpdateRealtimeDistances(_currentLocation);
+            }
         }
 
         public async Task InitializeAsync()
         {
-            var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
-            if (status != PermissionStatus.Granted)
+            try
             {
-                await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+                var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+                if (status != PermissionStatus.Granted)
+                {
+                    status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+                }
+
+                // ═══════════════════════════════════════════════════════════════
+                // 🔥 FIX #14: INIT AUDIO AN TOÀN
+                // ═══════════════════════════════════════════════════════════════
+                // Bọc trong try-catch riêng để lỗi Audio KHÔNG chặn Geofence start
+                // ═══════════════════════════════════════════════════════════════
+                try
+                {
+                    await _audioService.InitializeAsync();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[GeofenceService] Audio init lỗi (Geofence vẫn chạy): {ex.Message}");
+                }
             }
-            // Gọi init Audio ở đây để đảm bảo TTS sẵn sàng trước khi đi vào vùng
-            await _audioService.InitializeAsync();
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[GeofenceService] ❌ InitializeAsync error: {ex.Message}");
+            }
         }
 
         public void StartMonitoring()
@@ -48,14 +71,15 @@ namespace client.lib.services
             if (_monitoringCts != null && !_monitoringCts.IsCancellationRequested) return;
 
             _monitoringCts = new CancellationTokenSource();
-
-            // CHẠY TRÊN BACKGROUND THREAD ĐỂ KHÔNG ĐƠ UI
             Task.Run(async () => await MonitoringLoopAsync(_monitoringCts.Token));
+
+            System.Diagnostics.Debug.WriteLine("[GeofenceService] ✅ Monitoring STARTED");
         }
 
         public void StopMonitoring()
         {
             _monitoringCts?.Cancel();
+            System.Diagnostics.Debug.WriteLine("[GeofenceService] ⏹ Monitoring STOPPED");
         }
 
         private async Task MonitoringLoopAsync(CancellationToken token)
@@ -64,13 +88,14 @@ namespace client.lib.services
             {
                 try
                 {
-                    // Tăng Timeout lên 10 giây để máy ảo có đủ thời gian phản hồi
-                    var request = new GeolocationRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(10));
-                    var location = await Geolocation.Default.GetLocationAsync(request);
+                    var request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(15));
+
+                    // Ưu tiên lấy tọa độ mới, nếu timeout/lỗi thì lấy tọa độ cache gần nhất
+                    var location = await Geolocation.Default.GetLocationAsync(request)
+                                   ?? await Geolocation.Default.GetLastKnownLocationAsync();
 
                     if (location != null)
                     {
-                        // Thêm dòng log này để nhìn vào cửa sổ Output (Debug) xem tọa độ có nhảy không
                         System.Diagnostics.Debug.WriteLine($"📍 [GPS] Nhận tọa độ: {location.Latitude}, {location.Longitude}");
 
                         MainThread.BeginInvokeOnMainThread(() => CurrentLocation = location);
@@ -84,10 +109,23 @@ namespace client.lib.services
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"❌ GPS Loop Error: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"GPS Loop Error: {ex.Message}");
                 }
 
-                await Task.Delay(3000, token);
+                // ═══════════════════════════════════════════════════════════════
+                // 🔥 FIX #15: CATCH OperationCanceledException KHI DELAY
+                // ═══════════════════════════════════════════════════════════════
+                // Khi StopMonitoring gọi Cancel() trong lúc Task.Delay đang chờ
+                // → throw OperationCanceledException → loop thoát sạch
+                // ═══════════════════════════════════════════════════════════════
+                try
+                {
+                    await Task.Delay(3000, token);
+                }
+                catch (OperationCanceledException)
+                {
+                    break; // Thoát loop sạch sẽ
+                }
             }
         }
 
@@ -105,19 +143,15 @@ namespace client.lib.services
                 {
                     poi.DistanceInMeters = distMeters;
 
-                    // 1. Lấy chuỗi format từ LocalizationResourceManager
-                    string formatMeters = client.lib.core.LocalizationResourceManager.Instance["HomeDistanceMeters"]?.ToString() ?? "Cách bạn {0}m";
-                    string formatKm = client.lib.core.LocalizationResourceManager.Instance["HomeDistanceKm"]?.ToString() ?? "Cách bạn {0}km";
+                    string formatMeters = client.Resources.String.AppResources.HomeDistanceMeters ?? "Cách bạn {0}m";
+                    string formatKm = client.Resources.String.AppResources.HomeDistanceKm ?? "Cách bạn {0}km";
 
-                    // 2. Điền số vào vị trí {0}
                     if (distMeters < 1000)
                     {
-                        // Thay thế {0} bằng số mét (VD: sinh ra "Cách bạn 65m" hoặc "65m away")
                         poi.DistanceDisplay = string.Format(formatMeters, Math.Round(distMeters));
                     }
                     else
                     {
-                        // Thay thế {0} bằng số Km (VD: sinh ra "Cách bạn 1.5km" hoặc "1.5km away")
                         poi.DistanceDisplay = string.Format(formatKm, distKm.ToString("F1"));
                     }
                 });
@@ -126,10 +160,8 @@ namespace client.lib.services
 
         private void CheckGeofences(Location currentLoc)
         {
-            // --- THUẬT TOÁN MỚI: NEAREST POI (QUÁN GẦN NHẤT) ---
             if (_allPOIs == null || !_allPOIs.Any()) return;
 
-            // 1. Tìm ra quán ăn đang có khoảng cách GẦN VỚI NGƯỜI DÙNG NHẤT
             var nearestPoi = _allPOIs.OrderBy(p =>
                 Location.CalculateDistance(
                     currentLoc.Latitude, currentLoc.Longitude,
@@ -138,20 +170,16 @@ namespace client.lib.services
 
             if (nearestPoi != null)
             {
-                // Tính khoảng cách ra mét
                 double distanceInMeters = Location.CalculateDistance(
                     currentLoc.Latitude, currentLoc.Longitude,
                     nearestPoi.Latitude, nearestPoi.Longitude, DistanceUnits.Kilometers) * 1000;
 
-                // 2. CHỈNH BÁN KÍNH KÍCH HOẠT XUỐNG CÒN 20 MÉT
                 if (distanceInMeters <= 20)
                 {
-                    // 3. Nếu quán gần nhất này KHÁC với quán đang đọc -> Lập tức đổi quán!
                     if (CurrentActivePOI == null || CurrentActivePOI.PoiId != nearestPoi.PoiId)
                     {
-                        System.Diagnostics.Debug.WriteLine($"!!! VÀO VÙNG QUÁN MỚI: {nearestPoi.Name} (Cách {distanceInMeters:F1}m)");
+                        System.Diagnostics.Debug.WriteLine($"!!! VÀO VÙNG QUÁN MỚI: {nearestPoi.Name} (Cách {distanceInMeters:F1}m) | Narrations={nearestPoi.Narrations?.Count ?? 0}");
 
-                        // Đẩy lên UI Thread để kích hoạt sự kiện PropertyChanged (bật Player)
                         MainThread.BeginInvokeOnMainThread(() =>
                         {
                             CurrentActivePOI = nearestPoi;
@@ -160,7 +188,6 @@ namespace client.lib.services
                 }
                 else
                 {
-                    // Nếu khoảng cách đến quán gần nhất vẫn lớn hơn 20m -> Đang đi ngoài đường trống -> Tắt Player
                     if (CurrentActivePOI != null)
                     {
                         System.Diagnostics.Debug.WriteLine($"!!! ĐÃ ĐI RA KHỎI KHU VỰC QUÁN (Cách {distanceInMeters:F1}m) -> TẮT PLAYER");

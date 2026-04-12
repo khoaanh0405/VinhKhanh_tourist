@@ -169,6 +169,51 @@ namespace client.Resources.String {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Đang tạm dừng....
+        /// </summary>
+        public static string DetailAudioPaused {
+            get {
+                return ResourceManager.GetString("DetailAudioPaused", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Đang phát thuyết minh....
+        /// </summary>
+        public static string DetailAudioPlaying {
+            get {
+                return ResourceManager.GetString("DetailAudioPlaying", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Đang chuẩn bị....
+        /// </summary>
+        public static string DetailAudioPreparing {
+            get {
+                return ResourceManager.GetString("DetailAudioPreparing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nhấn để nghe giới thiệu.
+        /// </summary>
+        public static string DetailAudioReady {
+            get {
+                return ResourceManager.GetString("DetailAudioReady", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thuyết minh bằng giọng nói.
+        /// </summary>
+        public static string DetailAudioTitle {
+            get {
+                return ResourceManager.GetString("DetailAudioTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Huỷ bỏ.
         /// </summary>
         public static string DetailCancel {
@@ -354,6 +399,24 @@ namespace client.Resources.String {
         public static string HomeSort {
             get {
                 return ResourceManager.GetString("HomeSort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 📋 Chi tiết.
+        /// </summary>
+        public static string MapButtonDetail {
+            get {
+                return ResourceManager.GetString("MapButtonDetail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 🚀 Dẫn đường.
+        /// </summary>
+        public static string MapButtonNavigate {
+            get {
+                return ResourceManager.GetString("MapButtonNavigate", resourceCulture);
             }
         }
         
@@ -588,6 +651,33 @@ namespace client.Resources.String {
         public static string SettingsSubtitle {
             get {
                 return ResourceManager.GetString("SettingsSubtitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TẢI XUỐNG.
+        /// </summary>
+        public static string SettingsSyncAction {
+            get {
+                return ResourceManager.GetString("SettingsSyncAction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tải danh sách quán ăn để dùng khi mất mạng.
+        /// </summary>
+        public static string SettingsSyncDesc {
+            get {
+                return ResourceManager.GetString("SettingsSyncDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tải dữ liệu Offline.
+        /// </summary>
+        public static string SettingsSyncTitle {
+            get {
+                return ResourceManager.GetString("SettingsSyncTitle", resourceCulture);
             }
         }
         

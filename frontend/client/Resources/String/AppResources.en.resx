@@ -348,4 +348,37 @@
 	<data name="FavoritesTitle" xml:space="preserve">
     <value>My Favorites</value>
   </data>
+
+	<data name="SettingsSyncTitle" xml:space="preserve">
+    <value>Download Offline Data</value>
+  </data>
+	<data name="SettingsSyncDesc" xml:space="preserve">
+    <value>Download restaurants to use without internet</value>
+  </data>
+	<data name="SettingsSyncAction" xml:space="preserve">
+    <value>DOWNLOAD</value>
+  </data>
+
+	<data name="DetailAudioTitle" xml:space="preserve">
+		<value>Audio Guide</value>
+	</data>
+	<data name="DetailAudioReady" xml:space="preserve">
+		<value>Tap to listen</value>
+	</data>
+	<data name="DetailAudioPreparing" xml:space="preserve">
+		<value>Preparing...</value>
+	</data>
+	<data name="DetailAudioPlaying" xml:space="preserve">
+		<value>Playing audio guide...</value>
+	</data>
+	<data name="DetailAudioPaused" xml:space="preserve">
+		<value>Paused...</value>
+	</data>
+
+	<data name="MapButtonNavigate" xml:space="preserve">
+		<value>🚀 Navigate</value>
+	</data>
+	<data name="MapButtonDetail" xml:space="preserve">
+		<value>📋 Details</value>
+	</data>
 </root>

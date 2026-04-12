@@ -1,4 +1,6 @@
-﻿using client.lib.model;
+﻿using client.lib.core;
+using client.lib.model;
+using client.lib.screens.poi;
 using client.lib.services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -40,11 +42,9 @@ namespace client.lib.screens.home
         [ObservableProperty]
         private bool _isAutoNarrationEnabled;
 
-        // [THÊM MỚI 1] Danh sách ngôn ngữ cho giao diện chọn
         [ObservableProperty]
         private ObservableCollection<Language> _availableLanguages = new();
 
-        // [THÊM MỚI 2] Xử lý khi người dùng chọn ngôn ngữ mới
         private Language _selectedLanguage;
         public Language SelectedLanguage
         {
@@ -63,7 +63,6 @@ namespace client.lib.screens.home
         public AudioService Audio => _audioService;
         public string? CurrentActivePOIImageUrl => _geofenceService.CurrentActivePOI?.ImageUrl;
 
-        // Bọc các chuỗi Resource tĩnh thành các property của ViewModel để UI có thể Binding tự động cập nhật
         public string ExploreTitle => client.Resources.String.AppResources.ExploreTitle;
         public string SearchPlaceholder => client.Resources.String.AppResources.SearchPlaceholder;
         public string TopFavorites => client.Resources.String.AppResources.TopFavorites;
@@ -83,7 +82,6 @@ namespace client.lib.screens.home
 
             _isAutoNarrationEnabled = Preferences.Get("AutoNarration", false);
 
-            // [THÊM MỚI 3] Khởi tạo danh sách ngôn ngữ
             AvailableLanguages = new ObservableCollection<Language>
             {
                 new Language { LanguageCode = "vi", LanguageName = "Tiếng Việt 🇻🇳" },
@@ -91,10 +89,9 @@ namespace client.lib.screens.home
                 new Language { LanguageCode = "ko", LanguageName = "한국어 🇰🇷" }
             };
 
-            // Lấy ngôn ngữ đã lưu hoặc mặc định là "vi"
             string savedLang = Preferences.Get("AppLanguage", "vi");
             _selectedLanguage = AvailableLanguages.FirstOrDefault(l => l.LanguageCode == savedLang) ?? AvailableLanguages.First();
-            UpdateCulture(savedLang); // Chỉ set Culture, chưa gọi API (API sẽ được gọi bên HomePage.xaml.cs OnAppearing)
+            UpdateCulture(savedLang);
 
             _geofenceService.PropertyChanged += async (s, e) =>
             {
@@ -104,19 +101,35 @@ namespace client.lib.screens.home
                     OnPropertyChanged(nameof(IsPlaying));
                     OnPropertyChanged(nameof(CurrentActivePOIImageUrl));
 
-                    if (CurrentActivePOI != null)
+                    var activePoi = CurrentActivePOI;
+                    if (activePoi != null)
                     {
                         bool isLoggedIn = Preferences.Get("IsLoggedIn", false);
                         if (isLoggedIn && IsAutoNarrationEnabled)
                         {
-                            await PlayNarrationAsync(CurrentActivePOI);
+                            try
+                            {
+                                if (activePoi.Narrations != null && activePoi.Narrations.Any())
+                                {
+                                    await PlayNarrationAsync(activePoi);
+                                }
+                                else
+                                {
+                                    System.Diagnostics.Debug.WriteLine(
+                                        $"[HomeViewModel] POI '{activePoi.Name}' không có Narrations → bỏ qua");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine(
+                                    $"[HomeViewModel] ❌ PlayNarrationAsync FAILED cho POI '{activePoi.Name}': {ex.Message}\n{ex.StackTrace}");
+                            }
                         }
                     }
                 }
             };
         }
 
-        // [THÊM MỚI 4] Cập nhật Culture cho file .resx
         private void UpdateCulture(string langCode)
         {
             var culture = new CultureInfo(langCode);
@@ -128,7 +141,6 @@ namespace client.lib.screens.home
         private void ApplyLanguageChange(string langCode)
         {
             Preferences.Set("AppLanguage", langCode);
-
             UpdateCulture(langCode);
 
             if (_appViewModel != null)
@@ -139,9 +151,10 @@ namespace client.lib.screens.home
 
             OnPropertyChanged(string.Empty);
 
-            // ĐÃ XÓA ĐOẠN GỌI shell.UpdateTabsLanguage() Ở ĐÂY VÌ APP CHỈ CÒN DÙNG ICON
-
-            Task.Run(async () => await LoadDataAsync());
+            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
+            {
+                Task.Run(async () => await LoadDataAsync());
+            }
         }
 
         private CancellationTokenSource? _searchCts;
@@ -151,6 +164,9 @@ namespace client.lib.screens.home
             ExecuteDebouncedSearch(value);
         }
 
+        // ══════════════════════════════════════════════════════════════
+        // 🔥 NÂNG CẤP: Sử dụng FuzzySearchHelper thay vì ContainsIgnoreCase
+        // ══════════════════════════════════════════════════════════════
         private async void ExecuteDebouncedSearch(string query)
         {
             _searchCts?.Cancel();
@@ -176,12 +192,26 @@ namespace client.lib.screens.home
 
                 var result = await Task.Run(() =>
                 {
-                    return Pois.Where(p =>
-                        ContainsIgnoreCase(p.Name, query) ||
-                        (p.Restaurants != null && p.Restaurants.Any(r =>
-                            r.Foods != null && r.Foods.Any(f => ContainsIgnoreCase(f.Name, query))
-                        ))
-                    ).ToList();
+                    string normalizedQuery = FuzzySearchHelper.NormalizeText(query);
+
+                    return Pois
+                        .Select(p => new
+                        {
+                            Poi = p,
+                            Score = FuzzySearchHelper.CalculateRelevanceScore(
+                                name: p.Name,
+                                description: null, // HomePage chỉ tìm theo tên + món ăn
+                                foodNames: p.Restaurants?
+                                    .Where(r => r.Foods != null)
+                                    .SelectMany(r => r.Foods.Select(f => f.Name)),
+                                normalizedQuery: normalizedQuery
+                            )
+                        })
+                        .Where(x => x.Score > 0)
+                        .OrderByDescending(x => x.Score)
+                        .ThenByDescending(x => x.Poi.AverageRating)
+                        .Select(x => x.Poi)
+                        .ToList();
                 });
 
                 MainThread.BeginInvokeOnMainThread(() =>
@@ -194,20 +224,13 @@ namespace client.lib.screens.home
             catch (TaskCanceledException) { }
         }
 
-        private bool ContainsIgnoreCase(string? source, string query)
-        {
-            if (string.IsNullOrEmpty(source)) return false;
-            return CultureInfo.CurrentCulture.CompareInfo.IndexOf(
-                source, query,
-                CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
-        }
-
         [RelayCommand]
         public async Task NavigateToActivePOIAsync()
         {
             if (_geofenceService.CurrentActivePOI != null)
             {
-                await Application.Current.MainPage.Navigation.PushAsync(new DetailScreen(_geofenceService.CurrentActivePOI));
+                await Application.Current.MainPage.Navigation.PushAsync(
+                    new POIDetailPage(_geofenceService.CurrentActivePOI.PoiId, autoPlayAudio: false));
             }
         }
 
@@ -219,7 +242,12 @@ namespace client.lib.screens.home
 
             try
             {
-                // [SỬA ĐỔI] Truyền mã ngôn ngữ vào hàm FetchPOIsAsync
+                if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
+                {
+                    System.Diagnostics.Debug.WriteLine("[HomeViewModel] Không có mạng → bỏ qua LoadDataAsync");
+                    return;
+                }
+
                 string currentLang = SelectedLanguage?.LanguageCode ?? "vi";
                 var fetchedPois = await _apiService.FetchPOIsAsync(currentLang);
 
@@ -239,19 +267,20 @@ namespace client.lib.screens.home
                                 double distMeters = distKm * 1000;
                                 poi.DistanceInMeters = distMeters;
 
-                                // Lấy chuỗi định dạng từ file ngôn ngữ hiện tại
                                 string formatM = client.lib.core.LocalizationResourceManager.Instance["HomeDistanceMeters"];
                                 string formatKm = client.lib.core.LocalizationResourceManager.Instance["HomeDistanceKm"];
 
                                 if (distMeters < 1000)
                                     poi.DistanceDisplay = string.Format(formatM, Math.Round(distMeters));
                                 else
-                                    // Dùng ToString("F1") để lấy 1 chữ số thập phân
                                     poi.DistanceDisplay = string.Format(formatKm, distKm.ToString("F1"));
                             }
                         }
                     }
-                    catch (Exception) { /* Bỏ qua nếu tắt GPS */ }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[HomeViewModel] GPS error trong LoadDataAsync: {ex.Message}");
+                    }
 
                     Pois = new ObservableCollection<POI>(fetchedPois.OrderBy(p => p.DistanceInMeters));
                     _geofenceService.SetPois(fetchedPois);
@@ -265,30 +294,79 @@ namespace client.lib.screens.home
                     _geofenceService.StartMonitoring();
                 }
             }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[HomeViewModel] ❌ LoadDataAsync FAILED: {ex.Message}");
+            }
             finally { IsLoading = false; }
         }
 
         private async Task PlayNarrationAsync(POI poi)
         {
-            if (poi.Narrations == null || !poi.Narrations.Any()) return;
+            if (poi.Narrations == null || !poi.Narrations.Any())
+            {
+                System.Diagnostics.Debug.WriteLine($"[PlayNarration] ❌ POI '{poi.Name}' không có Narrations");
+                return;
+            }
 
-            // [SỬA ĐỔI] Lấy đúng ngôn ngữ đang được chọn hiện tại
             string langCode = SelectedLanguage?.LanguageCode ?? "vi";
             var narration = poi.Narrations.FirstOrDefault(n => n.LanguageCode == langCode)
                             ?? poi.Narrations.FirstOrDefault();
 
-            if (narration != null)
+            if (narration == null)
             {
-                if (narration.UseAudioFile && !string.IsNullOrEmpty(narration.AudioUrl))
+                System.Diagnostics.Debug.WriteLine($"[PlayNarration] ❌ Không tìm thấy narration cho POI '{poi.Name}' lang='{langCode}'");
+                return;
+            }
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[PlayNarration] ▶ POI='{poi.Name}' | UseAudioFile={narration.UseAudioFile} | AudioUrl='{narration.AudioUrl}' | TextLen={narration.Text?.Length ?? 0}");
+
+            if (narration.UseAudioFile && !string.IsNullOrEmpty(narration.AudioUrl))
+            {
+                bool isHttpUrl = narration.AudioUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase);
+                bool hasInternet = Connectivity.Current.NetworkAccess == NetworkAccess.Internet;
+
+                if (isHttpUrl && !hasInternet)
                 {
-                    await _audioService.PlayAudioFromUrlAsync(narration.AudioUrl, poi.Name);
+                    System.Diagnostics.Debug.WriteLine("[PlayNarration] Offline + HTTP URL → fallback TTS");
+                    await FallbackToTts(narration, poi.Name, langCode);
+                    return;
                 }
-                else
+
+                if (!isHttpUrl && !System.IO.File.Exists(narration.AudioUrl))
                 {
-                    // [SỬA ĐỔI] Truyền langCode vào hàm SpeakAsync để máy đọc giọng Anh/Hàn/Việt tương ứng
-                    await _audioService.SpeakAsync(narration.Text, poi.Name, langCode);
+                    System.Diagnostics.Debug.WriteLine($"[PlayNarration] File local không tồn tại: {narration.AudioUrl} → fallback TTS");
+                    await FallbackToTts(narration, poi.Name, langCode);
+                    return;
+                }
+
+                bool isSuccess = await _audioService.PlayAudioFromUrlAsync(narration.AudioUrl, poi.Name);
+
+                if (!isSuccess)
+                {
+                    System.Diagnostics.Debug.WriteLine("[PlayNarration] PlayAudio thất bại → fallback TTS");
+                    await FallbackToTts(narration, poi.Name, langCode);
                 }
             }
+            else
+            {
+                await FallbackToTts(narration, poi.Name, langCode);
+            }
+        }
+
+        private async Task FallbackToTts(Narration narration, string poiName, string langCode)
+        {
+            if (string.IsNullOrWhiteSpace(narration.Text))
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[PlayNarration] ❌ narration.Text RỖNG cho POI '{poiName}' → KHÔNG THỂ PHÁT TTS");
+                return;
+            }
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[PlayNarration] 🔊 TTS cho POI '{poiName}' | lang='{langCode}' | text length={narration.Text.Length}");
+            await _audioService.SpeakAsync(narration.Text, poiName, langCode);
         }
 
         [RelayCommand]
@@ -337,6 +415,15 @@ namespace client.lib.screens.home
                     await Application.Current.MainPage.DisplayAlert("Thành công", "Đã TẮT thuyết minh tự động 🔇", "OK");
                 }
             }
+        }
+
+        public async Task RefreshGeofenceWithOfflineData(IEnumerable<POI> pois)
+        {
+            if (pois == null || !pois.Any()) return;
+
+            _geofenceService.SetPois(pois.ToList());
+            await _geofenceService.InitializeAsync();
+            _geofenceService.StartMonitoring();
         }
     }
 }

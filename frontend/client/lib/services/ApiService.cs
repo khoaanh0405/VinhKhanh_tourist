@@ -3,6 +3,7 @@ using client.lib.model;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+//using static Android.Provider.ContactsContract.CommonDataKinds;
 
 namespace client.lib.services
 {
@@ -66,11 +67,20 @@ namespace client.lib.services
         }
 
         // ── 3. Authentication (Đăng ký / Đăng nhập) ────────────────────────
-        public async Task<AuthResponse> RegisterAsync(string displayName, string username, string password)
+        public async Task<AuthResponse> RegisterAsync(string displayName, string username, string email, string password)
         {
             try
             {
-                var request = new { DisplayName = displayName, Username = username, Password = password, Role = "Tourist" };
+                // Gộp tất cả dữ liệu vào chung một biến request duy nhất
+                var request = new
+                {
+                    DisplayName = displayName,
+                    Username = username,
+                    Email = email,             // Đã bổ sung Email
+                    Password = password,
+                    Role = "Tourist"
+                };
+
                 var response = await _httpClient.PostAsJsonAsync("user/register", request);
 
                 if (response.IsSuccessStatusCode)

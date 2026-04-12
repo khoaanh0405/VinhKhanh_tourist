@@ -68,5 +68,6 @@ namespace client.lib.model
 
         [JsonPropertyName("restaurants")]
         public List<Restaurant> Restaurants { get; set; } = new();
+
     }
 }

@@ -52,6 +52,9 @@ namespace Server.Data
 				.HasMany(p => p.Restaurants)
 				.WithOne(r => r.POI)
 				.HasForeignKey(r => r.PoiId);
+			modelBuilder.Entity<PoiImage>()
+				.Property(p => p.PublicId)
+				.HasColumnName("PublicId");
 
 			// POI - Narration (1 - N)
 			modelBuilder.Entity<POI>()

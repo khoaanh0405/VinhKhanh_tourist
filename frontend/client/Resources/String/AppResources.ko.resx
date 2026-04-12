@@ -347,4 +347,37 @@
 	<data name="FavoritesTitle" xml:space="preserve">
     <value>내 즐겨찾기</value>
   </data>
+
+	<data name="SettingsSyncTitle" xml:space="preserve">
+    <value>오프라인 데이터 다운로드</value>
+  </data>
+	<data name="SettingsSyncDesc" xml:space="preserve">
+    <value>인터넷 없이 사용할 식당 목록 다운로드</value>
+  </data>
+	<data name="SettingsSyncAction" xml:space="preserve">
+    <value>다운로드</value>
+  </data>
+
+	<data name="DetailAudioTitle" xml:space="preserve">
+		<value>오디오 가이드</value>
+	</data>
+	<data name="DetailAudioReady" xml:space="preserve">
+		<value>탭하여 듣기</value>
+	</data>
+	<data name="DetailAudioPreparing" xml:space="preserve">
+		<value>준비 중...</value>
+	</data>
+	<data name="DetailAudioPlaying" xml:space="preserve">
+		<value>오디오 가이드 재생 중...</value>
+	</data>
+	<data name="DetailAudioPaused" xml:space="preserve">
+		<value>일시 정지됨...</value>
+	</data>
+
+	<data name="MapButtonNavigate" xml:space="preserve">
+		<value>🚀 길 찾기</value>
+	</data>
+	<data name="MapButtonDetail" xml:space="preserve">
+		<value>📋 상세보기</value>
+	</data>
 </root>

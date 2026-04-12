@@ -87,6 +87,33 @@
                 </Grid>
             </Border>
 
+            <Border Margin="20,0,20,16" Padding="20" StrokeShape="RoundRectangle 20" StrokeThickness="0" BackgroundColor="White">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.07" Radius="10" Offset="0,3"/>
+                </Border.Shadow>
+                <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12" Padding="0,2,0,2">
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnSyncOfflineDataTapped"/>
+                    </Grid.GestureRecognizers>
+
+                    <Border Grid.Column="0" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 20" StrokeThickness="0" BackgroundColor="#EAF4FB">
+                        <Label Text="☁️" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
+
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                        <Label Text="{Binding Path=[SettingsSyncTitle], Source={x:Static loc:LocalizationResourceManager.Instance}}" 
+           FontSize="15" FontAttributes="Bold" TextColor="#1A1A2E"/>
+                        <Label Text="{Binding Path=[SettingsSyncDesc], Source={x:Static loc:LocalizationResourceManager.Instance}}" 
+           FontSize="12" TextColor="#AAAAAA"/>
+                    </VerticalStackLayout>
+
+                    <Border Grid.Column="2" HeightRequest="28" Padding="10,0" StrokeShape="RoundRectangle 14" StrokeThickness="0" BackgroundColor="#EAF4FB" VerticalOptions="Center">
+                        <Label Text="{Binding Path=[SettingsSyncAction], Source={x:Static loc:LocalizationResourceManager.Instance}}" 
+           FontSize="12" TextColor="#2980B9" FontAttributes="Bold"/>
+                    </Border>
+                </Grid>
+            </Border>
+
             <Label Text="{Binding Path=[SettingsSectionNotifications], Source={x:Static loc:LocalizationResourceManager.Instance}}"
                    FontSize="13" FontAttributes="Bold" TextColor="#AAAAAA" Margin="20,0,20,8" CharacterSpacing="0.5"/>
 

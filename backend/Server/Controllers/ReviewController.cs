@@ -24,30 +24,31 @@ namespace Server.Controllers
 				query = query.Where(r => r.PoiId == poiId.Value);
 			}
 
-			// 2. Lọc theo thanh tìm kiếm (nếu có)
-			if (!string.IsNullOrEmpty(search))
-			{
-				query = query.Where(r => r.Comment.Contains(search) || r.UserName.Contains(search));
-			}
+            // 2. Lọc theo thanh tìm kiếm (nếu có)
+            if (!string.IsNullOrEmpty(search))
+            {
+                // UserId giờ là INT, nên tìm kiếm sẽ tập trung vào nội dung Comment
+                query = query.Where(r => r.Comment != null && r.Comment.Contains(search));
+            }
 
-			var result = await query
-				.OrderByDescending(r => r.CreatedAt)
-				.Select(r => new {
-					r.ReviewId,
-					r.UserName,
-					r.Rating,
-					r.Comment,
-					r.IsHidden,
-					r.CreatedAt,
-					PoiName = r.POI != null ? r.POI.Name : "N/A"
-				})
-				.ToListAsync();
+            var result = await query
+                .OrderByDescending(r => r.CreatedAt)
+                .Select(r => new {
+                    r.ReviewId,
+                    r.UserId, // Đã sửa lại thành UserId viết thường cho khớp Model
+                    r.Rating,
+                    r.Comment,
+                    // Đã xóa r.IsHidden
+                    r.CreatedAt,
+                    PoiName = r.POI != null ? r.POI.Name : "N/A"
+                })
+                .ToListAsync();
 
-			return Ok(result);
-		}
+            return Ok(result);
+        }
 
-		// PUT: api/Review/hide/5
-		[HttpPut("toggle-hide/{id}")]
+        // PUT: api/Review/hide/5
+        [HttpPut("toggle-hide/{id}")]
 		public async Task<IActionResult> ToggleHide(int id)
 		{
 			var review = await _context.Reviews.FindAsync(id);

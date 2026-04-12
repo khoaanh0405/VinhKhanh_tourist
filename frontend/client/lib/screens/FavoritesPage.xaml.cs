@@ -1,5 +1,6 @@
+using client.lib.core; // FuzzySearchHelper
 using client.lib.services;
-using System.Linq; // Cần thiết để dùng lệnh Where, Any
+using System.Linq;
 
 namespace client.lib.screens;
 
@@ -11,28 +12,49 @@ public partial class FavoritesPage : ContentPage
         BindingContext = viewModel;
     }
 
-    // Logic lọc dữ liệu siêu nhanh mỗi khi gõ phím
+    // ══════════════════════════════════════════════════════════════
+    // 🔥 NÂNG CẤP: Fuzzy search cho Favorites
+    //    - Hỗ trợ không dấu / có dấu
+    //    - Partial match (một phần tên)
+    //    - Tìm theo tên quán + tên món ăn
+    //    - Sắp xếp kết quả theo độ liên quan
+    // ══════════════════════════════════════════════════════════════
     private void OnFavoriteSearchTextChanged(object sender, TextChangedEventArgs e)
     {
         var viewModel = BindingContext as AppViewModel;
         if (viewModel == null || viewModel.FavoritePOIs == null) return;
 
-        string query = e.NewTextValue?.ToLowerInvariant();
+        string query = e.NewTextValue?.Trim();
 
         if (string.IsNullOrWhiteSpace(query))
         {
-            // Nếu xóa trắng thanh tìm kiếm thì trả lại danh sách ban đầu
+            // Xóa trắng → trả lại danh sách ban đầu
             FavoriteCollectionView.ItemsSource = viewModel.FavoritePOIs;
         }
         else
         {
-            // Quét tên quán HOẶC tên món ăn có chứa từ khóa
-            FavoriteCollectionView.ItemsSource = viewModel.FavoritePOIs.Where(p =>
-                (p.Name != null && p.Name.ToLowerInvariant().Contains(query)) ||
-                (p.Restaurants != null && p.Restaurants.Any(r =>
-                    r.Foods != null && r.Foods.Any(f => f.Name != null && f.Name.ToLowerInvariant().Contains(query))
-                ))
-            ).ToList();
+            string normalizedQuery = FuzzySearchHelper.NormalizeText(query);
+
+            var scoredResults = viewModel.FavoritePOIs
+                .Select(p => new
+                {
+                    Poi = p,
+                    Score = FuzzySearchHelper.CalculateRelevanceScore(
+                        name: p.Name,
+                        description: p.Description,
+                        foodNames: p.Restaurants?
+                            .Where(r => r.Foods != null)
+                            .SelectMany(r => r.Foods.Select(f => f.Name)),
+                        normalizedQuery: normalizedQuery
+                    )
+                })
+                .Where(x => x.Score > 0)
+                .OrderByDescending(x => x.Score)
+                .ThenByDescending(x => x.Poi.AverageRating)
+                .Select(x => x.Poi)
+                .ToList();
+
+            FavoriteCollectionView.ItemsSource = scoredResults;
         }
     }
 }

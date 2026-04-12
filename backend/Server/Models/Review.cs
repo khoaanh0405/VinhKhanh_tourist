@@ -9,8 +9,8 @@ namespace Server.Models
         [Key]
         public int ReviewId { get; set; }
         public int PoiId { get; set; }
-        [MaxLength(100)]
-        public string UserName { get; set; } = "Khách ẩn danh";
+        public int UserId { get; set; }
+        [Range(1, 5)]
         public int Rating { get; set; }
         [MaxLength(1000)]
         public string? Comment { get; set; }

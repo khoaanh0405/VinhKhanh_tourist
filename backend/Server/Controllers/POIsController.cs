@@ -72,7 +72,7 @@ namespace Server.Controllers
 						Reviews = p.Reviews.OrderByDescending(r => r.CreatedAt).Select(rv => new ReviewDto
 						{
 							ReviewId = rv.ReviewId,
-							UserName = rv.UserName,
+							UserId = rv.UserId,
 							Rating = rv.Rating,
 							Comment = rv.Comment,
 							CreatedAt = rv.CreatedAt
@@ -121,7 +121,7 @@ namespace Server.Controllers
 							Description = f.FoodTranslations.FirstOrDefault(t => t.LanguageCode == lang) != null ? f.FoodTranslations.FirstOrDefault(t => t.LanguageCode == lang).Description : f.Description
 						}).ToList()
 					}).ToList(),
-					Reviews = p.Reviews.OrderByDescending(r => r.CreatedAt).Select(rv => new ReviewDto { ReviewId = rv.ReviewId, UserName = rv.UserName, Rating = rv.Rating, Comment = rv.Comment, CreatedAt = rv.CreatedAt }).ToList()
+					Reviews = p.Reviews.OrderByDescending(r => r.CreatedAt).Select(rv => new ReviewDto { ReviewId = rv.ReviewId, UserId = rv.UserId, Rating = rv.Rating, Comment = rv.Comment, CreatedAt = rv.CreatedAt }).ToList()
 				})
 				.FirstOrDefaultAsync();
 
