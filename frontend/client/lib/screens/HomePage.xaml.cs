@@ -140,10 +140,11 @@ namespace client.lib.screens
                                 Latitude = lp.Latitude,
                                 Longitude = lp.Longitude,
                                 ImageUrls = new List<string>
-                        {
-                            !string.IsNullOrEmpty(lp.ImageUrlsJoined) ? lp.ImageUrlsJoined.Split(',')[0] : "default_thumbnail.jpg"
-                        },
-                                DistanceDisplay = "Đang tính..."
+                                    {
+                                        !string.IsNullOrEmpty(lp.ImageUrlsJoined) ? lp.ImageUrlsJoined.Split(',')[0] : "default_thumbnail.jpg"
+                                    },
+                                DistanceDisplay = "Đang tính...",
+
                             };
 
                             // Truy vấn DB từng POI

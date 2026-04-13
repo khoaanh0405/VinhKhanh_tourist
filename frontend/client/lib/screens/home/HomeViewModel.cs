@@ -93,10 +93,11 @@ namespace client.lib.screens.home
             _selectedLanguage = AvailableLanguages.FirstOrDefault(l => l.LanguageCode == savedLang) ?? AvailableLanguages.First();
             UpdateCulture(savedLang);
 
-            _geofenceService.PropertyChanged += async (s, e) =>
+            _geofenceService.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(GeofenceService.CurrentActivePOI))
                 {
+                    // 1. Cập nhật UI (vẫn chạy trên Main Thread)
                     OnPropertyChanged(nameof(CurrentActivePOI));
                     OnPropertyChanged(nameof(IsPlaying));
                     OnPropertyChanged(nameof(CurrentActivePOIImageUrl));
@@ -107,23 +108,23 @@ namespace client.lib.screens.home
                         bool isLoggedIn = Preferences.Get("IsLoggedIn", false);
                         if (isLoggedIn && IsAutoNarrationEnabled)
                         {
-                            try
+                            // 2. 🔥 Đẩy việc phát âm thanh xuống luồng nền để tránh lỗi NetworkOnMainThread
+                            Task.Run(async () =>
                             {
-                                if (activePoi.Narrations != null && activePoi.Narrations.Any())
+                                try
                                 {
-                                    await PlayNarrationAsync(activePoi);
+                                    if (activePoi.Narrations != null && activePoi.Narrations.Any())
+                                    {
+                                        // PlayNarrationAsync sẽ tự xử lý logic File vs TTS bên trong
+                                        await PlayNarrationAsync(activePoi);
+                                    }
                                 }
-                                else
+                                catch (Exception ex)
                                 {
                                     System.Diagnostics.Debug.WriteLine(
-                                        $"[HomeViewModel] POI '{activePoi.Name}' không có Narrations → bỏ qua");
+                                        $"[HomeViewModel] ❌ PlayNarrationAsync FAILED ngầm: {ex.Message}");
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                System.Diagnostics.Debug.WriteLine(
-                                    $"[HomeViewModel] ❌ PlayNarrationAsync FAILED cho POI '{activePoi.Name}': {ex.Message}\n{ex.StackTrace}");
-                            }
+                            });
                         }
                     }
                 }

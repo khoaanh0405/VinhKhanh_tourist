@@ -11,8 +11,10 @@ namespace Server.DTOs
 		public string? Description { get; set; }
 		public List<FoodDto> Foods { get; set; }
 
-		// === ĐỒ MỚI THÊM VÀO (Dành cho chức năng Phân quyền) ===
-		public int PoiId { get; set; }
+        public bool IsLocked { get; set; }
+
+        // === ĐỒ MỚI THÊM VÀO (Dành cho chức năng Phân quyền) ===
+        public int PoiId { get; set; }
 		public int? ManagerUserId { get; set; }
 		public string? ManagerName { get; set; }
 		public double Latitude { get; set; }
@@ -22,7 +24,7 @@ namespace Server.DTOs
 		public RestaurantDto() { }
 
 		// 👇 ĐÃ SỬA Ở ĐÂY: Thêm double lat, double lng (Đủ 9 tham số) 👇
-		public RestaurantDto(int id, string name, string? address, string? desc, int poiId, int? managerId, string? managerName, double lat, double lng)
+		public RestaurantDto(int id, string name, string? address, string? desc, int poiId, int? managerId, string? managerName, double lat, double lng, bool isLocked)
 		{
 			RestaurantId = id;
 			Name = name;
@@ -33,7 +35,8 @@ namespace Server.DTOs
 			ManagerName = managerName;
 			Latitude = lat;  // Nhận tọa độ
 			Longitude = lng; // Nhận tọa độ
-		}
+            IsLocked = isLocked;
+        }
 	}
 
 	public class FoodDto

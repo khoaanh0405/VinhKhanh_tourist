@@ -8,7 +8,7 @@ using Microsoft.OpenApi.Models;
 using Server.Authorization; // Để nhận diện Policies và Handler
 using Server.Data;
 using Server.Models;
-using Server.Services; // Đảm bảo namespace này chứa ICloudinaryService và CloudinaryService
+using Server.Services;
 using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,7 +46,33 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtSettings["Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(key)
     };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnTokenValidated = async context =>
+        {
+            var dbContext = context.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
+            // Lấy UserId từ Claim mà bạn đã lưu lúc Login
+            var userIdClaim = context.Principal.FindFirst("UserId")?.Value;
+
+            if (int.TryParse(userIdClaim, out int userId))
+            {
+                // Truy vấn DB để kiểm tra trạng thái khóa
+                var user = await dbContext.Users
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(u => u.UserId == userId);
+
+                if (user == null || user.IsLocked)
+                {
+                    // Nếu bị khóa, đánh dấu là thất bại (trả về 401)
+                    context.Fail("Tài khoản này đã bị khóa hoặc không tồn tại.");
+                }
+            }
+        }
+    };
 });
+
+
 
 // ============================
 // 3. CONTROLLERS + SWAGGER

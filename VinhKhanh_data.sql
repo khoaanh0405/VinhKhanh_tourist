@@ -338,4 +338,3 @@ VALUES (
     '$2a$12$DtQn17/piuDv2TPjriFBc.H2KN9qMfzccwU140LSnf4GXuDeKBQIS', 
     'Admin'                       
 );
-

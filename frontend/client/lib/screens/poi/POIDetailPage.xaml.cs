@@ -165,27 +165,28 @@ public partial class POIDetailPage : ContentPage
 
     private async Task PlayNarrationAsync(POI poi, string langCode)
     {
-        if (poi.Narrations is null || !poi.Narrations.Any())
+        // 1. Tìm bản thuyết minh đúng ngôn ngữ
+        var narration = poi.Narrations?
+            .FirstOrDefault(n => string.Equals(n.LanguageCode, langCode, StringComparison.OrdinalIgnoreCase))
+            ?? poi.Narrations?.FirstOrDefault();
+
+        if (narration == null)
         {
-            await _audioService.SpeakAsync(text: poi.Name, title: poi.Name, languageCode: langCode);
+            await _audioService.SpeakAsync(poi.Name, poi.Name, langCode);
             return;
         }
 
-        var narration = poi.Narrations
-            .FirstOrDefault(n => string.Equals(n.LanguageCode, langCode, StringComparison.OrdinalIgnoreCase))
-            ?? poi.Narrations.First();
-
+        // 2. ƯU TIÊN SỐ 1: Nếu admin bật "Dùng file" và có link Cloudinary
         if (narration.UseAudioFile && !string.IsNullOrWhiteSpace(narration.AudioUrl))
         {
-            await _audioService.PlayAudioFromUrlAsync(narration.AudioUrl, poi.Name);
+            bool success = await _audioService.PlayAudioFromUrlAsync(narration.AudioUrl, poi.Name);
+            if (success) return; // Nếu phát file thành công thì dừng ở đây luôn
         }
-        else if (!string.IsNullOrWhiteSpace(narration.Text))
+
+        // 3. ƯU TIÊN SỐ 2: Nếu không có file hoặc phát file lỗi -> Mới dùng TTS
+        if (!string.IsNullOrWhiteSpace(narration.Text))
         {
-            await _audioService.SpeakAsync(text: narration.Text, title: poi.Name, languageCode: langCode);
-        }
-        else
-        {
-            await _audioService.SpeakAsync(text: poi.Name, title: poi.Name, languageCode: langCode);
+            await _audioService.SpeakAsync(narration.Text, poi.Name, langCode);
         }
     }
 

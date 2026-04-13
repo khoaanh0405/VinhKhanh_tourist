@@ -28,8 +28,9 @@ namespace Server.Controllers
 				var pois = await _context.POIs
 					.AsNoTracking()
 					.AsSplitQuery()
+                    .Where(p => !p.Restaurants.Any() || p.Restaurants.Any(r => !r.IsLocked))
 					.Select(p => new POIDto
-					{
+            {
 						PoiId = p.PoiId,
 						Name = p.Name,
 						Description = p.PoiTranslations.FirstOrDefault(t => t.LanguageCode == lang) != null
@@ -49,8 +50,8 @@ namespace Server.Controllers
 							UseAudioFile = n.UseAudioFile,
 							VoiceName = n.VoiceName
 						}).ToList(),
-						Restaurants = p.Restaurants.Select(r => new RestaurantDto
-						{
+                        Restaurants = p.Restaurants.Where(r => !r.IsLocked).Select(r => new RestaurantDto
+                        {
 							RestaurantId = r.RestaurantId,
 							Name = r.Name,
 							Address = r.Address,
@@ -96,8 +97,9 @@ namespace Server.Controllers
 				.AsNoTracking()
 				.AsSplitQuery()
 				.Where(p => p.PoiId == id)
+                .Where(p => p.PoiId == id && (!p.Restaurants.Any() || p.Restaurants.Any(r => !r.IsLocked)))
 				.Select(p => new POIDto
-				{
+        {
 					PoiId = p.PoiId,
 					Name = p.Name,
 					Description = p.PoiTranslations.FirstOrDefault(t => t.LanguageCode == lang) != null ? p.PoiTranslations.FirstOrDefault(t => t.LanguageCode == lang).Description : p.Description,
@@ -107,8 +109,8 @@ namespace Server.Controllers
 					ReviewCount = p.ReviewCount,
 					ImageUrls = p.PoiImages.OrderBy(i => i.DisplayOrder).Select(i => i.ImageUrl).ToList(),
 					Narrations = p.Narrations.Where(n => n.LanguageCode == lang).Select(n => new NarrationDto { NarrationId = n.NarrationId, Text = n.Text, LanguageCode = n.LanguageCode, AudioUrl = n.AudioUrl, UseAudioFile = n.UseAudioFile, VoiceName = n.VoiceName }).ToList(),
-					Restaurants = p.Restaurants.Select(r => new RestaurantDto
-					{
+                    Restaurants = p.Restaurants.Where(r => !r.IsLocked).Select(r => new RestaurantDto
+                    {
 						RestaurantId = r.RestaurantId,
 						Name = r.Name,
 						Address = r.Address,

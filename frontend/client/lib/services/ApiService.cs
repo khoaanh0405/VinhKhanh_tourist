@@ -26,14 +26,26 @@ namespace client.lib.services
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             };
         }
-
-        // ── 1. Lấy danh sách tất cả POI (Dành cho trang chủ) ───────────────
         public async Task<List<POI>?> FetchPOIsAsync(string langCode = "vi")
         {
             try
             {
                 string url = $"{ApiEndpoints.Pois}?lang={langCode}";
-                return await _httpClient.GetFromJsonAsync<List<POI>>(url, _jsonOptions);
+
+                // SỬA Ở ĐÂY: Nhận về List<POIDetailResponse> thay vì List<POI>
+                var response = await _httpClient.GetFromJsonAsync<List<POIDetailResponse>>(url, _jsonOptions);
+
+                if (response == null) return new List<POI>();
+
+                // Đi qua hàm MapToPOI (nơi đã có logic lọc rDto.IsLocked)
+                var mappedPois = response.Select(r => MapToPOI(r)).ToList();
+
+                // TÙY CHỌN: Nếu 1 POI CHỈ LÀ QUÁN ĂN (không có cảnh đẹp), 
+                // và quán ăn đó đã bị khóa (danh sách Restaurants trống), thì ẩn luôn POI đó khỏi trang chủ.
+                // Bỏ comment dòng dưới nếu bạn muốn ẩn hoàn toàn POI đó đi:
+                // mappedPois = mappedPois.Where(p => p.Restaurants != null && p.Restaurants.Any()).ToList();
+
+                return mappedPois;
             }
             catch (Exception ex)
             {
@@ -129,26 +141,26 @@ namespace client.lib.services
             AverageRating = r.AverageRating,
             ReviewCount = r.ReviewCount,
 
-            // Backend trả thẳng List<string> nên ta nhận luôn
             ImageUrls = r.ImageUrls ?? new(),
 
-            // Sửa lại cho khớp với JSON trả về là 1 List Narrations
             Narrations = r.Narrations?.Select(n => MapToNarration(n)).ToList() ?? new(),
 
-            // Map lại danh sách Nhà hàng & Món ăn theo cấu trúc lồng nhau mới
-            Restaurants = r.Restaurants?.Select(rDto => new Restaurant
+            // 🔥 ĐOẠN CẦN SỬA NẰM Ở ĐÂY 👇
+            Restaurants = r.Restaurants?
+            .Where(rDto => !rDto.IsLocked) 
+            .Select(rDto => new Restaurant
+        {
+            RestaurantId = rDto.RestaurantId,
+            Name = rDto.Name,
+            Description = rDto.Description ?? string.Empty,
+            Foods = rDto.Foods?.Select(fDto => new Food
             {
-                RestaurantId = rDto.RestaurantId,
-                Name = rDto.Name,
-                Description = rDto.Description ?? string.Empty,
-                Foods = rDto.Foods?.Select(fDto => new Food
-                {
-                    FoodId = fDto.FoodId,
-                    Name = fDto.Name,
-                    Price = (double)fDto.Price, // Ép kiểu an toàn
-                    Description = fDto.Description ?? string.Empty
-                }).ToList() ?? new()
+                FoodId = fDto.FoodId,
+                Name = fDto.Name,
+                Price = (double)fDto.Price,
+                Description = fDto.Description ?? string.Empty
             }).ToList() ?? new()
+        }).ToList() ?? new()
         };
 
         private static Narration MapToNarration(NarrationDto dto) => new()
@@ -188,6 +200,7 @@ namespace client.lib.services
         public string Name { get; set; } = string.Empty;
         public string? Address { get; set; }
         public string? Description { get; set; }
+        public bool IsLocked { get; set; }
         public List<FoodDto>? Foods { get; set; }
     }
 

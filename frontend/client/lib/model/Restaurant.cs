@@ -18,6 +18,8 @@ namespace client.lib.model
 
         [JsonPropertyName("description")]
         public string? Description { get; set; }
+        [JsonPropertyName("IsLocked")]
+        public bool IsLocked { get; set; }
 
         [JsonPropertyName("foods")]
         public List<Food> Foods { get; set; } = new();

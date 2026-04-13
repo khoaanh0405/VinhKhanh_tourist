@@ -1,12 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════
-//  FILE: AudioService.cs
-//  Namespace: client.lib.services
-//  Mô tả: Service quản lý toàn bộ vòng đời audio của ứng dụng.
-//         Hỗ trợ: Stream URL, TTS đa ngôn ngữ (vi/en/ko), Pause/Resume.
-//         Không phụ thuộc GPS.
-// ═══════════════════════════════════════════════════════════════════
-
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Media;
 using Plugin.Maui.Audio;
@@ -38,18 +30,6 @@ namespace client.lib.services
         {
             _audioManager = audioManager;
         }
-
-        // ═══════════════════════════════════════════════════════════════
-        // 🔥 FIX #11: INIT TTS AN TOÀN KHI OFFLINE
-        // ═══════════════════════════════════════════════════════════════
-        // NGUYÊN NHÂN LỖI CŨ:
-        //   - InitializeAsync gọi GetLocalesAsync() — hàm này CÓ THỂ throw trên một số thiết bị
-        //   - Nếu throw → _isInitialized vẫn = false → mọi lần gọi SpeakAsync đều gọi lại Init → loop lỗi
-        //
-        // FIX MỚI:
-        //   - Đặt _isInitialized = true TRƯỚC khi gọi GetLocalesAsync
-        //   - Nếu GetLocalesAsync fail → vẫn đánh dấu đã init, TTS sẽ dùng default locale của hệ thống
-        // ═══════════════════════════════════════════════════════════════
         public async Task InitializeAsync()
         {
             if (_isInitialized) return;
@@ -95,7 +75,7 @@ namespace client.lib.services
                     //   - Kết hợp với kiểm tra mạng ở PlayNarrationAsync → HTTP call chỉ xảy ra khi có mạng
                     // ═══════════════════════════════════════════════════════════════
                     using var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
-                    audioStream = await httpClient.GetStreamAsync(url);
+                    audioStream = await Task.Run(() => httpClient.GetStreamAsync(url));
                 }
                 else
                 {

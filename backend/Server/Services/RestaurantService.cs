@@ -11,88 +11,88 @@ namespace Server.Services
 		Task<RestaurantDto?> GetMyAsync(int managerUserId);
 		Task<RestaurantDto?> UpdateMyAsync(int managerUserId, UpdateRestaurantRequest req);
 		Task<bool> AssignManagerAsync(int restaurantId, int managerUserId);
-	}
+        Task<bool> ToggleLockAsync(int restaurantId);
+    }
 
-	public class RestaurantService : IRestaurantService
-	{
-		private readonly AppDbContext _db;
+    public class RestaurantService : IRestaurantService
+    {
+        private readonly AppDbContext _db;
+        public RestaurantService(AppDbContext db) => _db = db;
 
-		public RestaurantService(AppDbContext db) => _db = db;
+        // 1. Cập nhật GetAllAsync: Thêm r.IsLocked vào Constructor (Tham số thứ 10)
+        public async Task<List<RestaurantDto>> GetAllAsync()
+            => await _db.Restaurants
+                .Include(r => r.Manager)
+                .Include(r => r.POI)
+                .Select(r => new RestaurantDto(
+                    r.RestaurantId,
+                    r.Name,
+                    r.Address,
+                    r.Description,
+                    r.PoiId,
+                    r.ManagerUserId,
+                    r.Manager != null ? r.Manager.DisplayName : null,
+                    r.POI != null ? r.POI.Latitude : 0,
+                    r.POI != null ? r.POI.Longitude : 0,
+                    r.IsLocked // 🔥 THÊM: Tham số thứ 10
+                ))
+                .ToListAsync();
 
-		// 1. Hàm lấy TẤT CẢ quán ăn (Dành cho Admin)
-		public async Task<List<RestaurantDto>> GetAllAsync()
-			=> await _db.Restaurants
-				.Include(r => r.Manager)
-				.Include(r => r.POI)
-				.Select(r => new RestaurantDto(
-					r.RestaurantId,
-					r.Name,
-					r.Address,
-					r.Description,
-					r.PoiId,
-					r.ManagerUserId,
-					r.Manager != null ? r.Manager.DisplayName : null,
-					r.POI != null ? r.POI.Latitude : 0,
-					r.POI != null ? r.POI.Longitude : 0
-				))
-				.ToListAsync();
+        // 2. Cập nhật GetMyAsync: Thêm r.IsLocked vào kết quả trả về
+        public async Task<RestaurantDto?> GetMyAsync(int userId)
+        {
+            var r = await _db.Restaurants
+                .Include(x => x.Manager)
+                .Include(x => x.POI)
+                .FirstOrDefaultAsync(x => x.ManagerUserId == userId);
 
-		// 2. Hàm lấy quán ăn CỦA RIÊNG MANAGER
-		public async Task<RestaurantDto?> GetMyAsync(int userId)
-		{
-			// 👇 Đã sửa _context thành _db ở đây 👇
-			var r = await _db.Restaurants
-				.Include(x => x.Manager)
-				.Include(x => x.POI)
-				.FirstOrDefaultAsync(x => x.ManagerUserId == userId);
+            if (r == null) return null;
 
-			if (r == null) return null;
+            return new RestaurantDto(
+                r.RestaurantId, r.Name, r.Address, r.Description, r.PoiId,
+                r.ManagerUserId, r.Manager != null ? r.Manager.DisplayName : null,
+                r.POI != null ? r.POI.Latitude : 0, r.POI != null ? r.POI.Longitude : 0,
+                r.IsLocked // 🔥 THÊM
+            );
+        }
 
-			return new RestaurantDto(
-				r.RestaurantId,
-				r.Name,
-				r.Address,
-				r.Description,
-				r.PoiId,
-				r.ManagerUserId,
-				r.Manager != null ? r.Manager.DisplayName : null,
-				r.POI != null ? r.POI.Latitude : 0,
-				r.POI != null ? r.POI.Longitude : 0
-			);
-		}
+        // 3. Cập nhật UpdateMyAsync
+        public async Task<RestaurantDto?> UpdateMyAsync(int managerUserId, UpdateRestaurantRequest req)
+        {
+            var r = await _db.Restaurants
+                .Include(x => x.Manager)
+                .Include(x => x.POI)
+                .Where(res => res.ManagerUserId == managerUserId)
+                .FirstOrDefaultAsync();
 
-		// 3. Hàm Cập nhật quán ăn
-		public async Task<RestaurantDto?> UpdateMyAsync(int managerUserId, UpdateRestaurantRequest req)
-		{
-			var r = await _db.Restaurants
-				.Include(x => x.Manager) // Include thêm Manager
-				.Include(x => x.POI)     // Include thêm POI để lấy tọa độ
-				.Where(res => res.ManagerUserId == managerUserId)
-				.FirstOrDefaultAsync();
+            if (r == null) return null;
 
-			if (r == null) return null;
+            r.Name = req.Name;
+            r.Address = req.Address;
+            r.Description = req.Description;
+            await _db.SaveChangesAsync();
 
-			r.Name = req.Name;
-			r.Address = req.Address;
-			r.Description = req.Description;
-			await _db.SaveChangesAsync();
+            return new RestaurantDto(
+                r.RestaurantId, r.Name, r.Address, r.Description, r.PoiId,
+                r.ManagerUserId, r.Manager != null ? r.Manager.DisplayName : null,
+                r.POI != null ? r.POI.Latitude : 0, r.POI != null ? r.POI.Longitude : 0,
+                r.IsLocked // 🔥 THÊM
+            );
+        }
 
-			// 👇 Đã cập nhật lên 9 tham số ở đây 👇
-			return new RestaurantDto(
-				r.RestaurantId,
-				r.Name,
-				r.Address,
-				r.Description,
-				r.PoiId,
-				r.ManagerUserId,
-				r.Manager != null ? r.Manager.DisplayName : null,
-				r.POI != null ? r.POI.Latitude : 0,
-				r.POI != null ? r.POI.Longitude : 0
-			);
-		}
+        // 4. 🔥 TRIỂN KHAI HÀM MỚI: ToggleLockAsync
+        public async Task<bool> ToggleLockAsync(int restaurantId)
+        {
+            var restaurant = await _db.Restaurants.FindAsync(restaurantId);
+            if (restaurant == null) return false;
 
-		// 4. Hàm Gán quản lý
-		public async Task<bool> AssignManagerAsync(int restaurantId, int managerUserId)
+            restaurant.IsLocked = !restaurant.IsLocked;
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        // 4. Hàm Gán quản lý
+        public async Task<bool> AssignManagerAsync(int restaurantId, int managerUserId)
 		{
 			var user = await _db.Users.FindAsync(managerUserId);
 			if (user == null || user.Role != "Manager") return false;
