@@ -31,7 +31,6 @@
                         <thead class="table-light">
                             <tr>
                                 <th>Người dùng</th>
-                                <th>Địa điểm</th>
                                 <th>Đánh giá</th>
                                 <th style="width: 40%;">Nội dung</th>
                                 <th>Ngày tạo</th>
@@ -42,8 +41,9 @@
                             @foreach (var r in reviews)
                             {
                                 <tr class="@(r.IsHidden ? "table-secondary opacity-75" : "")">
-                                    <td><strong>@r.UserName</strong></td>
-                                    <td><span class="badge bg-info text-dark">@r.PoiName</span></td>
+                                    @* 👇 SỬ DỤNG HÀM TÌM TÊN ĐỂ HIỂN THỊ 👇 *@
+                                    <td><strong>@GetUserName(r.UserId)</strong></td>
+
                                     <td>
                                         @for (int i = 1; i <= 5; i++)
                                         {
@@ -86,23 +86,45 @@
     private List<ReviewVM>? reviews;
     private string searchTerm = "";
 
-    // 👇 SỬA CHỖ NÀY: Dùng OnParametersSetAsync thay cho OnInitializedAsync
-    // Hàm này sẽ chạy lại mỗi khi cái poiId trên URL thay đổi
+    // 👇 1. TẠO 2 CÁI TỪ ĐIỂN ĐỂ LƯU MAP (ID -> TÊN) 👇
+    private Dictionary<int, string> userNames = new();
+    private Dictionary<int, string> poiNames = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Khi mở trang, gọi data map 1 lần duy nhất
+        await LoadMappingData();
+    }
+
     protected override async Task OnParametersSetAsync()
     {
         await LoadReviews();
     }
 
+    // 👇 2. HÀM TẢI TỪ ĐIỂN 👇
+    private async Task LoadMappingData()
+    {
+        try
+        {
+            // Lấy danh sách Users (Nhớ check lại đường link API User của team bạn)
+            var users = await Http.GetFromJsonAsync<List<UserDto>>("api/User");
+            if (users != null)
+                userNames = users.ToDictionary(u => u.UserId, u => u.DisplayName);
+        }
+        catch
+        {
+            // Nếu API chưa sẵn sàng thì web cũng không bị sập
+        }
+    }
+
+    // 👇 3. HÀM LẤY TÊN TỪ TỪ ĐIỂN 👇
+    private string GetUserName(int id) => userNames.TryGetValue(id, out var name) ? name : $"User #{id}";
+    private string GetPoiName(int id) => poiNames.TryGetValue(id, out var name) ? name : $"POI #{id}";
+
     private async Task LoadReviews()
     {
-        // Tạo URL gọi API
         string url = $"api/Review?search={Uri.EscapeDataString(searchTerm)}";
-
-        // Gửi poiId lên Server để lọc
-        if (poiId.HasValue && poiId > 0)
-        {
-            url += $"&poiId={poiId.Value}";
-        }
+        if (poiId.HasValue && poiId > 0) url += $"&poiId={poiId.Value}";
 
         reviews = await Http.GetFromJsonAsync<List<ReviewVM>>(url);
     }
@@ -123,16 +145,19 @@
         if (res.IsSuccessStatusCode) reviews?.Remove(r);
     }
 
+    // 👇 4. CLASS NHẬN DATA MỚI TỪ BACKEND (CHỈ CÓ ID) 👇
     public class ReviewVM
     {
         public int ReviewId { get; set; }
-        public string UserName { get; set; } = "";
+        public int UserId { get; set; } // Đổi thành UserId
+        public int PoiId { get; set; }  // Đổi thành PoiId
         public int Rating { get; set; }
         public string? Comment { get; set; }
         public bool IsHidden { get; set; }
         public DateTime CreatedAt { get; set; }
-        public string? PoiName => POI?.Name;
-        public POIDto? POI { get; set; }
     }
-    public class POIDto { public string Name { get; set; } = ""; }
+
+    // Class phụ để hứng data cho cuốn Từ điển
+    public class UserDto { public int UserId { get; set; } public string DisplayName { get; set; } = ""; }
+    public class PoiDto { public int PoiId { get; set; } public string Name { get; set; } = ""; }
 }

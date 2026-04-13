@@ -10,7 +10,7 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 // 1. CẤU HÌNH ĐỊA CHỈ BACKEND (⚠️ Sửa cổng 7284 thành cổng Swagger Backend của bạn)
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(" https://sln71gls-7284.asse.devtunnels.ms") });
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("YOUR_DEV_TUNNEL_KEY") });
 
 // 2. ĐĂNG KÝ BẢO MẬT & LOCALSTORAGE
 builder.Services.AddBlazoredLocalStorage();

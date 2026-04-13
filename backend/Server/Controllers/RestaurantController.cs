@@ -35,8 +35,31 @@ namespace Server.Controllers
 			return Ok(results);
 		}
 
-		// 👇 ĐÂY LÀ HÀM MỚI THÊM: Lấy 1 quán ăn kèm tọa độ để load lên Form Sửa 👇
-		[HttpGet("{id}")]
+		// 👇 Đã đưa hàm "my" lên trên hàm "{id}" để tránh lỗi 404 Not Found 👇
+		[HttpGet("my")]
+		[Authorize(Roles = "Manager")]
+		public async Task<IActionResult> GetMy()
+		{
+			var userId = GetCurrentUserId();
+			if (userId == 0) return Unauthorized(new { message = "Không xác định được người dùng." });
+
+			// Backend vẫn tìm ra 1 quán
+			var result = await _service.GetMyAsync(userId);
+
+			if (result == null)
+			{
+				// Thay vì báo lỗi 404, trả về một MẢNG RỖNG để Frontend không bị lỗi
+				return Ok(new List<object>());
+			}
+
+			// 👇 CHỖ QUAN TRỌNG NHẤT 👇
+			// Gói cái kết quả (Object) vào trong một cái Danh sách (List) 
+			// để Frontend đọc được bằng vòng lặp foreach
+			return Ok(new List<object> { result });
+		}
+
+		// Thêm :int vào {id} để hệ thống phân biệt được đâu là chữ "my", đâu là ID số
+		[HttpGet("{id:int}")]
 		[Authorize(Roles = "Admin, Manager")]
 		public async Task<IActionResult> GetRestaurantById(int id)
 		{
@@ -66,18 +89,15 @@ namespace Server.Controllers
 		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> AssignManager(int id, [FromBody] AssignManagerRequest req)
 		{
-			// Tìm quán ăn trực tiếp trong DB
 			var restaurant = await _context.Restaurants.FindAsync(id);
 			if (restaurant == null) return NotFound(new { message = "Không tìm thấy quán ăn." });
 
 			if (req.ManagerUserId <= 0)
 			{
-				// Nếu ID <= 0 -> Hiểu là muốn GỠ chủ quán (đặt về null)
 				restaurant.ManagerUserId = null;
 			}
 			else
 			{
-				// Nếu ID > 0 -> Kiểm tra xem Manager có đang quản lý quán nào khác không
 				bool isAlreadyManaging = await _context.Restaurants
 					.AnyAsync(r => r.ManagerUserId == req.ManagerUserId && r.RestaurantId != id);
 
@@ -91,17 +111,6 @@ namespace Server.Controllers
 			return NoContent();
 		}
 
-		[HttpGet("my")]
-		[Authorize(Roles = "Manager")]
-		public async Task<IActionResult> GetMy()
-		{
-			var userId = GetCurrentUserId();
-			var result = await _service.GetMyAsync(userId);
-			if (result == null)
-				return NotFound(new { message = "Bạn chưa được gán quản lý nhà hàng nào." });
-			return Ok(result);
-		}
-
 		[HttpPut("my")]
 		[Authorize(Roles = "Manager")]
 		public async Task<IActionResult> UpdateMy([FromBody] UpdateRestaurantRequest req)
@@ -112,9 +121,12 @@ namespace Server.Controllers
 			return Ok(result);
 		}
 
+		// 👇 Đã gộp thành 1 hàm GetCurrentUserId duy nhất, không còn lỗi trùng lặp 👇
 		private int GetCurrentUserId()
 		{
-			var userIdClaim = User.FindFirst("sub")?.Value;
+			var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+							 ?? User.FindFirst("sub")?.Value;
+
 			return int.TryParse(userIdClaim, out var id) ? id : 0;
 		}
 
@@ -200,16 +212,16 @@ namespace Server.Controllers
 		}
 
 		[HttpPut("{id}/toggle-lock")]
-		[Authorize(Roles = "Admin")] // Chỉ Admin mới có quyền khóa quán
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> ToggleLock(int id)
 		{
 			var restaurant = await _context.Restaurants.FindAsync(id);
 			if (restaurant == null) return NotFound(new { message = "Không tìm thấy quán ăn" });
 
-			restaurant.IsLocked = !restaurant.IsLocked; // Đảo ngược trạng thái
+			restaurant.IsLocked = !restaurant.IsLocked;
 			await _context.SaveChangesAsync();
 
 			return Ok(new { isLocked = restaurant.IsLocked });
 		}
 	}
-}	
+}
