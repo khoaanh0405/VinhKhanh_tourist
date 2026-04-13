@@ -9,6 +9,7 @@
 @inject IJSRuntime JS
 @inject VinhKhanh.WebAdmin.Services.IFoodTranslationService TransService
 @inject VinhKhanh.WebAdmin.Services.ILanguageService LanguageService
+@inject HttpClient Http
 <style>
     /* Khung bọc ngoài thanh tìm kiếm - Tông màu xanh lá cho phần Thực đơn */
     .custom-search-box {
@@ -123,6 +124,11 @@
             <div class="modal-content border-info shadow-lg">
                 <div class="modal-header bg-info text-dark">
                     <h5 class="modal-title fw-bold"><i class="bi bi-translate"></i> Dịch Món: @selectedFoodName</h5>
+                    <div class="ms-auto me-2">
+                        <button class="btn btn-sm btn-dark fw-bold shadow-sm" @onclick="AutoTranslateFood" disabled="@isTranslating">
+                            <i class="bi bi-magic"></i> @(isTranslating ? "Đang dịch..." : "Dịch tự động bằng AI")
+                        </button>
+                    </div>
                     <button type="button" class="btn-close" @onclick="() => showTransModal = false"></button>
                 </div>
                 <div class="modal-body p-4">
@@ -373,13 +379,10 @@
     {
         selectedFoodId = f.FoodId;
         selectedFoodName = f.Name;
+        originalFoodDescription = f.Description ?? ""; // Lưu lại mô tả gốc
 
-        // 👇 TẠO DANH SÁCH LỌC BỎ TIẾNG VIỆT (Mã "vi")
         var transLangs = availableLanguages.Where(l => l.LanguageCode.ToLower() != "vi").ToList();
-
-        // Lấy ngôn ngữ đầu tiên trong danh sách ĐÃ LỌC
         string firstLang = transLangs.FirstOrDefault()?.LanguageCode ?? "en";
-
         newTrans = new CreateFoodTranslationReq(f.FoodId, firstLang, "", "");
 
         await LoadTranslations();
@@ -424,4 +427,51 @@
             await LoadTranslations();
         }
     }
+    // 1. Thêm biến trạng thái để hiện vòng xoay khi đang dịch
+    private bool isTranslating = false;
+    private string originalFoodDescription = ""; // Để lưu mô tả gốc khi mở modal
+
+    // 2. Hàm xử lý dịch tự động
+    private async Task AutoTranslateFood()
+    {
+        // Kiểm tra xem món ăn có tên chưa
+        if (string.IsNullOrWhiteSpace(selectedFoodName))
+        {
+            await JS.InvokeVoidAsync("alert", "Không tìm thấy tên món ăn để dịch!");
+            return;
+        }
+
+        if (!await JS.InvokeAsync<bool>("confirm", "Hệ thống sẽ tự động dịch Tên và Mô tả sang các ngôn ngữ khác. Bạn có chắc chắn?")) return;
+
+        isTranslating = true;
+        try
+        {
+            // Gọi API dịch tự động (Bạn cần đảm bảo Backend đã có endpoint này)
+            // Truyền cả Name và Description gốc sang
+            var response = await Http.PostAsJsonAsync($"api/Translate/auto-food/{selectedFoodId}", new
+            {
+                Name = selectedFoodName,
+                Description = originalFoodDescription
+            });
+
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadTranslations(); // Tải lại bảng danh sách bản dịch
+                await JS.InvokeVoidAsync("alert", "Tự động dịch món ăn thành công!");
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("alert", "Lỗi dịch tự động từ Server!");
+            }
+        }
+        catch
+        {
+            await JS.InvokeVoidAsync("alert", "Lỗi kết nối máy chủ!");
+        }
+        finally
+        {
+            isTranslating = false;
+        }
+    }
+
 }
