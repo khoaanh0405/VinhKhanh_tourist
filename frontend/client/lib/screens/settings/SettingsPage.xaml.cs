@@ -191,6 +191,16 @@ public partial class SettingsPage : ContentPage
                                 // Tránh lưu trùng lặp nếu API lỡ trả về dữ liệu giống nhau
                                 if (!localNarrations.Any(ln => ln.LanguageCode == n.LanguageCode))
                                 {
+
+                                    string finalAudioUrl = n.AudioUrl;
+
+                                    // BỔ SUNG: Kiểm tra xem có dùng file âm thanh và là link Online không
+                                    if (n.UseAudioFile && !string.IsNullOrEmpty(n.AudioUrl))
+                                    {
+                                        // Thực hiện tải file ngầm và lấy đường dẫn lưu trên máy
+                                        finalAudioUrl = await DownloadAudioFileAsync(n.AudioUrl, n.NarrationId, n.LanguageCode);
+                                    }
+
                                     localNarrations.Add(new NarrationLocal
                                     {
                                         PoiId = localPoi.PoiId,
@@ -216,5 +226,44 @@ public partial class SettingsPage : ContentPage
         {
             await DisplayAlert("Lỗi", $"Không thể đồng bộ: {ex.Message}", "OK");
         }
+    }
+
+    private async Task<string> DownloadAudioFileAsync(string url, int narrationId, string langCode)
+    {
+        // Nếu không có URL hoặc đã là file local rồi thì bỏ qua
+        if (string.IsNullOrEmpty(url) || !url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            return url;
+
+        try
+        {
+            using var httpClient = new HttpClient();
+            var response = await httpClient.GetAsync(url);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var fileBytes = await response.Content.ReadAsByteArrayAsync();
+
+                // Tạo tên file duy nhất dựa trên ID và Ngôn ngữ
+                string fileName = $"narration_{narrationId}_{langCode}.mp3";
+
+                // Đường dẫn an toàn trong bộ nhớ nội bộ của App
+                string localPath = Path.Combine(FileSystem.AppDataDirectory, fileName);
+
+                // Lưu file xuống máy
+                await File.WriteAllBytesAsync(localPath, fileBytes);
+
+                System.Diagnostics.Debug.WriteLine($"[Sync] Đã tải xong: {fileName}");
+
+                // Trả về đường dẫn cục bộ để lưu vào SQLite
+                return localPath;
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Sync Error] Lỗi tải file âm thanh {url}: {ex.Message}");
+        }
+
+        // Nếu tải thất bại, trả về URL cũ làm fallback (để dùng online nếu có mạng)
+        return url;
     }
 }

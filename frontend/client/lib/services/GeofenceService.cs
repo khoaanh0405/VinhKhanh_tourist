@@ -174,27 +174,44 @@ namespace client.lib.services
                     currentLoc.Latitude, currentLoc.Longitude,
                     nearestPoi.Latitude, nearestPoi.Longitude, DistanceUnits.Kilometers) * 1000;
 
-                if (distanceInMeters <= 20)
+                // 1. Logic khi ĐANG KHÔNG Ở TRONG QUÁN NÀO (Tìm quán để vào)
+                if (CurrentActivePOI == null)
                 {
-                    if (CurrentActivePOI == null || CurrentActivePOI.PoiId != nearestPoi.PoiId)
+                    if (distanceInMeters <= 20) // Ngưỡng vào: 20 mét
                     {
-                        System.Diagnostics.Debug.WriteLine($"!!! VÀO VÙNG QUÁN MỚI: {nearestPoi.Name} (Cách {distanceInMeters:F1}m) | Narrations={nearestPoi.Narrations?.Count ?? 0}");
-
+                        System.Diagnostics.Debug.WriteLine($"!!! VÀO VÙNG QUÁN MỚI: {nearestPoi.Name} (Cách {distanceInMeters:F1}m)");
                         MainThread.BeginInvokeOnMainThread(() =>
                         {
                             CurrentActivePOI = nearestPoi;
                         });
                     }
                 }
+                // 2. Logic khi ĐANG Ở TRONG MỘT QUÁN (Kiểm tra xem đã thực sự ra khỏi quán chưa)
                 else
                 {
-                    if (CurrentActivePOI != null)
+                    // Nếu quán gần nhất đo được vẫn là quán đang active
+                    if (CurrentActivePOI.PoiId == nearestPoi.PoiId)
                     {
-                        System.Diagnostics.Debug.WriteLine($"!!! ĐÃ ĐI RA KHỎI KHU VỰC QUÁN (Cách {distanceInMeters:F1}m) -> TẮT PLAYER");
-                        MainThread.BeginInvokeOnMainThread(() =>
+                        if (distanceInMeters > 30) // Ngưỡng thoát: 30 mét (Tạo vùng đệm 10m chống nhiễu GPS)
                         {
-                            CurrentActivePOI = null;
-                        });
+                            System.Diagnostics.Debug.WriteLine($"!!! ĐÃ ĐI RA KHỎI KHU VỰC QUÁN {CurrentActivePOI.Name} (Cách {distanceInMeters:F1}m) -> TẮT PLAYER");
+                            MainThread.BeginInvokeOnMainThread(() =>
+                            {
+                                CurrentActivePOI = null;
+                            });
+                        }
+                    }
+                    // Trường hợp hệ thống nhận diện một quán MỚI nằm sát quán cũ (chuyển quán)
+                    else
+                    {
+                        if (distanceInMeters <= 20)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"!!! CHUYỂN SANG VÙNG QUÁN KHÁC: {nearestPoi.Name} (Cách {distanceInMeters:F1}m)");
+                            MainThread.BeginInvokeOnMainThread(() =>
+                            {
+                                CurrentActivePOI = nearestPoi;
+                            });
+                        }
                     }
                 }
             }
