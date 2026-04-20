@@ -17,43 +17,35 @@
         background-color: #f8f9fa;
         overflow: hidden;
     }
-
-        .custom-search-box:hover {
-            border-color: #86b7fe;
-            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
-            background-color: #fff;
-        }
-
-        .custom-search-box:focus-within {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-            background-color: #fff;
-        }
-
-        .custom-search-box .form-control {
-            border: none;
-            box-shadow: none;
-            background: transparent;
-        }
-
-        .custom-search-box .input-group-text {
-            border: none;
-            background: transparent;
-            color: #6c757d;
-        }
-
-        .custom-search-box:focus-within .input-group-text {
-            color: #0d6efd;
-        }
-
-    /* Làm đẹp giao diện bảng */
+    .custom-search-box:hover {
+        border-color: #86b7fe;
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+        background-color: #fff;
+    }
+    .custom-search-box:focus-within {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        background-color: #fff;
+    }
+    .custom-search-box .form-control {
+        border: none;
+        box-shadow: none;
+        background: transparent;
+    }
+    .custom-search-box .input-group-text {
+        border: none;
+        background: transparent;
+        color: #6c757d;
+    }
+    .custom-search-box:focus-within .input-group-text {
+        color: #0d6efd;
+    }
     .table-custom-row {
         transition: background-color 0.2s ease;
     }
-
-        .table-custom-row:hover {
-            background-color: #f1f8ff !important;
-        }
+    .table-custom-row:hover {
+        background-color: #f1f8ff !important;
+    }
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -77,27 +69,26 @@ else
     <div class="card shadow-sm border-0 rounded-3">
         <div class="card-body p-4">
             <AuthorizeView Context="adminContext" Roles="Admin">
-            <div class="row mb-4">
-                <div class="col-md-6 col-lg-5">
-                    <div class="input-group custom-search-box px-3 py-2 shadow-sm">
-                        <span class="input-group-text"><i class="bi bi-search fs-5"></i></span>
-                        <input type="text" class="form-control fs-6"
-                               placeholder="Tìm kiếm tên quán ăn..."
-                               @bind="searchRestaurantString" @bind:event="oninput" />
+                <div class="row mb-4">
+                    <div class="col-md-6 col-lg-5">
+                        <div class="input-group custom-search-box px-3 py-2 shadow-sm">
+                            <span class="input-group-text"><i class="bi bi-search fs-5"></i></span>
+                            <input type="text" class="form-control fs-6"
+                                   placeholder="Tìm kiếm tên quán ăn..."
+                                   @bind="searchRestaurantString" @bind:event="oninput" />
+                        </div>
                     </div>
                 </div>
-            </div>
             </AuthorizeView>
             <div class="table-responsive">
                 <table class="table align-middle">
                     <thead class="table-light">
                         <tr>
                             <th class="text-center" style="width: 80px;">ID</th>
-                            <th style="width: 20%;">Thông tin Quán</th>
-                            <th style="width: 15%;">Trạng thái</th>
-                            <th style="width: 15%;">Chủ quán</th>
-                            <th style="width: 20%;">Địa chỉ</th>
-                            <th class="text-end" style="min-width: 450px;">Bảng điều khiển</th>
+                            <th style="width: 25%;">Thông Quán (Kèm POI)</th>
+                            <th style="width: 20%;">Chủ quán</th>
+                            <th style="width: 25%;">Địa chỉ</th>
+                            <th class="text-end" style="min-width: 350px;">Bảng điều khiển</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -105,24 +96,12 @@ else
                         {
                             @foreach (var r in filteredRestaurants)
                             {
-                                <tr class="table-custom-row @(r.IsLocked ? "opacity-75 bg-light" : "")" style="border-bottom: 1px solid #eee;">
+                                <tr class="table-custom-row" style="border-bottom: 1px solid #eee;">
                                     <td class="text-center fw-bold text-secondary">#@r.RestaurantId</td>
-
                                     <td>
                                         <div class="fw-bold fs-6 text-dark">@r.Name</div>
+                                        <div class="small text-muted"><i class="bi bi-geo-alt"></i> POI ID: @r.PoiId</div>
                                     </td>
-
-                                    <td>
-                                        @if (r.IsLocked)
-                                        {
-                                            <span class="badge bg-secondary px-3 py-2 rounded-pill"><i class="bi bi-lock-fill me-1"></i> Tạm khóa</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-success px-3 py-2 rounded-pill"><i class="bi bi-shop me-1"></i> Hoạt động</span>
-                                        }
-                                    </td>
-
                                     <td>
                                         @if (string.IsNullOrEmpty(r.ManagerName))
                                         {
@@ -133,16 +112,11 @@ else
                                             <div class="fw-bold text-primary"><i class="bi bi-person-circle me-1"></i> @r.ManagerName</div>
                                         }
                                     </td>
-
                                     <td>
                                         <div class="text-wrap" style="max-width: 250px;">@r.Address</div>
-                                        <small class="text-muted"><i class="bi bi-geo-alt-fill text-danger me-1"></i>@r.Latitude, @r.Longitude</small>
                                     </td>
-
                                     <td class="text-end">
                                         <div class="d-flex flex-column gap-2 align-items-end">
-
-                                            @* NHÓM 1: CÁC CHỨC NĂNG NỘI DUNG (Admin và Manager đều thấy) *@
                                             <div class="d-flex gap-2 justify-content-end flex-wrap">
                                                 <button class="btn btn-sm btn-info text-white fw-bold shadow-sm" @onclick="() => GoToMenu(r.RestaurantId)">
                                                     <i class="bi bi-card-list me-1"></i> Thực đơn
@@ -150,43 +124,21 @@ else
                                                 <button class="btn btn-sm btn-dark fw-bold shadow-sm" @onclick="() => GoToQR(r.RestaurantId)">
                                                     <i class="bi bi-qr-code me-1"></i> Mã QR
                                                 </button>
-                                                <button class="btn btn-sm btn-success fw-bold shadow-sm" @onclick="() => GoToReviews(r.PoiId)">
-                                                    <i class="bi bi-star-fill text-warning me-1"></i> Đánh giá
-                                                </button>
-
-                                                @* 👇 NÚT SỬA ĐÃ ĐƯỢC CHUYỂN LÊN ĐÂY 👇 *@
                                                 <button class="btn btn-sm btn-primary fw-bold shadow-sm" @onclick="() => GoToEdit(r.RestaurantId)">
                                                     <i class="bi bi-pencil-square me-1"></i> Sửa
                                                 </button>
                                             </div>
 
-                                            @* NHÓM 2: CÁC CHỨC NĂNG QUẢN TRỊ (Chỉ Admin mới thấy) *@
                                             <AuthorizeView Context="adminContext" Roles="Admin">
                                                 <div class="d-flex gap-2 justify-content-end flex-wrap mt-1">
-
-                                                    @if (r.IsLocked)
-                                                    {
-                                                        <button class="btn btn-sm btn-outline-success fw-bold bg-white" @onclick="() => ToggleLockRestaurant(r)">
-                                                            <i class="bi bi-unlock-fill me-1"></i> Mở khóa
-                                                        </button>
-                                                    }
-                                                    else
-                                                    {
-                                                        <button class="btn btn-sm btn-outline-secondary fw-bold bg-white" @onclick="() => ToggleLockRestaurant(r)">
-                                                            <i class="bi bi-lock-fill me-1"></i> Khóa quán
-                                                        </button>
-                                                    }
-
                                                     <button class="btn btn-sm btn-warning fw-bold text-dark shadow-sm" @onclick="() => OpenAssignModal(r)">
                                                         <i class="bi bi-person-lines-fill me-1"></i> Gán chủ
                                                     </button>
-
                                                     <button class="btn btn-sm btn-outline-danger fw-bold bg-white" @onclick="() => DeleteRestaurant(r.RestaurantId)">
                                                         <i class="bi bi-trash3-fill me-1"></i> Xóa
                                                     </button>
                                                 </div>
                                             </AuthorizeView>
-
                                         </div>
                                     </td>
                                 </tr>
@@ -195,7 +147,7 @@ else
                         else
                         {
                             <tr>
-                                <td colspan="6" class="text-center text-muted p-5">
+                                <td colspan="5" class="text-center text-muted p-5">
                                     <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                                     Không tìm thấy quán ăn nào phù hợp với tìm kiếm của bạn.
                                 </td>
@@ -208,15 +160,10 @@ else
     </div>
 }
 
-@* ================================================================ *@
-@* CÁC MODAL BÊN DƯỚI GIỮ NGUYÊN HOÀN TOÀN LOGIC, CHỈ CHỈNH LẠI UI ĐẸP *@
-@* ================================================================ *@
-
-@* 👇 Vẫn giữ Modal này để dùng cho tính năng "THÊM MỚI" 👇 *@
 @if (showEditModal)
 {
     <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6); backdrop-filter: blur(2px);">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content shadow-lg border-0 rounded-4">
                 <div class="modal-header text-white bg-success border-0 rounded-top-4">
                     <h5 class="modal-title fw-bold">
@@ -226,45 +173,24 @@ else
                 </div>
                 <div class="modal-body p-4 bg-light">
                     <EditForm Model="editingRes" OnValidSubmit="HandleSubmit">
-                        <div class="card border-0 shadow-sm mb-3">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Tên Quán ăn <span class="text-danger">*</span></label>
+                            <InputText @bind-Value="editingRes.Name" class="form-control form-control-lg" placeholder="Nhập tên quán..." required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Địa chỉ <span class="text-danger">*</span></label>
+                            <InputText @bind-Value="editingRes.Address" class="form-control form-control-lg" placeholder="Nhập địa chỉ..." required />
+                        </div>
+                        
+                        <div class="card border-0 shadow-sm mb-3 border-start border-4 border-info">
                             <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-bold text-muted">Tên Quán ăn <span class="text-danger">*</span></label>
-                                        <InputText @bind-Value="editingRes.Name" class="form-control form-control-lg" placeholder="Nhập tên quán..." required />
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-bold text-muted">Địa chỉ <span class="text-danger">*</span></label>
-                                        <InputText @bind-Value="editingRes.Address" class="form-control form-control-lg" placeholder="Nhập địa chỉ..." required />
-                                    </div>
-                                </div>
+                                <label class="form-label fw-bold text-muted mb-1"><i class="bi bi-geo-alt-fill text-info me-1"></i> ID Địa điểm (POI ID)</label>
+                                <InputNumber @bind-Value="editingRes.PoiId" class="form-control form-control-lg" required />
+                                <small class="text-muted d-block mt-2 fst-italic">Liên kết quán này với một POI trên bản đồ thông qua ID.</small>
                             </div>
                         </div>
 
-                        <div class="card border-0 shadow-sm mb-3 border-start border-4 border-danger">
-                            <div class="card-body">
-                                <h6 class="text-danger fw-bold mb-3"><i class="bi bi-geo-alt-fill me-1"></i>Tọa độ trên Bản đồ GPS</h6>
-                                <div class="row">
-                                    <div class="col-md-6 mb-2">
-                                        <label class="form-label fw-bold text-muted">Vĩ độ (Latitude)</label>
-                                        <InputNumber @bind-Value="editingRes.Latitude" class="form-control" step="any" required />
-                                    </div>
-                                    <div class="col-md-6 mb-2">
-                                        <label class="form-label fw-bold text-muted">Kinh độ (Longitude)</label>
-                                        <InputNumber @bind-Value="editingRes.Longitude" class="form-control" step="any" required />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card border-0 shadow-sm mb-4">
-                            <div class="card-body">
-                                <label class="form-label fw-bold text-muted">Mô tả chi tiết Quán</label>
-                                <InputTextArea @bind-Value="editingRes.Description" class="form-control" rows="3" placeholder="Giới thiệu về quán..." />
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-end gap-2">
+                        <div class="d-flex justify-content-end gap-2 mt-4">
                             <button type="button" class="btn btn-light border fw-bold px-4" @onclick="() => showEditModal = false">Hủy bỏ</button>
                             <button type="submit" class="btn btn-success fw-bold px-5 shadow-sm">
                                 <i class="bi bi-floppy-fill me-1"></i> Lưu Dữ Liệu
@@ -325,8 +251,7 @@ else
 
                     <div class="d-flex justify-content-end gap-2 border-top pt-3">
                         <button class="btn btn-light border fw-bold px-4" @onclick="CloseAssignModal">Đóng</button>
-                        <button class="btn btn-warning text-dark fw-bold px-5 shadow-sm" @onclick="SubmitAssignManager"
-                                disabled="@(isSubmitting || selectedManagerId == 0)">
+                        <button class="btn btn-warning text-dark fw-bold px-5 shadow-sm" @onclick="SubmitAssignManager" disabled="@(isSubmitting || selectedManagerId == 0)">
                             <i class="bi bi-check-circle-fill me-1"></i> Xác nhận Gán
                         </button>
                     </div>
@@ -342,7 +267,6 @@ else
     private bool isAdmin = false;
     private string searchRestaurantString = "";
 
-    // BIẾN CHO GÁN QUẢN LÝ
     private bool showAssignModal = false;
     private int selectedRestaurantId = 0;
     private string selectedRestaurantName = "";
@@ -356,19 +280,14 @@ else
         .Where(m => !restaurants!.Any(r => r.ManagerUserId == m.UserId))
         .ToList() ?? new List<UserModel>();
 
-    // BIẾN CHO THÊM QUÁN ĂN
     private bool showEditModal = false;
     private bool isEdit = false;
-    private int currentId;
-    private int currentPoiId;
 
     private class FormModel
     {
         public string Name { get; set; } = "";
         public string Address { get; set; } = "";
-        public string Description { get; set; } = "";
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
+        public int PoiId { get; set; }
     }
     private FormModel editingRes = new();
 
@@ -395,45 +314,14 @@ else
         else restaurants = await RestaurantService.GetMyAsync();
     }
 
-    private async Task ToggleLockRestaurant(Restaurant r)
-    {
-        string actionText = r.IsLocked ? "mở lại" : "khóa kinh doanh";
-        bool confirm = await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc chắn muốn {actionText} quán: {r.Name}?");
-        if (!confirm) return;
-
-        try
-        {
-            var response = await Http.PutAsync($"api/Restaurant/{r.RestaurantId}/toggle-lock", null);
-            if (response.IsSuccessStatusCode)
-            {
-                r.IsLocked = !r.IsLocked;
-                StateHasChanged();
-                await JS.InvokeVoidAsync("alert", $"Đã {actionText} nhà hàng thành công!");
-            }
-            else
-            {
-                await JS.InvokeVoidAsync("alert", "Lỗi: Không thể thay đổi trạng thái lúc này.");
-            }
-        }
-        catch
-        {
-            await JS.InvokeVoidAsync("alert", "Lỗi kết nối tới Server!");
-        }
-    }
-
-    // 👇 CÁC HÀM ĐIỀU HƯỚNG TRANG 👇
     private void GoToMenu(int restaurantId) => Navigation.NavigateTo($"/restaurants/{restaurantId}/foods");
     private void GoToQR(int restaurantId) => Navigation.NavigateTo($"/qrcodes?restaurantId={restaurantId}");
-    private void GoToReviews(int poiId) => Navigation.NavigateTo($"/reviews?poiId={poiId}");
-
-    // 👇 HÀM MỚI: CHUYỂN TỚI TRANG SỬA (THAY VÌ MỞ POPUP) 👇
     private void GoToEdit(int restaurantId) => Navigation.NavigateTo($"/restaurants/edit/{restaurantId}");
 
-    // Hàm mở Popup (Giờ chỉ dùng cho Thêm Mới)
     private void OpenAddModal()
     {
         isEdit = false;
-        editingRes = new FormModel { Latitude = 10.7615, Longitude = 106.7042 };
+        editingRes = new FormModel { PoiId = 1 };
         showEditModal = true;
     }
 
@@ -451,7 +339,6 @@ else
     private async Task RemoveManager()
     {
         if (!await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc muốn gỡ quyền quản lý của {currentManagerName} khỏi quán này?")) return;
-
         isSubmitting = true;
         bool success = await RestaurantService.AssignManagerAsync(selectedRestaurantId, 0);
         if (success)
@@ -477,16 +364,14 @@ else
 
     private async Task HandleSubmit()
     {
-        // Giờ chỉ xử lý thêm mới ở đây thôi (CreateAsync)
-        bool success = await RestaurantService.CreateAsync(new CreateRestaurantReq(editingRes.Name, editingRes.Address, editingRes.Description, editingRes.Latitude, editingRes.Longitude));
-
+        bool success = await RestaurantService.CreateAsync(new CreateRestaurantReq(editingRes.Name, editingRes.Address, editingRes.PoiId));
         if (success) { showEditModal = false; await LoadData(); }
         else await JS.InvokeVoidAsync("alert", "Lưu dữ liệu thất bại!");
     }
 
     private async Task DeleteRestaurant(int id)
     {
-        if (await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn xóa vĩnh viễn quán ăn này không? Hành động này sẽ xóa luôn cả vị trí trên bản đồ."))
+        if (await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn xóa quán ăn này không?"))
         {
             if (await RestaurantService.DeleteAsync(id)) await LoadData();
         }

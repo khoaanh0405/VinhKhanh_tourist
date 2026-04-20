@@ -10,9 +10,6 @@ namespace Server.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int NarrationId { get; set; }
 
-        [Column(TypeName = "nvarchar(max)")]
-        public string Text { get; set; }
-
         [Required]
         [ForeignKey("POI")]
         public int PoiId { get; set; }
@@ -22,15 +19,9 @@ namespace Server.Models
         [ForeignKey("Language")]
         public string LanguageCode { get; set; }
 
-        [MaxLength(1000)] 
-        public string? AudioUrl { get; set; }
-
-        [MaxLength(255)]
-        public string? AudioPublicId { get; set; } 
-
-        public int? DurationSeconds { get; set; }
-
-        public bool UseAudioFile { get; set; } = false;
+        [Required]
+        [Column(TypeName = "nvarchar(max)")]
+        public string Text { get; set; }
 
         [MaxLength(100)]
         public string? VoiceName { get; set; }
@@ -39,12 +30,10 @@ namespace Server.Models
 
         public double Volume { get; set; } = 1.0;
 
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
         // Navigation
         public virtual POI POI { get; set; }
         public virtual Language Language { get; set; }
-
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-		[NotMapped]
-		public DateTime? UpdatedAt { get; set; }
-	}
+    }
 }

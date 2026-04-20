@@ -3,28 +3,26 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Server.Models
 {
-    [Table("PoiTranslations")]
-    public class PoiTranslation
+    [Table("UITranslations")]
+    public class UITranslation
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int TranslationId { get; set; }
 
         [Required]
-        public int PoiId { get; set; }
-
-        [Required]
         [MaxLength(10)]
         public string LanguageCode { get; set; }
 
         [Required]
+        [MaxLength(100)]
+        public string ResourceKey { get; set; }
+
+        [Required]
         [MaxLength(500)]
-        public string Description { get; set; }
+        public string ResourceValue { get; set; }
 
-        // Navigation properties
-        [ForeignKey("PoiId")]
-        public virtual POI POI { get; set; }
-
+        // Navigation
         [ForeignKey("LanguageCode")]
         public virtual Language Language { get; set; }
     }

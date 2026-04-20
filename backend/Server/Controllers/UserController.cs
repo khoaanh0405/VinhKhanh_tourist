@@ -1,7 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using BCrypt.Net; // Thư viện mã hóa
+using BCrypt.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -9,226 +9,182 @@ using Server.Data;
 using Server.Models;
 using Microsoft.AspNetCore.Authorization;
 
-namespace VServer.Controllers
+namespace Server.Controllers
 {
-	[Route("api/[controller]")]
-	[ApiController]
-	public class UserController : ControllerBase
-	{
-		private readonly AppDbContext _context;
-		private readonly IConfiguration _configuration; // Để đọc Key từ appsettings
+    [Route("api/[controller]")]
+    [ApiController]
+    public class UserController : ControllerBase
+    {
+        private readonly AppDbContext _context;
+        private readonly IConfiguration _configuration;
 
-		public UserController(AppDbContext context, IConfiguration configuration)
-		{
-			_context = context;
-			_configuration = configuration;
-		}
+        public UserController(AppDbContext context, IConfiguration configuration)
+        {
+            _context = context;
+            _configuration = configuration;
+        }
 
-		// DTO cho Đăng ký
-		public class RegisterRequest
-		{
-			public string DisplayName { get; set; }
-			public string Username { get; set; }
-			public string Email { get; set; } // 👈 Gộp của thằng bạn: Thêm Email
-			public string Password { get; set; }
-			public string Role { get; set; } = "Tourist"; // App cho người dùng nên để mặc định là Tourist
-		}
+        // DTOs
+        public class RegisterRequest
+        {
+            public string DisplayName { get; set; }
+            public string Username { get; set; }
+            public string Email { get; set; }
+            public string Password { get; set; }
+            public string Role { get; set; } = "Tourist";
+        }
 
-		// DTO cho Đăng nhập
-		public class LoginRequest
-		{
-			public string Username { get; set; }
-			public string Password { get; set; }
-		}
+        public class LoginRequest
+        {
+            public string Username { get; set; }
+            public string Password { get; set; }
+        }
 
-		// 1. ĐĂNG KÝ (Mã hóa mật khẩu trước khi lưu)
-		[HttpPost("register")]
-		public async Task<IActionResult> Register([FromBody] RegisterRequest request)
-		{
-			if (await _context.Users.AnyAsync(u => u.Username == request.Username))
-			{
-				return BadRequest("Tên đăng nhập đã tồn tại.");
-			}
+        public class AdminChangePasswordRequest
+        {
+            public string NewPassword { get; set; }
+        }
 
-			// MÃ HÓA MẬT KHẨU (Hashing)
-			string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+        // ── POST /api/User/register ────────────────────────────────────────
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        {
+            if (await _context.Users.AnyAsync(u => u.Username == request.Username))
+                return BadRequest("Tên đăng nhập đã tồn tại.");
 
-			var newUser = new User
-			{
-				DisplayName = request.DisplayName,
-				Username = request.Username,
-				Email = request.Email, // 👈 Gộp của thằng bạn: Lưu Email vào DB
-				Password = passwordHash,
-				Role = request.Role,
-				CreatedAt = DateTime.UtcNow
-			};
-
-			_context.Users.Add(newUser);
-			await _context.SaveChangesAsync();
-
-			return Ok(new { Message = "Đăng ký thành công!", UserId = newUser.UserId });
-		}
-
-		// 2. ĐĂNG NHẬP (Kiểm tra Hash và trả về JWT)
-		[HttpPost("login")]
-		public async Task<IActionResult> Login([FromBody] LoginRequest request)
-		{
-			// Tìm user trong DB
-			var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
-
-			// Kiểm tra: User có tồn tại không? Mật khẩu có khớp với Hash không?
-			if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
-			{
-				return Unauthorized("Sai tên đăng nhập hoặc mật khẩu.");
-			}
-
-			// Kiểm tra xem User có bị khóa không (Bảo vệ thêm cho hệ thống)
-			if (user.IsLocked)
-			{
-				return Unauthorized("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin.");
-			}
-
-			// Nếu đúng -> Tạo Token
-			var token = GenerateJwtToken(user);
-
-			return Ok(new
-			{
-				Message = "Đăng nhập thành công",
-				Token = token,
-				Role = user.Role
-			});
-		}
-
-		// Hàm tạo Token JWT
-		private string GenerateJwtToken(User user)
-		{
-			var jwtSettings = _configuration.GetSection("Jwt");
-			var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
-
-			var claims = new List<Claim>
-			{
-				new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()), // ID người dùng
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-				new Claim(ClaimTypes.Name, user.Username),
-				new Claim(ClaimTypes.Role, user.Role) // Lưu quyền vào Token
+            var newUser = new User
+            {
+                DisplayName = request.DisplayName,
+                Username = request.Username,
+                Email = request.Email,
+                Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                Role = request.Role,
+                CreatedAt = DateTime.UtcNow
             };
 
-			var tokenDescriptor = new SecurityTokenDescriptor
-			{
-				Subject = new ClaimsIdentity(claims),
-				Expires = DateTime.UtcNow.AddHours(24), // Token hết hạn sau 24h
-				Issuer = jwtSettings["Issuer"],
-				Audience = jwtSettings["Audience"],
-				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
-			};
+            _context.Users.Add(newUser);
+            await _context.SaveChangesAsync();
 
-			var tokenHandler = new JwtSecurityTokenHandler();
-			var token = tokenHandler.CreateToken(tokenDescriptor);
-			return tokenHandler.WriteToken(token);
-		}
+            return Ok(new { Message = "Đăng ký thành công!", UserId = newUser.UserId });
+        }
 
-		// ==========================================
-		// CÁC API DÀNH RIÊNG CHO ADMIN WEB ADMIN
-		// ==========================================
+        // ── POST /api/User/login ───────────────────────────────────────────
+        // [CHANGED] Bỏ kiểm tra IsLocked — cột đã xóa khỏi bảng Users
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
 
-		// 4. LẤY DANH SÁCH NGƯỜI DÙNG (Admin Only)
-		[HttpGet]
-		[Authorize(Roles = "Admin")]
-		public async Task<IActionResult> GetAllUsers()
-		{
-			// Lấy danh sách nhưng TUYỆT ĐỐI KHÔNG trả về cột Password
-			var users = await _context.Users
-				.Select(u => new
-				{
-					u.UserId,
-					u.DisplayName,
-					u.Username,
-					u.Email, // 👈 Gửi kèm Email xuống WebAdmin luôn cho đủ bộ
-					u.Role,
-					u.CreatedAt,
-					u.IsLocked
-				})
-				.ToListAsync();
+            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
+                return Unauthorized("Sai tên đăng nhập hoặc mật khẩu.");
 
-			return Ok(users);
-		}
+            // [REMOVED] if (user.IsLocked) — cột không còn trong schema mới
 
-		// 5. ADMIN TẠO TÀI KHOẢN (Được phép chọn Role là Manager/Admin)
-		[HttpPost("admin-create")]
-		[Authorize(Roles = "Admin")]
-		public async Task<IActionResult> CreateUserByAdmin([FromBody] RegisterRequest request)
-		{
-			if (await _context.Users.AnyAsync(u => u.Username == request.Username))
-			{
-				return BadRequest("Tên đăng nhập đã tồn tại.");
-			}
+            var token = GenerateJwtToken(user);
+            return Ok(new { Message = "Đăng nhập thành công", Token = token, Role = user.Role });
+        }
 
-			// Mã hóa mật khẩu
-			string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+        // ── GET /api/User  (Admin only) ────────────────────────────────────
+        // [CHANGED] Bỏ IsLocked khỏi projection
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _context.Users
+                .Select(u => new
+                {
+                    u.UserId,
+                    u.DisplayName,
+                    u.Username,
+                    u.Email,
+                    u.Role,
+                    u.CreatedAt
+                    // [REMOVED] u.IsLocked — cột đã xóa khỏi Users
+                })
+                .ToListAsync();
 
-			var newUser = new User
-			{
-				DisplayName = request.DisplayName,
-				Username = request.Username,
-				Email = request.Email, // 👈 Lưu Email khi Admin tạo tài khoản
-				Password = passwordHash,
-				Role = request.Role,
-				CreatedAt = DateTime.UtcNow
-			};
+            return Ok(users);
+        }
 
-			_context.Users.Add(newUser);
-			await _context.SaveChangesAsync();
+        // ── POST /api/User/admin-create  (Admin only) ─────────────────────
+        [HttpPost("admin-create")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreateUserByAdmin([FromBody] RegisterRequest request)
+        {
+            if (await _context.Users.AnyAsync(u => u.Username == request.Username))
+                return BadRequest("Tên đăng nhập đã tồn tại.");
 
-			return Ok(new { Message = "Tạo tài khoản thành công!", UserId = newUser.UserId });
-		}
+            var newUser = new User
+            {
+                DisplayName = request.DisplayName,
+                Username = request.Username,
+                Email = request.Email,
+                Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                Role = request.Role,
+                CreatedAt = DateTime.UtcNow
+            };
 
-		// DTO nhận mật khẩu mới
-		public class AdminChangePasswordRequest
-		{
-			public string NewPassword { get; set; }
-		}
+            _context.Users.Add(newUser);
+            await _context.SaveChangesAsync();
 
-		// 6. ADMIN ĐỔI MẬT KHẨU NGƯỜI DÙNG
-		[HttpPut("admin-change-password/{id}")]
-		[Authorize(Roles = "Admin")]
-		public async Task<IActionResult> AdminChangePassword(int id, [FromBody] AdminChangePasswordRequest req)
-		{
-			var user = await _context.Users.FindAsync(id);
-			if (user == null) return NotFound("Không tìm thấy người dùng.");
+            return Ok(new { Message = "Tạo tài khoản thành công!", UserId = newUser.UserId });
+        }
 
-			// Mã hóa mật khẩu mới và lưu lại
-			user.Password = BCrypt.Net.BCrypt.HashPassword(req.NewPassword);
-			await _context.SaveChangesAsync();
+        // ── PUT /api/User/admin-change-password/{id}  (Admin only) ────────
+        [HttpPut("admin-change-password/{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AdminChangePassword(int id, [FromBody] AdminChangePasswordRequest req)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null) return NotFound("Không tìm thấy người dùng.");
 
-			return Ok(new { Message = "Đổi mật khẩu thành công!" });
-		}
+            user.Password = BCrypt.Net.BCrypt.HashPassword(req.NewPassword);
+            await _context.SaveChangesAsync();
 
-		// API Test thử xem Token có hoạt động không
-		[HttpGet("me")]
-		[Authorize] // Yêu cầu phải có Token mới vào được
-		public IActionResult GetMyInfo()
-		{
-			var username = User.Identity.Name;
-			var role = User.FindFirst(ClaimTypes.Role)?.Value;
-			return Ok(new { Message = $"Xin chào {username}, bạn là {role}" });
-		}
+            return Ok(new { Message = "Đổi mật khẩu thành công!" });
+        }
 
-		// 7. KHÓA / MỞ KHÓA TÀI KHOẢN
-		[HttpPut("{id}/toggle-lock")]
-		[Authorize(Roles = "Admin")]
-		public async Task<IActionResult> ToggleLock(int id)
-		{
-			var user = await _context.Users.FindAsync(id);
-			if (user == null) return NotFound();
+        // ── GET /api/User/me  (Authorized) ────────────────────────────────
+        [HttpGet("me")]
+        [Authorize]
+        public IActionResult GetMyInfo()
+        {
+            var username = User.Identity?.Name;
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            return Ok(new { Message = $"Xin chào {username}, bạn là {role}" });
+        }
 
-			// Không cho Admin tự khóa chính mình (để tránh bị kẹt)
-			var currentAdminId = int.Parse(User.FindFirst("sub")?.Value ?? "0");
-			if (user.UserId == currentAdminId) return BadRequest("Bạn không thể tự khóa chính mình.");
+        // ── [REMOVED] PUT /{id}/toggle-lock ───────────────────────────────
+        // Lý do: Cột IsLocked đã bị xóa khỏi bảng Users trong schema mới.
+        //        Quản lý khóa tài khoản có thể thực hiện qua soft-delete hoặc Role nếu cần sau này.
 
-			user.IsLocked = !user.IsLocked; // Đảo ngược trạng thái
-			await _context.SaveChangesAsync();
+        // ─────────────────────────────────────────────────────────────────
+        private string GenerateJwtToken(User user)
+        {
+            var jwtSettings = _configuration.GetSection("Jwt");
+            var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
 
-			return Ok(new { isLocked = user.IsLocked });
-		}
-	}
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.Name,             user.Username),
+                new Claim(ClaimTypes.Role,             user.Role)
+            };
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddHours(24),
+                Issuer = jwtSettings["Issuer"],
+                Audience = jwtSettings["Audience"],
+                SigningCredentials = new SigningCredentials(
+                                         new SymmetricSecurityKey(key),
+                                         SecurityAlgorithms.HmacSha256)
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            return tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
+        }
+    }
 }

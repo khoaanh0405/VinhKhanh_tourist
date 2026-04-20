@@ -1,7 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Server.Data;
-using Server.DTOs;
-using Server.Models;
+﻿using Microsoft.AspNetCore.Http;
 
 namespace Server.Services
 {
@@ -15,7 +12,5 @@ namespace Server.Services
     {
         Task<CloudinaryUploadResult> UploadImageAsync(IFormFile file);
         Task<bool> DeleteImageAsync(string publicId);
-        Task<CloudinaryUploadResult> UploadAudioAsync(IFormFile file);
-        Task<bool> DeleteAudioAsync(string publicId);
     }
 }

@@ -17,10 +17,12 @@ namespace Server.Models
         [Required]
         [MaxLength(100)]
         public string Username { get; set; }
-		[Required]
-		[MaxLength(100)]
-		public string Email { get; set; }
-		[Required]
+
+        [Required]
+        [MaxLength(200)]
+        public string Email { get; set; }
+
+        [Required]
         [MaxLength(200)]
         public string Password { get; set; }
 
@@ -28,13 +30,9 @@ namespace Server.Models
         [MaxLength(50)]
         public string Role { get; set; }
 
-        // Navigation properties
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        [NotMapped]
-        public DateTime? UpdatedAt { get; set; }
-
-		public Restaurant? ManagedRestaurant { get; set; }
-		public bool IsLocked { get; set; }
-	}
+        // Navigation
+        public virtual Restaurant? ManagedRestaurant { get; set; }
+    }
 }

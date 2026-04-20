@@ -61,9 +61,6 @@ namespace VinhKhanh.WebAdmin.Services
 			return response.IsSuccessStatusCode;
 		}
 
-		// ==========================================================
-		// 👇 THÊM 3 HÀM XỬ LÝ THÊM/SỬA/XÓA QUÁN ĂN (CÙNG TỌA ĐỘ) 👇
-		// ==========================================================
 
 		public async Task<bool> CreateAsync(CreateRestaurantReq req)
 		{

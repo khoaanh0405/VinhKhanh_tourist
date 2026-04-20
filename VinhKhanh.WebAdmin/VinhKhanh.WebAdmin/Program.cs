@@ -10,7 +10,7 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 // 1. CẤU HÌNH ĐỊA CHỈ BACKEND (⚠️ Sửa cổng 7284 thành cổng Swagger Backend của bạn)
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("YOUR_DEV_TUNNEL_KEY") });
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://sln71gls-7284.asse.devtunnels.ms") });
 
 // 2. ĐĂNG KÝ BẢO MẬT & LOCALSTORAGE
 builder.Services.AddBlazoredLocalStorage();
@@ -22,7 +22,6 @@ builder.Services.AddScoped<VinhKhanh.WebAdmin.Services.IUserService, VinhKhanh.W
 builder.Services.AddScoped<VinhKhanh.WebAdmin.Services.IPoiService, VinhKhanh.WebAdmin.Services.PoiService>();
 builder.Services.AddScoped<INarrationService, NarrationService>();
 builder.Services.AddScoped<IFoodTranslationService, FoodTranslationService>();
-builder.Services.AddScoped<IPoiTranslationService, PoiTranslationService>();
 builder.Services.AddScoped<ILanguageService, LanguageService>();
 //builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<VinhKhanh.WebAdmin.Services.DashboardService>();

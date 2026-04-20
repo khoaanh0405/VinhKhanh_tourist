@@ -20,6 +20,7 @@ namespace Server.Controllers
         // GET: api/Language
         // Lấy danh sách tất cả ngôn ngữ hỗ trợ
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Language>>> GetLanguages()
         {
             return await _context.Languages.ToListAsync();
@@ -42,18 +43,24 @@ namespace Server.Controllers
             return CreatedAtAction(nameof(GetLanguages), new { id = language.LanguageCode }, language);
         }
 
-        // DELETE: api/Language/en
         [HttpDelete("{code}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, Manager")]
         public async Task<IActionResult> DeleteLanguage(string code)
         {
-            var language = await _context.Languages.FindAsync(code);
-            if (language == null) return NotFound();
+            try
+            {
+                int rowsAffected = await _context.Database.ExecuteSqlRawAsync(
+                    "DELETE FROM Languages WHERE LanguageCode = {0}", code);
 
-            _context.Languages.Remove(language);
-            await _context.SaveChangesAsync();
+                if (rowsAffected == 0)
+                    return NotFound("Không tìm thấy ngôn ngữ này.");
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi server khi xóa: {ex.Message}");
+            }
         }
     }
 }

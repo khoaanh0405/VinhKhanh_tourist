@@ -24,9 +24,8 @@ else
                         <th>ID</th>
                         <th>Tên hiển thị</th>
                         <th>Tài khoản</th>
-                        <th>Email</th> @* 👈 THÊM CỘT EMAIL VÀO BẢNG *@
+                        <th>Email</th>
                         <th>Quyền</th>
-                        <th>Trạng thái</th>
                         <th>Ngày tạo</th>
                         <th class="text-end">Hành động</th>
                     </tr>
@@ -34,32 +33,16 @@ else
                 <tbody>
                     @foreach (var u in users)
                     {
-                        <tr style="@(u.IsLocked ? "opacity: 0.6; background-color: #f8f9fa;" : "")">
+                        <tr>
                             <td class="fw-bold text-secondary">#@u.UserId</td>
                             <td class="fw-bold">@u.DisplayName</td>
                             <td>@u.Username</td>
-                            <td>@u.Email</td> @* 👈 HIỂN THỊ EMAIL *@
+                            <td>@u.Email</td>
                             <td>
                                 <span class="badge @(u.Role == "Admin" ? "bg-danger" : (u.Role == "Manager" ? "bg-warning text-dark" : "bg-secondary"))">@u.Role</span>
                             </td>
-                            <td>
-                                @if (u.IsLocked)
-                                {
-                                    <span class="badge bg-dark"><i class="bi bi-lock-fill"></i> Đã khóa</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-success"><i class="bi bi-check-circle"></i> Hoạt động</span>
-                                }
-                            </td>
                             <td>@u.CreatedAt.ToString("dd/MM/yyyy")</td>
-
                             <td class="text-end">
-                                <button class="btn btn-sm @(u.IsLocked ? "btn-success" : "btn-dark") me-1"
-                                        @onclick="() => ToggleLock(u)" title="@(u.IsLocked ? "Mở khóa" : "Khóa tài khoản")">
-                                    <i class="bi @(u.IsLocked ? "bi-unlock-fill" : "bi-lock-fill")"></i>
-                                </button>
-
                                 <button class="btn btn-sm btn-outline-danger" @onclick="() => OpenPasswordModal(u.UserId, u.Username)">
                                     <i class="bi bi-key"></i> Đổi MK
                                 </button>
@@ -97,7 +80,6 @@ else
                             <label class="form-label fw-bold">Tài khoản đăng nhập</label>
                             <InputText @bind-Value="newUser.Username" class="form-control" required />
                         </div>
-                        @* 👇 THÊM Ô NHẬP EMAIL VÀO ĐÂY 👇 *@
                         <div class="mb-3">
                             <label class="form-label fw-bold">Email</label>
                             <InputText @bind-Value="newUser.Email" type="email" class="form-control" placeholder="vidu@email.com" required />
@@ -111,7 +93,6 @@ else
                             <InputSelect @bind-Value="newUser.Role" class="form-select">
                                 <option value="Manager">Quản lý quán (Manager)</option>
                                 <option value="Admin">Tổng quản lý (Admin)</option>
-                                <option value="Tourist">Khách du lịch (Tourist)</option>
                             </InputSelect>
                         </div>
                         <div class="d-flex justify-content-end gap-2">
@@ -164,13 +145,11 @@ else
 @code {
     private List<UserModel>? users;
 
-    // --- BIẾN CHO POPUP TẠO TÀI KHOẢN ---
     private bool showModal = false;
     private bool isSubmitting = false;
     private string errorMessage = "";
     private RegisterRequest newUser = new RegisterRequest();
 
-    // --- BIẾN CHO POPUP ĐỔI MẬT KHẨU ---
     private bool showPasswordModal = false;
     private int editUserId = 0;
     private string editUsername = "";
@@ -186,35 +165,6 @@ else
         users = await UserService.GetUsersAsync();
     }
 
-    private async Task ToggleLock(UserModel u)
-    {
-        string actionText = u.IsLocked ? "mở khóa" : "khóa";
-        bool confirm = await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc chắn muốn {actionText} tài khoản {u.Username}?");
-
-        if (!confirm) return;
-
-        try
-        {
-            var response = await Http.PutAsync($"api/User/{u.UserId}/toggle-lock", null);
-
-            if (response.IsSuccessStatusCode)
-            {
-                u.IsLocked = !u.IsLocked;
-                StateHasChanged();
-                await JS.InvokeVoidAsync("alert", $"Đã {actionText} tài khoản thành công!");
-            }
-            else
-            {
-                var errorMsg = await response.Content.ReadAsStringAsync();
-                await JS.InvokeVoidAsync("alert", $"Thao tác thất bại: {errorMsg}");
-            }
-        }
-        catch (Exception ex)
-        {
-            await JS.InvokeVoidAsync("alert", "Lỗi kết nối tới Server!");
-        }
-    }
-
     private void OpenModal()
     {
         newUser = new RegisterRequest();
@@ -222,10 +172,7 @@ else
         showModal = true;
     }
 
-    private void CloseModal()
-    {
-        showModal = false;
-    }
+    private void CloseModal() => showModal = false;
 
     private async Task HandleSubmit()
     {
@@ -233,7 +180,6 @@ else
         errorMessage = "";
 
         bool success = await UserService.CreateUserAsync(newUser);
-
         if (success)
         {
             await LoadUsers();
@@ -243,7 +189,6 @@ else
         {
             errorMessage = "Lỗi! Tài khoản đã tồn tại hoặc thiếu thông tin.";
         }
-
         isSubmitting = false;
     }
 
@@ -256,10 +201,7 @@ else
         showPasswordModal = true;
     }
 
-    private void ClosePasswordModal()
-    {
-        showPasswordModal = false;
-    }
+    private void ClosePasswordModal() => showPasswordModal = false;
 
     private async Task SubmitChangePassword()
     {

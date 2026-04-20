@@ -10,8 +10,8 @@
 @inject VinhKhanh.WebAdmin.Services.IFoodTranslationService TransService
 @inject VinhKhanh.WebAdmin.Services.ILanguageService LanguageService
 @inject HttpClient Http
+
 <style>
-    /* Khung bọc ngoài thanh tìm kiếm - Tông màu xanh lá cho phần Thực đơn */
     .custom-search-box {
         transition: all 0.3s ease-in-out;
         border-radius: 50rem;
@@ -19,33 +19,28 @@
         background-color: #fff;
         overflow: hidden;
     }
-
-        .custom-search-box:hover {
-            border-color: #75b798;
-            box-shadow: 0 4px 12px rgba(25, 135, 84, 0.15); /* Bóng mờ màu xanh lá */
-            transform: translateY(-1px);
-        }
-
-        .custom-search-box:focus-within {
-            border-color: #198754;
-            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
-        }
-
-        .custom-search-box .form-control {
-            border: none;
-            box-shadow: none;
-            background: transparent;
-        }
-
-        .custom-search-box .input-group-text {
-            border: none;
-            background: transparent;
-            color: #6c757d;
-        }
-
-        .custom-search-box:focus-within .input-group-text {
-            color: #198754; /* Kính lúp đổi màu xanh lá khi click */
-        }
+    .custom-search-box:hover {
+        border-color: #75b798;
+        box-shadow: 0 4px 12px rgba(25, 135, 84, 0.15);
+        transform: translateY(-1px);
+    }
+    .custom-search-box:focus-within {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+    }
+    .custom-search-box .form-control {
+        border: none;
+        box-shadow: none;
+        background: transparent;
+    }
+    .custom-search-box .input-group-text {
+        border: none;
+        background: transparent;
+        color: #6c757d;
+    }
+    .custom-search-box:focus-within .input-group-text {
+        color: #198754;
+    }
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -80,7 +75,6 @@
                     <th>ID</th>
                     <th>Tên món</th>
                     <th>Giá tiền</th>
-                    <th>Mô tả</th>
                     <th class="text-end">Hành động</th>
                 </tr>
             </thead>
@@ -93,7 +87,6 @@
                             <td class="fw-bold text-secondary">#@f.FoodId</td>
                             <td class="fw-bold fs-6">@f.Name</td>
                             <td class="text-danger fw-bold">@f.Price.ToString("N0") VNĐ</td>
-                            <td>@f.Description</td>
                             <td class="text-end">
                                 <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenEditModal(f)"><i class="bi bi-pencil"></i> Sửa</button>
                                 <button class="btn btn-sm btn-outline-info ms-1" @onclick="() => OpenTransModal(f)">
@@ -107,7 +100,7 @@
                 else
                 {
                     <tr>
-                        <td colspan="5" class="text-center text-muted py-5">
+                        <td colspan="4" class="text-center text-muted py-5">
                             <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                             Không tìm thấy món ăn nào phù hợp.
                         </td>
@@ -117,13 +110,14 @@
         </table>
     </div>
 </div>
+
 @if (showTransModal)
 {
     <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6);">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-info shadow-lg">
                 <div class="modal-header bg-info text-dark">
-                    <h5 class="modal-title fw-bold"><i class="bi bi-translate"></i> Dịch Món: @selectedFoodName</h5>
+                    <h5 class="modal-title fw-bold"><i class="bi bi-translate"></i> Dịch Tên Món: @selectedFoodName</h5>
                     <div class="ms-auto me-2">
                         <button class="btn btn-sm btn-dark fw-bold shadow-sm" @onclick="AutoTranslateFood" disabled="@isTranslating">
                             <i class="bi bi-magic"></i> @(isTranslating ? "Đang dịch..." : "Dịch tự động bằng AI")
@@ -133,7 +127,7 @@
                 </div>
                 <div class="modal-body p-4">
                     <div class="row bg-light p-3 rounded border mb-4">
-                        <div class="col-md-3 mb-2">
+                        <div class="col-md-4 mb-2">
                             <label class="fw-bold small mb-1">Ngôn ngữ</label>
                             <select class="form-select" @bind="newTrans.LanguageCode">
                                 @if (availableLanguages != null && availableLanguages.Any())
@@ -143,22 +137,14 @@
                                         <option value="@lang.LanguageCode">@lang.LanguageName (@lang.LanguageCode)</option>
                                     }
                                 }
-                                else
-                                {
-                                    <option value="">Chưa có ngôn ngữ nào. Hãy thêm ở trang Quản lý Ngôn ngữ.</option>
-                                }
                             </select>
                         </div>
-                        <div class="col-md-4 mb-2">
+                        <div class="col-md-8 mb-2">
                             <label class="fw-bold small mb-1">Tên món (Dịch)</label>
-                            <input type="text" class="form-control" @bind="newTrans.Name" placeholder="VD: Seafood Hotpot" />
-                        </div>
-                        <div class="col-md-5 mb-2">
-                            <label class="fw-bold small mb-1">Mô tả (Dịch)</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" @bind="newTrans.Description" placeholder="Mô tả..." />
+                                <input type="text" class="form-control" @bind="newTrans.Name" placeholder="VD: Seafood Hotpot" />
                                 <button class="btn btn-primary fw-bold" @onclick="SaveTrans" disabled="@isTransSaving">
-                                    <i class="bi bi-plus-lg"></i>
+                                    <i class="bi bi-plus-lg"></i> Thêm
                                 </button>
                             </div>
                         </div>
@@ -168,10 +154,9 @@
                         <table class="table table-sm table-bordered align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th class="text-center">Mã</th>
+                                    <th class="text-center" width="80">Mã</th>
                                     <th>Tên món dịch</th>
-                                    <th>Mô tả dịch</th>
-                                    <th class="text-center">Xóa</th>
+                                    <th class="text-center" width="60">Xóa</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -182,7 +167,6 @@
                                         <tr>
                                             <td class="text-center"><span class="badge bg-secondary">@t.LanguageCode</span></td>
                                             <td class="fw-bold">@t.Name</td>
-                                            <td><small class="text-muted">@t.Description</small></td>
                                             <td class="text-center">
                                                 <button class="btn btn-link text-danger p-0" @onclick="() => DeleteTrans(t.TranslationId)">
                                                     <i class="bi bi-x-circle-fill"></i>
@@ -193,7 +177,7 @@
                                 }
                                 else
                                 {
-                                    <tr><td colspan="4" class="text-center text-muted py-3">Chưa có bản dịch nào.</td></tr>
+                                    <tr><td colspan="3" class="text-center text-muted py-3">Chưa có bản dịch nào.</td></tr>
                                 }
                             </tbody>
                         </table>
@@ -203,6 +187,7 @@
         </div>
     </div>
 }
+
 @if (showModal)
 {
     <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6);">
@@ -226,13 +211,9 @@
                             <label class="form-label fw-bold">Tên món ăn</label>
                             <InputText @bind-Value="editingFood.Name" class="form-control" required placeholder="VD: Ốc hương rang muối..." />
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label class="form-label fw-bold">Giá tiền (VNĐ)</label>
                             <InputNumber @bind-Value="editingFood.Price" class="form-control" required placeholder="VD: 150000" />
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">Mô tả (Không bắt buộc)</label>
-                            <InputTextArea @bind-Value="editingFood.Description" class="form-control" rows="3" placeholder="Nguyên liệu, cách chế biến..." />
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
@@ -255,40 +236,30 @@
     private string restaurantName = "Đang tải...";
     private List<Food>? allFoods;
 
-    // Biến cho tính năng tìm kiếm
     private string searchFoodString = "";
 
-    // Biến cho Popup Modal (Món ăn)
     private bool showModal = false;
     private bool isEditMode = false;
     private bool isSubmitting = false;
     private string errorMessage = "";
     private Food editingFood = new Food();
 
-    // Biến cho Popup Modal (Dịch thuật)
     private bool showTransModal = false;
     private bool isTransSaving = false;
     private string selectedFoodName = "";
     private int selectedFoodId = 0;
     private List<FoodTranslationDto> foodTranslations = new();
-    private CreateFoodTranslationReq newTrans = new(0, "en", "", "");
+    private CreateFoodTranslationReq newTrans = new(0, "en", "");
 
-    // 👉 BIẾN ĐỂ LƯU DANH SÁCH NGÔN NGỮ TỪ DB
     private List<LanguageDto> availableLanguages = new();
+    private bool isTranslating = false;
 
-    // ==============================================================
-    // 👉 ĐÂY LÀ HÀM OnInitializedAsync ĐÃ ĐƯỢC GỘP LẠI DUY NHẤT 1 LẦN
-    // ==============================================================
     protected override async Task OnInitializedAsync()
     {
-        // 1. Kiểm tra quyền
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         isAdmin = authState.User.IsInRole("Admin");
 
-        // 2. Load danh sách ngôn ngữ từ DB (Thay thế việc hardcode)
         availableLanguages = await LanguageService.GetAllAsync();
-
-        // 3. Load danh sách món ăn
         await LoadData();
     }
 
@@ -309,15 +280,11 @@
             allFoods = await FoodService.GetMyFoodsAsync();
     }
 
-    // Hàm lọc sử dụng FuzzySharp
     private IEnumerable<Food>? displayFoods =>
         allFoods?.Where(f => f.RestaurantId == RestaurantId &&
                             (string.IsNullOrWhiteSpace(searchFoodString) ||
                              Fuzz.PartialRatio(searchFoodString.ToLower(), f.Name.ToLower()) > 65));
 
-    // ==========================================
-    // PHẦN LOGIC THÊM/SỬA MÓN ĂN (FOOD)
-    // ==========================================
     private void OpenAddModal()
     {
         isEditMode = false;
@@ -334,7 +301,6 @@
             FoodId = food.FoodId,
             Name = food.Name,
             Price = food.Price,
-            Description = food.Description,
             RestaurantId = food.RestaurantId
         };
         errorMessage = "";
@@ -372,18 +338,14 @@
         }
     }
 
-    // ==========================================
-    // PHẦN LOGIC DỊCH THUẬT (TRANSLATION)
-    // ==========================================
     private async Task OpenTransModal(Food f)
     {
         selectedFoodId = f.FoodId;
         selectedFoodName = f.Name;
-        originalFoodDescription = f.Description ?? ""; // Lưu lại mô tả gốc
 
         var transLangs = availableLanguages.Where(l => l.LanguageCode.ToLower() != "vi").ToList();
         string firstLang = transLangs.FirstOrDefault()?.LanguageCode ?? "en";
-        newTrans = new CreateFoodTranslationReq(f.FoodId, firstLang, "", "");
+        newTrans = new CreateFoodTranslationReq(f.FoodId, firstLang, "");
 
         await LoadTranslations();
         showTransModal = true;
@@ -405,11 +367,9 @@
 
         isTransSaving = true;
         var (success, msg) = await TransService.CreateAsync(newTrans);
-
         if (success)
         {
-            // Giữ lại ngôn ngữ vừa chọn, xóa chữ để nhập món tiếp theo cho lẹ
-            newTrans = new CreateFoodTranslationReq(selectedFoodId, newTrans.LanguageCode, "", "");
+            newTrans = new CreateFoodTranslationReq(selectedFoodId, newTrans.LanguageCode, "");
             await LoadTranslations();
         }
         else
@@ -427,36 +387,28 @@
             await LoadTranslations();
         }
     }
-    // 1. Thêm biến trạng thái để hiện vòng xoay khi đang dịch
-    private bool isTranslating = false;
-    private string originalFoodDescription = ""; // Để lưu mô tả gốc khi mở modal
 
-    // 2. Hàm xử lý dịch tự động
     private async Task AutoTranslateFood()
     {
-        // Kiểm tra xem món ăn có tên chưa
         if (string.IsNullOrWhiteSpace(selectedFoodName))
         {
             await JS.InvokeVoidAsync("alert", "Không tìm thấy tên món ăn để dịch!");
             return;
         }
 
-        if (!await JS.InvokeAsync<bool>("confirm", "Hệ thống sẽ tự động dịch Tên và Mô tả sang các ngôn ngữ khác. Bạn có chắc chắn?")) return;
+        if (!await JS.InvokeAsync<bool>("confirm", "Hệ thống sẽ tự động dịch Tên món sang các ngôn ngữ khác. Bạn có chắc chắn?")) return;
 
         isTranslating = true;
         try
         {
-            // Gọi API dịch tự động (Bạn cần đảm bảo Backend đã có endpoint này)
-            // Truyền cả Name và Description gốc sang
             var response = await Http.PostAsJsonAsync($"api/Translate/auto-food/{selectedFoodId}", new
             {
-                Name = selectedFoodName,
-                Description = originalFoodDescription
+                Name = selectedFoodName
             });
 
             if (response.IsSuccessStatusCode)
             {
-                await LoadTranslations(); // Tải lại bảng danh sách bản dịch
+                await LoadTranslations();
                 await JS.InvokeVoidAsync("alert", "Tự động dịch món ăn thành công!");
             }
             else
@@ -473,5 +425,4 @@
             isTranslating = false;
         }
     }
-
 }

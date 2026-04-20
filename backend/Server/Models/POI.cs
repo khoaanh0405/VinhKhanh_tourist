@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Server.Models;
 
 namespace Server.Models
 {
@@ -20,23 +19,14 @@ namespace Server.Models
 
         [Required]
         public double Longitude { get; set; }
-        [Required]
-        public string? Description { get; set; }
-        public double AverageRating { get; set; } = 0.0;
-        public int ReviewCount { get; set; } = 0;
 
-        // 1 - N Images
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        // Navigation
         public virtual ICollection<PoiImage> PoiImages { get; set; } = new List<PoiImage>();
-
-        // Navigation properties
         public virtual ICollection<Restaurant> Restaurants { get; set; } = new List<Restaurant>();
         public virtual ICollection<Narration> Narrations { get; set; } = new List<Narration>();
         public virtual ICollection<Geofence> Geofences { get; set; } = new List<Geofence>();
         public virtual ICollection<QRCode> QRCodes { get; set; } = new List<QRCode>();
-        public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
-        public virtual ICollection<PoiTranslation> PoiTranslations { get; set; } = new List<PoiTranslation>();
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-		[NotMapped]
-		public DateTime? UpdatedAt { get; set; }
-	}
+    }
 }

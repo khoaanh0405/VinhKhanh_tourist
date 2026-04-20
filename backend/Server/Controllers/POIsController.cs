@@ -7,176 +7,182 @@ using Server.Models;
 
 namespace Server.Controllers
 {
-	[ApiController]
-	[Route("api/[controller]")]
-	public class POIsController : ControllerBase
-	{
-		private readonly AppDbContext _context;
-		private readonly ILogger<POIsController> _logger;
+    [ApiController]
+    [Route("api/[controller]")]
+    public class POIsController : ControllerBase
+    {
+        private readonly AppDbContext _context;
+        private readonly ILogger<POIsController> _logger;
 
-		public POIsController(AppDbContext context, ILogger<POIsController> logger)
-		{
-			_context = context;
-			_logger = logger;
-		}
-
-		[HttpGet]
-		public async Task<ActionResult<List<POIDto>>> GetAll([FromQuery] string lang = "vi")
-		{
-			try
-			{
-				var pois = await _context.POIs
-					.AsNoTracking()
-					.AsSplitQuery()
-                    .Where(p => !p.Restaurants.Any() || p.Restaurants.Any(r => !r.IsLocked))
-					.Select(p => new POIDto
-            {
-						PoiId = p.PoiId,
-						Name = p.Name,
-						Description = p.PoiTranslations.FirstOrDefault(t => t.LanguageCode == lang) != null
-									  ? p.PoiTranslations.FirstOrDefault(t => t.LanguageCode == lang).Description
-									  : p.Description,
-						Latitude = p.Latitude,
-						Longitude = p.Longitude,
-						AverageRating = p.AverageRating,
-						ReviewCount = p.ReviewCount,
-						ImageUrls = p.PoiImages.OrderBy(i => i.DisplayOrder).Select(i => i.ImageUrl).ToList(),
-						Narrations = p.Narrations.Where(n => n.LanguageCode == lang).Select(n => new NarrationDto
-						{
-							NarrationId = n.NarrationId,
-							Text = n.Text,
-							LanguageCode = n.LanguageCode,
-							AudioUrl = n.AudioUrl,
-							UseAudioFile = n.UseAudioFile,
-							VoiceName = n.VoiceName
-						}).ToList(),
-                        Restaurants = p.Restaurants.Where(r => !r.IsLocked).Select(r => new RestaurantDto
-                        {
-							RestaurantId = r.RestaurantId,
-							Name = r.Name,
-							Address = r.Address,
-							Description = r.RestaurantTranslations.FirstOrDefault(t => t.LanguageCode == lang) != null
-										  ? r.RestaurantTranslations.FirstOrDefault(t => t.LanguageCode == lang).Description
-										  : r.Description,
-							Foods = r.Foods.Select(f => new FoodDto
-							{
-								FoodId = f.FoodId,
-								Price = f.Price,
-								Name = f.FoodTranslations.FirstOrDefault(t => t.LanguageCode == lang) != null
-									   ? f.FoodTranslations.FirstOrDefault(t => t.LanguageCode == lang).Name
-									   : f.Name,
-								Description = f.FoodTranslations.FirstOrDefault(t => t.LanguageCode == lang) != null
-											  ? f.FoodTranslations.FirstOrDefault(t => t.LanguageCode == lang).Description
-											  : f.Description
-							}).ToList()
-						}).ToList(),
-						Reviews = p.Reviews.OrderByDescending(r => r.CreatedAt).Select(rv => new ReviewDto
-						{
-							ReviewId = rv.ReviewId,
-							UserId = rv.UserId,
-							Rating = rv.Rating,
-							Comment = rv.Comment,
-							CreatedAt = rv.CreatedAt
-						}).ToList()
-					})
-					.ToListAsync();
-
-				return Ok(pois);
-			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Lỗi khi lấy danh sách POI");
-				return StatusCode(500, "Lỗi server nội bộ");
-			}
-		}
-
-		[HttpGet("{id}")]
-		public async Task<ActionResult<POIDto>> GetById(int id, [FromQuery] string lang = "vi")
-		{
-			var poi = await _context.POIs
-				.AsNoTracking()
-				.AsSplitQuery()
-				.Where(p => p.PoiId == id)
-                .Where(p => p.PoiId == id && (!p.Restaurants.Any() || p.Restaurants.Any(r => !r.IsLocked)))
-				.Select(p => new POIDto
+        public POIsController(AppDbContext context, ILogger<POIsController> logger)
         {
-					PoiId = p.PoiId,
-					Name = p.Name,
-					Description = p.PoiTranslations.FirstOrDefault(t => t.LanguageCode == lang) != null ? p.PoiTranslations.FirstOrDefault(t => t.LanguageCode == lang).Description : p.Description,
-					Latitude = p.Latitude,
-					Longitude = p.Longitude,
-					AverageRating = p.AverageRating,
-					ReviewCount = p.ReviewCount,
-					ImageUrls = p.PoiImages.OrderBy(i => i.DisplayOrder).Select(i => i.ImageUrl).ToList(),
-					Narrations = p.Narrations.Where(n => n.LanguageCode == lang).Select(n => new NarrationDto { NarrationId = n.NarrationId, Text = n.Text, LanguageCode = n.LanguageCode, AudioUrl = n.AudioUrl, UseAudioFile = n.UseAudioFile, VoiceName = n.VoiceName }).ToList(),
-                    Restaurants = p.Restaurants.Where(r => !r.IsLocked).Select(r => new RestaurantDto
+            _context = context;
+            _logger = logger;
+        }
+        [HttpGet]
+        public async Task<ActionResult<List<POIDto>>> GetAll([FromQuery] string lang = "vi")
+        {
+            try
+            {
+                var pois = await _context.POIs
+                    .AsNoTracking()
+                    .AsSplitQuery()
+                    .Select(p => new POIDto
                     {
-						RestaurantId = r.RestaurantId,
-						Name = r.Name,
-						Address = r.Address,
-						Description = r.RestaurantTranslations.FirstOrDefault(t => t.LanguageCode == lang) != null ? r.RestaurantTranslations.FirstOrDefault(t => t.LanguageCode == lang).Description : r.Description,
-						Foods = r.Foods.Select(f => new FoodDto
-						{
-							FoodId = f.FoodId,
-							Price = f.Price,
-							Name = f.FoodTranslations.FirstOrDefault(t => t.LanguageCode == lang) != null ? f.FoodTranslations.FirstOrDefault(t => t.LanguageCode == lang).Name : f.Name,
-							Description = f.FoodTranslations.FirstOrDefault(t => t.LanguageCode == lang) != null ? f.FoodTranslations.FirstOrDefault(t => t.LanguageCode == lang).Description : f.Description
-						}).ToList()
-					}).ToList(),
-					Reviews = p.Reviews.OrderByDescending(r => r.CreatedAt).Select(rv => new ReviewDto { ReviewId = rv.ReviewId, UserId = rv.UserId, Rating = rv.Rating, Comment = rv.Comment, CreatedAt = rv.CreatedAt }).ToList()
-				})
-				.FirstOrDefaultAsync();
+                        PoiId = p.PoiId,
+                        Name = p.Name,
+                        Latitude = p.Latitude,
+                        Longitude = p.Longitude,
+                        ImageUrls = p.PoiImages
+                                      .OrderBy(i => i.DisplayOrder)
+                                      .Select(i => i.ImageUrl)
+                                      .ToList(),
+                        Narrations = p.Narrations
+                                      .Where(n => n.LanguageCode == lang)
+                                      .Select(n => new NarrationDto
+                                      {
+                                          NarrationId = n.NarrationId,
+                                          LanguageCode = n.LanguageCode,
+                                          Text = n.Text,
+                                          VoiceName = n.VoiceName,
+                                          SpeechRate = n.SpeechRate,
+                                          Volume = n.Volume
+                                      })
+                                      .ToList(),
+                        Restaurants = p.Restaurants
+                                       .Select(r => new RestaurantDto
+                                       {
+                                           RestaurantId = r.RestaurantId,
+                                           Name = r.Name,
+                                           Address = r.Address,
+                                           Foods = r.Foods
+                                                           .Select(f => new FoodDto
+                                                           {
+                                                               FoodId = f.FoodId,
+                                                               Price = f.Price,
+                                                               Name = f.FoodTranslations
+                                                                         .Where(t => t.LanguageCode == lang)
+                                                                         .Select(t => t.Name)
+                                                                         .FirstOrDefault() ?? f.Name
+                                                           })
+                                                           .ToList()
+                                       })
+                                       .ToList()
+                    })
+                    .ToListAsync();
 
-			if (poi == null) return NotFound();
-			return Ok(poi);
-		}
+                return Ok(pois);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi lấy danh sách POI");
+                return StatusCode(500, "Lỗi server nội bộ");
+            }
+        }
 
-		[HttpPost]
-		[Authorize(Roles = "Admin")]
-		public async Task<IActionResult> CreatePoi([FromBody] CreatePoiAdminRequest req)
-		{
-			var newPoi = new POI
-			{
-				Name = req.Name,
-				Latitude = req.Latitude,
-				Longitude = req.Longitude,
-				Description = req.Description,
-				AverageRating = 0,
-				ReviewCount = 0
-			};
+        // ── GET /api/POIs/{id}?lang=vi ─────────────────────────────────────
+        [HttpGet("{id}")]
+        public async Task<ActionResult<POIDto>> GetById(int id, [FromQuery] string lang = "vi")
+        {
+            var poi = await _context.POIs
+                .AsNoTracking()
+                .AsSplitQuery()
+                .Where(p => p.PoiId == id)
+                .Select(p => new POIDto
+                {
+                    PoiId = p.PoiId,
+                    Name = p.Name,
+                    Latitude = p.Latitude,
+                    Longitude = p.Longitude,
+                    ImageUrls = p.PoiImages
+                                  .OrderBy(i => i.DisplayOrder)
+                                  .Select(i => i.ImageUrl)
+                                  .ToList(),
+                    Narrations = p.Narrations
+                                  .Where(n => n.LanguageCode == lang)
+                                  .Select(n => new NarrationDto
+                                  {
+                                      NarrationId = n.NarrationId,
+                                      LanguageCode = n.LanguageCode,
+                                      Text = n.Text,
+                                      VoiceName = n.VoiceName,
+                                      SpeechRate = n.SpeechRate,
+                                      Volume = n.Volume
+                                  })
+                                  .ToList(),
+                    Restaurants = p.Restaurants
+                                   .Select(r => new RestaurantDto
+                                   {
+                                       RestaurantId = r.RestaurantId,
+                                       Name = r.Name,
+                                       Address = r.Address,
+                                       Foods = r.Foods
+                                                       .Select(f => new FoodDto
+                                                       {
+                                                           FoodId = f.FoodId,
+                                                           Price = f.Price,
+                                                           Name = f.FoodTranslations
+                                                                     .Where(t => t.LanguageCode == lang)
+                                                                     .Select(t => t.Name)
+                                                                     .FirstOrDefault() ?? f.Name
+                                                       })
+                                                       .ToList()
+                                   })
+                                   .ToList()
+                })
+                .FirstOrDefaultAsync();
 
-			_context.POIs.Add(newPoi);
-			await _context.SaveChangesAsync();
+            if (poi == null) return NotFound();
+            return Ok(poi);
+        }
 
-			return Ok(new { Message = "Tạo POI thành công", PoiId = newPoi.PoiId });
-		}
+        // ── POST /api/POIs  (Admin only) ───────────────────────────────────
+        // [CHANGED] Bỏ Description, AverageRating, ReviewCount khỏi request và model
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreatePoi([FromBody] CreatePoiAdminRequest req)
+        {
+            var newPoi = new POI
+            {
+                Name = req.Name,
+                Latitude = req.Latitude,
+                Longitude = req.Longitude
+            };
 
-		[HttpPut("{id}")]
-		[Authorize(Roles = "Admin")]
-		public async Task<IActionResult> UpdatePoi(int id, [FromBody] UpdatePoiAdminRequest req)
-		{
-			var poi = await _context.POIs.FindAsync(id);
-			if (poi == null) return NotFound("Không tìm thấy POI.");
+            _context.POIs.Add(newPoi);
+            await _context.SaveChangesAsync();
 
-			poi.Name = req.Name;
-			poi.Latitude = req.Latitude;
-			poi.Longitude = req.Longitude;
-			poi.Description = req.Description;
+            return Ok(new { Message = "Tạo POI thành công", PoiId = newPoi.PoiId });
+        }
 
-			await _context.SaveChangesAsync();
-			return NoContent();
-		}
+        // ── PUT /api/POIs/{id}  (Admin only) ──────────────────────────────
+        // [CHANGED] Bỏ Description
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdatePoi(int id, [FromBody] UpdatePoiAdminRequest req)
+        {
+            var poi = await _context.POIs.FindAsync(id);
+            if (poi == null) return NotFound("Không tìm thấy POI.");
 
-		[HttpDelete("{id}")]
-		[Authorize(Roles = "Admin")]
-		public async Task<IActionResult> DeletePoi(int id)
-		{
-			var poi = await _context.POIs.FindAsync(id);
-			if (poi == null) return NotFound("Không tìm thấy POI.");
+            poi.Name = req.Name;
+            poi.Latitude = req.Latitude;
+            poi.Longitude = req.Longitude;
 
-			_context.POIs.Remove(poi);
-			await _context.SaveChangesAsync();
-			return NoContent();
-		}
-	}	
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        // ── DELETE /api/POIs/{id}  (Admin only) ───────────────────────────
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeletePoi(int id)
+        {
+            var poi = await _context.POIs.FindAsync(id);
+            if (poi == null) return NotFound("Không tìm thấy POI.");
+
+            _context.POIs.Remove(poi);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+    }
 }

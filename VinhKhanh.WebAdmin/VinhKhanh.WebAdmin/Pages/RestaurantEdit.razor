@@ -6,12 +6,11 @@
 @inject VinhKhanh.WebAdmin.Services.INarrationService NarrationService
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
-@inject VinhKhanh.WebAdmin.Services.IPoiTranslationService PoiTransService
 @inject VinhKhanh.WebAdmin.Services.ILanguageService LanguageService
 @inject HttpClient Http
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="text-primary fw-bold"><i class="bi bi-pencil-square"></i> Cập nhật Quán ăn & Địa điểm</h3>
+    <h3 class="text-primary fw-bold"><i class="bi bi-pencil-square"></i> Cập nhật Quán ăn</h3>
     <button class="btn btn-outline-secondary fw-bold" @onclick="GoBack"><i class="bi bi-arrow-left"></i> Quay lại</button>
 </div>
 
@@ -35,15 +34,9 @@ else
                 </li>
                 <li class="nav-item">
                     <button class="nav-link @(activeTab == "audio" ? "active fw-bold text-primary" : "text-muted")" @onclick='LoadNarrations'>
-                        <i class="bi bi-mic"></i> Âm thanh / Thuyết minh
+                        <i class="bi bi-mic"></i> Thuyết minh AI (TTS)
                     </button>
                 </li>
-                <li class="nav-item">
-                    <button class="nav-link @(activeTab == "intro" ? "active fw-bold text-primary" : "text-muted")" @onclick='LoadPoiTranslations'>
-                        <i class="bi bi-translate"></i> Giới thiệu đa ngôn ngữ
-                    </button>
-                </li>
-                @* 👇 THÊM TAB QUẢN LÝ HÌNH ẢNH 👇 *@
                 <li class="nav-item">
                     <button class="nav-link @(activeTab == "images" ? "active fw-bold text-primary" : "text-muted")" @onclick='LoadImages'>
                         <i class="bi bi-images"></i> Quản lý Hình ảnh
@@ -66,71 +59,17 @@ else
                             <InputText @bind-Value="editingRes.Address" class="form-control" required />
                         </div>
                     </div>
-                    <div class="row bg-light p-3 rounded mb-4 border">
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label fw-bold">Vĩ độ (Latitude)</label>
-                            <InputNumber @bind-Value="editingRes.Latitude" class="form-control" step="any" required />
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label fw-bold">Kinh độ (Longitude)</label>
-                            <InputNumber @bind-Value="editingRes.Longitude" class="form-control" step="any" required />
-                        </div>
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">Mô tả Quán (Tiếng Việt Mặc định)</label>
-                        <InputTextArea @bind-Value="editingRes.Description" class="form-control" rows="4" />
-                    </div>
-                    <div class="text-end">
+                    
+                    <div class="text-end mt-3">
                         <button type="submit" class="btn btn-primary fw-bold px-5 py-2"><i class="bi bi-save"></i> Lưu Thông Tin</button>
                     </div>
                 </EditForm>
             }
 
-            @if (activeTab == "intro")
-            {
-                <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
-                    <h5 class="text-primary fw-bold"><i class="bi bi-chat-left-text"></i> Bản dịch giới thiệu quán</h5>
-                    <div>
-                        <button class="btn btn-sm btn-info text-white fw-bold me-2 shadow-sm" @onclick="AutoTranslateIntro" disabled="@isTranslatingIntro">
-                            <i class="bi bi-magic"></i> @(isTranslatingIntro ? "Đang dịch..." : "Dịch tự động bằng AI")
-                        </button>
-
-                        <button class="btn btn-sm btn-success fw-bold shadow-sm" @onclick="() => OpenPoiTransModal()">
-                            <i class="bi bi-plus-circle"></i> Thêm thủ công
-                        </button>
-                    </div>
-                </div>
-                <div class="alert alert-light border small text-muted">
-                    <i class="bi bi-info-circle"></i> Tính năng <strong>Dịch tự động</strong> sẽ tự động lấy <em>"Mô tả Quán"</em> ở Tab Thông tin (Tiếng Việt) để dịch ra tất cả các ngôn ngữ có trong hệ thống.
-                </div>
-                <table class="table table-bordered align-middle shadow-sm">
-                    <thead class="table-light">
-                        <tr>
-                            <th width="150">Ngôn ngữ</th>
-                            <th>Nội dung mô tả</th>
-                            <th width="100" class="text-end">Xóa</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var t in poiTranslations)
-                        {
-                            <tr>
-                                <td class="fw-bold text-primary">@t.LanguageCode.ToUpper()</td>
-                                <td><div class="text-truncate" style="max-width: 600px;">@t.Description</div></td>
-                                <td class="text-end">
-                                    <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenPoiTransModal(t)"><i class="bi bi-pencil"></i></button>
-                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeletePoiTrans(t.TranslationId)"><i class="bi bi-trash"></i></button>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            }
-
             @if (activeTab == "audio")
             {
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="text-primary fw-bold"><i class="bi bi-megaphone"></i> Danh sách Thuyết minh</h5>
+                    <h5 class="text-primary fw-bold"><i class="bi bi-megaphone"></i> Text-to-Speech (Thuyết minh tự động)</h5>
                     <div>
                         <button class="btn btn-sm btn-info text-white fw-bold me-2 shadow-sm" @onclick="AutoTranslateAudio" disabled="@isTranslatingAudio">
                             <i class="bi bi-magic"></i> @(isTranslatingAudio ? "Đang dịch..." : "Dịch tự động bằng AI")
@@ -142,7 +81,7 @@ else
                     </div>
                 </div>
                 <div class="alert alert-light border small text-muted">
-                    <i class="bi bi-info-circle"></i> Hãy tạo một bản Thuyết minh <strong>Tiếng Việt (vi)</strong> trước, sau đó ấn <strong>Dịch tự động</strong> để AI tạo ra các ngôn ngữ còn lại.
+                    <i class="bi bi-info-circle"></i> Hãy tạo một bản Thuyết minh <strong>Tiếng Việt (vi)</strong> trước, sau đó ấn <strong>Dịch tự động</strong> để AI tạo ra các bản đọc cho ngôn ngữ còn lại.
                 </div>
 
                 <table class="table table-bordered align-middle shadow-sm">
@@ -150,7 +89,7 @@ else
                         <tr>
                             <th>Ngôn ngữ</th>
                             <th>Nội dung đọc (Text)</th>
-                            <th>Chế độ</th>
+                            <th>Giọng AI</th>
                             <th class="text-end">Hành động</th>
                         </tr>
                     </thead>
@@ -165,14 +104,7 @@ else
                                         <div class="text-truncate" style="max-width: 400px;" title="@n.Text">@n.Text</div>
                                     </td>
                                     <td>
-                                        @if (n.UseAudioFile)
-                                        {
-                                            <span class="badge bg-secondary"><i class="bi bi-file-music"></i> File âm thanh</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-info text-dark"><i class="bi bi-robot"></i> Đọc AI (@n.VoiceName)</span>
-                                        }
+                                        <span class="badge bg-info text-dark"><i class="bi bi-robot"></i> @n.VoiceName</span>
                                     </td>
                                     <td class="text-end">
                                         <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenEditNarrationModal(n)"><i class="bi bi-pencil"></i></button>
@@ -189,7 +121,6 @@ else
                 </table>
             }
 
-            @* 👇 THÊM NỘI DUNG TAB HÌNH ẢNH 👇 *@
             @if (activeTab == "images")
             {
                 <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
@@ -230,7 +161,6 @@ else
     </div>
 }
 
-@* --- CÁC MODAL BÊN DƯỚI GIỮ NGUYÊN --- *@
 @if (showNarrationModal)
 {
     <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
@@ -243,120 +173,35 @@ else
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label fw-bold">Ngôn ngữ</label>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Ngôn ngữ</label>
-                            <select class="form-select" @bind="editingNarration.LanguageCode" disabled="@isEditNarration">
-                                @if (availableLanguages != null && availableLanguages.Any())
+                        <select class="form-select" @bind="editingNarration.LanguageCode" disabled="@isEditNarration">
+                            @if (availableLanguages != null && availableLanguages.Any())
+                            {
+                                @foreach (var lang in availableLanguages)
                                 {
-                                    @foreach (var lang in availableLanguages)
-                                    {
-                                        <option value="@lang.LanguageCode">@lang.LanguageName (@lang.LanguageCode)</option>
-                                    }
+                                    <option value="@lang.LanguageCode">@lang.LanguageName (@lang.LanguageCode)</option>
                                 }
-                                else
-                                {
-                                    <option value="vi">Tiếng Việt (vi) - Mặc định</option>
-                                }
-                            </select>
-                        </div>
+                            }
+                            else
+                            {
+                                <option value="vi">Tiếng Việt (vi) - Mặc định</option>
+                            }
+                        </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Nội dung thuyết minh (Text)</label>
-                        <textarea class="form-control" rows="4" @bind="editingNarration.Text"></textarea>
-                    </div>
-                    <div class="mb-3 form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="useAudioFile" @bind="editingNarration.UseAudioFile">
-                        <label class="form-check-label fw-bold text-success" for="useAudioFile">Dùng File Audio tự thu âm?</label>
+                        <label class="form-label fw-bold">Nội dung thuyết minh (Text để AI đọc)</label>
+                        <textarea class="form-control" rows="5" @bind="editingNarration.Text"></textarea>
                     </div>
 
-                    @if (editingNarration.UseAudioFile)
-                    {
-                        <div class="mb-3 bg-light p-3 rounded border">
-                            <label class="form-label fw-bold"><i class="bi bi-cloud-upload"></i> Tải lên file Audio (.mp3, .wav)</label>
-                            <InputFile OnChange="HandleFileSelected" class="form-control" accept="audio/*" />
-                            @if (!string.IsNullOrEmpty(editingNarration.AudioUrl))
-                            {
-                                <small class="text-success mt-2 d-block"><i class="bi bi-check-circle-fill"></i> Đã có audio: @editingNarration.AudioUrl</small>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="mb-3 bg-light p-3 rounded border">
-                            <label class="form-label fw-bold text-info"><i class="bi bi-robot"></i> Chọn giọng AI (TTS)</label>
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Ngôn ngữ</label>
-                                <select class="form-select" @bind="editingNarration.LanguageCode" disabled="@isEditNarration">
-                                    @if (availableLanguages != null && availableLanguages.Any())
-                                    {
-                                        @foreach (var lang in availableLanguages)
-                                        {
-                                            <option value="@lang.LanguageCode">@lang.LanguageName (@lang.LanguageCode)</option>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <option value="vi">Tiếng Việt (vi) - Mặc định</option>
-                                    }
-                                </select>
-                            </div>
-                        </div>
-                    }
+                    <div class="mb-3 bg-light p-3 rounded border">
+                        <label class="form-label fw-bold text-info"><i class="bi bi-robot"></i> Giọng đọc AI (Voice Name)</label>
+                        <input type="text" class="form-control" @bind="editingNarration.VoiceName" placeholder="VD: vi-VN, en-US, ko-KR..." />
+                        <small class="text-muted fst-italic">Hệ thống sẽ tự động tổng hợp giọng nói dựa trên mã này.</small>
+                    </div>
 
                     <div class="text-end mt-4">
                         <button class="btn btn-secondary" @onclick="() => showNarrationModal = false">Hủy</button>
                         <button class="btn btn-primary fw-bold px-4 ms-2" @onclick="SaveNarration" disabled="@isUploading">
                             @(isUploading ? "Đang lưu..." : "Lưu dữ liệu")
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-}
-@if (showPoiTransModal)
-{
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content border-success shadow-lg">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title fw-bold"><i class="bi bi-translate"></i> Dịch giới thiệu quán</h5>
-                    <button type="button" class="btn-close btn-close-white" @onclick="() => showPoiTransModal = false"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Chọn Ngôn ngữ</label>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Ngôn ngữ</label>
-                            <select class="form-select" @bind="editingNarration.LanguageCode" disabled="@isEditNarration">
-                                @if (availableLanguages != null && availableLanguages.Any())
-                                {
-                                    @foreach (var lang in availableLanguages)
-                                    {
-                                        <option value="@lang.LanguageCode">@lang.LanguageName (@lang.LanguageCode)</option>
-                                    }
-                                }
-                                else
-                                {
-                                    <option value="vi">Tiếng Việt (vi) - Mặc định</option>
-                                }
-                            </select>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Nội dung giới thiệu (Mô tả chi tiết)</label>
-                        <textarea class="form-control" rows="8" @bind="editingPoiTrans.Description"
-                                  placeholder="Nhập nội dung giới thiệu bằng ngôn ngữ đã chọn..."></textarea>
-                    </div>
-
-                    <div class="alert alert-info small">
-                        <i class="bi bi-info-circle"></i> Nội dung này sẽ hiển thị ở phần giới thiệu chi tiết của quán trên App Mobile khi khách chọn ngôn ngữ tương ứng.
-                    </div>
-
-                    <div class="text-end mt-4">
-                        <button class="btn btn-secondary px-4" @onclick="() => showPoiTransModal = false">Hủy</button>
-                        <button class="btn btn-success fw-bold px-4 ms-2" @onclick="SavePoiTrans">
-                            <i class="bi bi-save"></i> Lưu bản dịch
                         </button>
                     </div>
                 </div>
@@ -372,19 +217,14 @@ else
     private string activeTab = "info";
     private Restaurant? editingRes;
 
-    // Biến cho Narration (Audio)
     private List<NarrationDto> narrations = new();
     private bool showNarrationModal = false;
     private bool isEditNarration = false;
     private NarrationDto editingNarration = new();
 
     private List<LanguageDto> availableLanguages = new();
-
-    // Biến trạng thái Dịch tự động
-    private bool isTranslatingIntro = false;
     private bool isTranslatingAudio = false;
 
-    // 👇 CÁC BIẾN CHO TAB HÌNH ẢNH 👇
     private class PoiImageDto { public int ImageId { get; set; } public string ImageUrl { get; set; } = ""; }
     private List<PoiImageDto> poiImages = new();
     private bool isUploadingImage = false;
@@ -399,7 +239,7 @@ else
     private async Task HandleSubmitInfo()
     {
         if (editingRes == null) return;
-        var req = new UpdateRestaurantReq(editingRes.Name, editingRes.Address ?? "", editingRes.Description, editingRes.Latitude, editingRes.Longitude, editingRes.PoiId);
+        var req = new UpdateRestaurantReq(editingRes.Name, editingRes.Address ?? "", editingRes.PoiId);
         bool success = await RestaurantService.UpdateAsync(Id, req);
         if (success) { await JS.InvokeVoidAsync("alert", "Cập nhật thành công!"); GoBack(); }
         else { await JS.InvokeVoidAsync("alert", "Lỗi cập nhật!"); }
@@ -407,9 +247,6 @@ else
 
     private void GoBack() => Navigation.NavigateTo("/restaurants");
 
-    // ==========================================
-    // XỬ LÝ TAB: HÌNH ẢNH
-    // ==========================================
     private async Task LoadImages()
     {
         activeTab = "images";
@@ -417,15 +254,12 @@ else
         {
             try
             {
-                // Gọi API lấy danh sách ảnh
                 poiImages = await Http.GetFromJsonAsync<List<PoiImageDto>>($"api/PoiImages/{editingRes.PoiId}") ?? new();
                 StateHasChanged();
             }
             catch (Exception ex)
             {
-                // Nếu lỗi, hiện thông báo cho dễ sửa
                 Console.WriteLine("Lỗi tải ảnh: " + ex.Message);
-                await JS.InvokeVoidAsync("alert", "Lỗi tải danh sách ảnh. Hãy check tab Network (F12).");
             }
         }
     }
@@ -433,37 +267,26 @@ else
     private async Task UploadImage(InputFileChangeEventArgs e)
     {
         if (editingRes == null) return;
-
         isUploadingImage = true;
         try
         {
-            // Tạo 1 gói hàng (Form Data) duy nhất
             using var content = new MultipartFormDataContent();
-
-            // 1. Bỏ số ID của quán vào gói hàng (Khớp với [FromForm] int poiId)
             content.Add(new StringContent(editingRes.PoiId.ToString()), "poiId");
-
-            // 2. Lặp qua các ảnh và bỏ tất cả vào chung cái gói hàng đó
             foreach (var file in e.GetMultipleFiles(maximumFileCount: 10))
             {
-                var fileContent = new StreamContent(file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024)); // Max 10MB
+                var fileContent = new StreamContent(file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024));
                 fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
-
-                // CHÚ Ý: Đã thêm chữ "s" vào "files" để khớp với Backend
                 content.Add(fileContent, "files", file.Name);
             }
 
-            // 3. Gửi gói hàng đi bằng ĐÚNG ĐƯỜNG LINK
             var response = await Http.PostAsync("api/PoiImages/upload-multiple", content);
-
             if (response.IsSuccessStatusCode)
             {
-                await LoadImages(); // Tải lại danh sách ảnh
-                await JS.InvokeVoidAsync("alert", "Upload thành công rực rỡ!"); // Báo tin vui
+                await LoadImages();
+                await JS.InvokeVoidAsync("alert", "Upload thành công rực rỡ!");
             }
             else
             {
-                // Nếu Backend chửi, in câu chửi đó ra màn hình
                 var errorMsg = await response.Content.ReadAsStringAsync();
                 await JS.InvokeVoidAsync("alert", $"Báo lỗi từ Server: {errorMsg}");
             }
@@ -494,38 +317,6 @@ else
         }
     }
 
-    // ==========================================
-    // 👇 HÀM DỊCH TỰ ĐỘNG - INTRO (BẢN DỊCH)
-    // ==========================================
-    private async Task AutoTranslateIntro()
-    {
-        if (string.IsNullOrWhiteSpace(editingRes?.Description))
-        {
-            await JS.InvokeVoidAsync("alert", "Vui lòng nhập 'Mô tả Quán' bằng Tiếng Việt ở tab [Thông tin chung] trước khi dịch!");
-            return;
-        }
-
-        if (!await JS.InvokeAsync<bool>("confirm", "Hệ thống sẽ dịch tự động sang các ngôn ngữ khác (Ghi đè bản cũ). Bạn có chắc chắn?")) return;
-
-        isTranslatingIntro = true;
-        try
-        {
-            var response = await Http.PostAsJsonAsync($"api/Translate/auto-intro/{editingRes.PoiId}", new { Text = editingRes.Description });
-            if (response.IsSuccessStatusCode)
-            {
-                await LoadPoiTranslations();
-                await JS.InvokeVoidAsync("alert", "Tự động dịch thành công!");
-            }
-            else await JS.InvokeVoidAsync("alert", "Lỗi dịch tự động từ Server!");
-        }
-        catch { await JS.InvokeVoidAsync("alert", "Lỗi kết nối máy chủ!"); }
-
-        isTranslatingIntro = false;
-    }
-
-    // ==========================================
-    // 👇 HÀM DỊCH TỰ ĐỘNG - AUDIO (THUYẾT MINH)
-    // ==========================================
     private async Task AutoTranslateAudio()
     {
         var viNarration = narrations.FirstOrDefault(n => n.LanguageCode == "vi");
@@ -536,7 +327,6 @@ else
         }
 
         if (!await JS.InvokeAsync<bool>("confirm", "Hệ thống sẽ dùng bản Tiếng Việt để dịch tự động bài thuyết minh sang các ngôn ngữ khác. Chắc chắn chứ?")) return;
-
         isTranslatingAudio = true;
         try
         {
@@ -553,9 +343,6 @@ else
         isTranslatingAudio = false;
     }
 
-    // ==========================================
-    // XỬ LÝ TAB 2: ÂM THANH / THUYẾT MINH
-    // ==========================================
     private async Task LoadNarrations()
     {
         activeTab = "audio";
@@ -576,17 +363,11 @@ else
     private void OpenEditNarrationModal(NarrationDto n)
     {
         isEditNarration = true;
-        editingNarration = new NarrationDto { NarrationId = n.NarrationId, PoiId = n.PoiId, LanguageCode = n.LanguageCode, Text = n.Text, UseAudioFile = n.UseAudioFile, VoiceName = n.VoiceName };
+        editingNarration = new NarrationDto { NarrationId = n.NarrationId, PoiId = n.PoiId, LanguageCode = n.LanguageCode, Text = n.Text, VoiceName = n.VoiceName };
         showNarrationModal = true;
     }
 
-    private IBrowserFile? selectedAudioFile;
     private bool isUploading = false;
-
-    private void HandleFileSelected(InputFileChangeEventArgs e)
-    {
-        selectedAudioFile = e.File;
-    }
 
     private async Task SaveNarration()
     {
@@ -609,24 +390,19 @@ else
 
             if (isEditNarration)
             {
-                var result = await NarrationService.UpdateAsync(currentNarrationId, new UpdateNarrationDto(editingNarration.Text, editingNarration.UseAudioFile, editingNarration.VoiceName));
+                var result = await NarrationService.UpdateAsync(currentNarrationId, new UpdateNarrationDto(editingNarration.Text, editingNarration.VoiceName));
                 isSuccess = result.Success;
                 serverMsg = result.Message;
             }
             else
             {
-                var result = await NarrationService.CreateAsync(new CreateNarrationDto(editingNarration.PoiId, editingNarration.LanguageCode, editingNarration.Text, editingNarration.UseAudioFile, editingNarration.VoiceName));
+                var result = await NarrationService.CreateAsync(new CreateNarrationDto(editingNarration.PoiId, editingNarration.LanguageCode, editingNarration.Text, editingNarration.VoiceName));
                 isSuccess = result.Success;
                 serverMsg = result.Message;
             }
 
             if (isSuccess)
             {
-                if (editingNarration.UseAudioFile && selectedAudioFile != null)
-                {
-                    await NarrationService.UploadAudioAsync(currentNarrationId, selectedAudioFile);
-                }
-
                 showNarrationModal = false;
                 await LoadNarrations();
             }
@@ -646,78 +422,6 @@ else
         if (await JS.InvokeAsync<bool>("confirm", "Xóa bài thuyết minh này?"))
         {
             if (await NarrationService.DeleteAsync(narrationId)) await LoadNarrations();
-        }
-    }
-
-    // ==========================================
-    // XỬ LÝ TAB 3: GIỚI THIỆU ĐA NGÔN NGỮ
-    // ==========================================
-    private List<PoiTranslationDto> poiTranslations = new();
-    private PoiTranslationDto editingPoiTrans = new();
-    private bool showPoiTransModal = false;
-
-    private async Task LoadPoiTranslations()
-    {
-        activeTab = "intro";
-        if (editingRes != null)
-        {
-            poiTranslations = await PoiTransService.GetByPoiIdAsync(editingRes.PoiId);
-            StateHasChanged();
-        }
-    }
-
-    private void OpenPoiTransModal(PoiTranslationDto? t = null)
-    {
-        if (t != null)
-        {
-            editingPoiTrans = new PoiTranslationDto
-            {
-                TranslationId = t.TranslationId,
-                PoiId = t.PoiId,
-                LanguageCode = t.LanguageCode,
-                Description = t.Description
-            };
-        }
-        else
-        {
-            editingPoiTrans = new PoiTranslationDto
-            {
-                PoiId = editingRes!.PoiId,
-                LanguageCode = "en",
-                Description = ""
-            };
-        }
-        showPoiTransModal = true;
-    }
-
-    private async Task SavePoiTrans()
-    {
-        if (string.IsNullOrWhiteSpace(editingPoiTrans.Description))
-        {
-            await JS.InvokeVoidAsync("alert", "Vui lòng nhập nội dung giới thiệu!");
-            return;
-        }
-
-        bool success = await PoiTransService.SaveAsync(editingPoiTrans.PoiId, editingPoiTrans.LanguageCode, editingPoiTrans.Description);
-        if (success)
-        {
-            showPoiTransModal = false;
-            await LoadPoiTranslations();
-        }
-        else
-        {
-            await JS.InvokeVoidAsync("alert", "Lỗi khi lưu bản dịch!");
-        }
-    }
-
-    private async Task DeletePoiTrans(int transId)
-    {
-        if (await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn xóa bản dịch giới thiệu này?"))
-        {
-            if (await PoiTransService.DeleteAsync(transId))
-            {
-                await LoadPoiTranslations();
-            }
         }
     }
 }

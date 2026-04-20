@@ -10,24 +10,19 @@ namespace Server.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int FoodId { get; set; }
 
+        [Required]
         [MaxLength(200)]
         public string Name { get; set; }
 
         [Column(TypeName = "decimal(10,2)")]
-        public decimal? Price { get; set; }
-
-        [MaxLength(500)]
-        public string? Description { get; set; }
+        public decimal Price { get; set; }
 
         [Required]
         [ForeignKey("Restaurant")]
         public int RestaurantId { get; set; }
 
-        // Navigation properties
+        // Navigation
         public virtual Restaurant Restaurant { get; set; }
         public virtual ICollection<FoodTranslation> FoodTranslations { get; set; } = new List<FoodTranslation>();
-
-        //public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        //public DateTime? UpdatedAt { get; set; }
     }
 }

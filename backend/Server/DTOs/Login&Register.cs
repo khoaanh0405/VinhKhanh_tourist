@@ -1,4 +1,4 @@
-﻿namespace VinhKhanhTourism.DTOs
+﻿namespace Server.DTOs
 {
     public class LoginRequest
     {

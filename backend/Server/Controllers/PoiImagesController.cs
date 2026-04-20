@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Server.Data;
 using Server.DTOs;
 using Server.Models;
-using Server.Services; 
+using Server.Services;
 
 namespace Server.Controllers
 {
@@ -104,69 +104,69 @@ namespace Server.Controllers
 
         [HttpPost("upload-multiple")]
         [RequestSizeLimit(50 * 1024 * 1024)]
-		public async Task<IActionResult> UploadMultiple(
-	[FromForm] int poiId,
-	[FromForm] List<IFormFile> files)
-		{
-			if (files == null || files.Count == 0) return BadRequest("Vui lòng chọn ít nhất một file.");
-			if (!await _context.POIs.AnyAsync(p => p.PoiId == poiId)) return NotFound($"Không tìm thấy POI với Id = {poiId}");
+        public async Task<IActionResult> UploadMultiple(
+    [FromForm] int poiId,
+    [FromForm] List<IFormFile> files)
+        {
+            if (files == null || files.Count == 0) return BadRequest("Vui lòng chọn ít nhất một file.");
+            if (!await _context.POIs.AnyAsync(p => p.PoiId == poiId)) return NotFound($"Không tìm thấy POI với Id = {poiId}");
 
-			var maxOrder = await _context.PoiImages.Where(i => i.PoiId == poiId).MaxAsync(i => (int?)i.DisplayOrder) ?? -1;
-			var results = new List<PoiImageResponseDto>();
+            var maxOrder = await _context.PoiImages.Where(i => i.PoiId == poiId).MaxAsync(i => (int?)i.DisplayOrder) ?? -1;
+            var results = new List<PoiImageResponseDto>();
 
-			foreach (var file in files)
-			{
-				if (file.Length > MaxFileSizeBytes || !AllowedExtensions.Contains(Path.GetExtension(file.FileName)))
-				{
-					return BadRequest($"{file.FileName}: Kích thước hoặc định dạng không hợp lệ.");
-				}
+            foreach (var file in files)
+            {
+                if (file.Length > MaxFileSizeBytes || !AllowedExtensions.Contains(Path.GetExtension(file.FileName)))
+                {
+                    return BadRequest($"{file.FileName}: Kích thước hoặc định dạng không hợp lệ.");
+                }
 
-				try
-				{
-					maxOrder++;
-					// 1. Gọi lên Cloudinary
-					var uploadResult = await _cloudinaryService.UploadImageAsync(file);
+                try
+                {
+                    maxOrder++;
+                    // 1. Gọi lên Cloudinary
+                    var uploadResult = await _cloudinaryService.UploadImageAsync(file);
 
-					// 2. Tạo Model để lưu DB
-					var newImage = new PoiImage
-					{
-						PoiId = poiId,
-						ImageUrl = uploadResult.Url,
-						PublicId = uploadResult.PublicId,
-						DisplayOrder = maxOrder,
-						CreatedAt = DateTime.UtcNow
-					};
+                    // 2. Tạo Model để lưu DB
+                    var newImage = new PoiImage
+                    {
+                        PoiId = poiId,
+                        ImageUrl = uploadResult.Url,
+                        PublicId = uploadResult.PublicId,
+                        DisplayOrder = maxOrder,
+                        CreatedAt = DateTime.UtcNow
+                    };
 
-					// 3. Lưu vào DB
-					_context.PoiImages.Add(newImage);
-					await _context.SaveChangesAsync();
+                    // 3. Lưu vào DB
+                    _context.PoiImages.Add(newImage);
+                    await _context.SaveChangesAsync();
 
-					results.Add(new PoiImageResponseDto
-					{
-						ImageId = newImage.ImageId,
-						PoiId = newImage.PoiId,
-						ImageUrl = newImage.ImageUrl,
-						PublicId = newImage.PublicId,
-						DisplayOrder = newImage.DisplayOrder,
-						CreatedAt = newImage.CreatedAt
-					});
-				}
-				catch (Exception ex)
-				{
-					// 👇 ÉP BACKEND PHẢI BÁO LỖI RA FRONTEND 👇
-					var errorMessage = $"Lỗi khi lưu file: {ex.Message}";
-					if (ex.InnerException != null)
-					{
-						errorMessage += $" | Chi tiết sâu: {ex.InnerException.Message}";
-					}
-					return BadRequest(errorMessage);
-				}
-			}
+                    results.Add(new PoiImageResponseDto
+                    {
+                        ImageId = newImage.ImageId,
+                        PoiId = newImage.PoiId,
+                        ImageUrl = newImage.ImageUrl,
+                        PublicId = newImage.PublicId,
+                        DisplayOrder = newImage.DisplayOrder,
+                        CreatedAt = newImage.CreatedAt
+                    });
+                }
+                catch (Exception ex)
+                {
+                    // 👇 ÉP BACKEND PHẢI BÁO LỖI RA FRONTEND 👇
+                    var errorMessage = $"Lỗi khi lưu file: {ex.Message}";
+                    if (ex.InnerException != null)
+                    {
+                        errorMessage += $" | Chi tiết sâu: {ex.InnerException.Message}";
+                    }
+                    return BadRequest(errorMessage);
+                }
+            }
 
-			return Ok(results);
-		}
+            return Ok(results);
+        }
 
-		[HttpPatch("reorder")]
+        [HttpPatch("reorder")]
         public async Task<IActionResult> Reorder([FromBody] List<PoiImageReorderDto> items)
         {
             // (Giữ nguyên, không liên quan đến Cloudinary)
@@ -192,8 +192,8 @@ namespace Server.Controllers
         {
             var image = await _context.PoiImages.FindAsync(id);
             if (image == null) return NotFound($"Không tìm thấy ảnh với Id = {id}");
-			Console.WriteLine($"Đang xóa ảnh có PublicId: {image.PublicId}");
-			try
+            Console.WriteLine($"Đang xóa ảnh có PublicId: {image.PublicId}");
+            try
             {
                 // 1. Xóa ảnh trên Cloudinary dựa vào PublicId
                 if (!string.IsNullOrEmpty(image.PublicId))

@@ -2,11 +2,19 @@
 @attribute [Authorize]
 @using VinhKhanh.WebAdmin.Models
 @inject VinhKhanh.WebAdmin.Services.DashboardService DashboardService
+@implements IDisposable
 
 <PageTitle>Tổng quan hệ thống</PageTitle>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="text-primary fw-bold"><i class="bi bi-speedometer2"></i> Tổng quan hệ thống (Dashboard)</h3>
+    <h3 class="text-primary fw-bold"><i class="bi bi-speedometer2"></i> Tổng quan Hệ thống (Live)</h3>
+    @if (isPolling)
+    {
+        <span class="badge bg-success rounded-pill px-3 py-2 animate-pulse">
+            <span class="spinner-grow spinner-grow-sm me-1" role="status" aria-hidden="true"></span>
+            Đang cập nhật trực tiếp...
+        </span>
+    }
 </div>
 
 @if (isLoading)
@@ -15,137 +23,176 @@
 }
 else
 {
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm border-start border-primary border-4 h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="text-xs fw-bold text-primary text-uppercase mb-1">Địa điểm (POIs)</div>
-                            <div class="h3 mb-0 fw-bold text-gray-800">@stats.TotalPois</div>
-                        </div>
-                        <i class="bi bi-geo-alt fs-1 text-gray-300 opacity-50"></i>
-                    </div>
+    <div class="row mb-5 g-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-lg bg-gradient-primary text-white h-100 rounded-4" style="background: linear-gradient(135deg, #0d6efd, #0dcaf0);">
+                <div class="card-body p-4 position-relative overflow-hidden">
+                    <h6 class="text-uppercase fw-bold opacity-75 mb-1"><i class="bi bi-broadcast"></i> Đang Online (Active)</h6>
+                    <div class="display-3 fw-bold mb-0">@stats.ActiveUsers <span class="fs-4 fw-normal opacity-75">user</span></div>
+                    <i class="bi bi-person-lines-fill position-absolute text-white opacity-25" style="font-size: 6rem; bottom: -10px; right: -10px;"></i>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm border-start border-success border-4 h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="text-xs fw-bold text-success text-uppercase mb-1">Quán ăn</div>
-                            <div class="h3 mb-0 fw-bold text-gray-800">@stats.TotalRestaurants</div>
-                        </div>
-                        <i class="bi bi-shop fs-1 text-gray-300 opacity-50"></i>
-                    </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-lg bg-gradient-success text-white h-100 rounded-4" style="background: linear-gradient(135deg, #198754, #20c997);">
+                <div class="card-body p-4 position-relative overflow-hidden">
+                    <h6 class="text-uppercase fw-bold opacity-75 mb-1"><i class="bi bi-phone"></i> Tổng Lượt Truy Cập</h6>
+                    <div class="display-3 fw-bold mb-0">@stats.TotalVisits <span class="fs-4 fw-normal opacity-75">máy</span></div>
+                    <i class="bi bi-phone-vibrate position-absolute text-white opacity-25" style="font-size: 6rem; bottom: -10px; right: 10px;"></i>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm border-start border-info border-4 h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="text-xs fw-bold text-info text-uppercase mb-1">Món ăn (Menu)</div>
-                            <div class="h3 mb-0 fw-bold text-gray-800">@stats.TotalFoods</div>
-                        </div>
-                        <i class="bi bi-menu-button-wide fs-1 text-gray-300 opacity-50"></i>
-                    </div>
-                </div>
+
+        <div class="col-md-4">
+    <div class="card border-0 shadow-lg bg-gradient-warning text-dark h-100 rounded-4" style="background: linear-gradient(135deg, #ffc107, #fd7e14);">
+        <div class="card-body p-4 position-relative overflow-hidden">
+            <div class="d-flex justify-content-between align-items-start">
+                <h6 class="text-uppercase fw-bold opacity-75 mb-1"><i class="bi bi-qr-code-scan"></i> Tổng Lượt Quét QR</h6>
+    
+                <button class="btn btn-sm p-0 border-0 text-dark opacity-75" 
+                        style="z-index: 5; background: transparent; transform: translateY(-8px);" 
+                        @onclick="OpenScanDetail" 
+                        title="Xem chi tiết">
+                    <i class="bi bi-code fs-3"></i>
+                </button>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm border-start border-warning border-4 h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="text-xs fw-bold text-warning text-uppercase mb-1">Lượt đánh giá</div>
-                            <div class="h3 mb-0 fw-bold text-gray-800">@stats.TotalReviews</div>
-                        </div>
-                        <i class="bi bi-star fs-1 text-gray-300 opacity-50"></i>
-                    </div>
-                </div>
-            </div>
+            <div class="display-3 fw-bold mb-0">@stats.TotalQrScans <span class="fs-4 fw-normal opacity-75">lượt</span></div>
+            <i class="bi bi-qr-code position-absolute text-dark opacity-10" style="font-size: 6rem; bottom: -10px; right: 10px;"></i>
         </div>
     </div>
+</div>
 
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 fw-bold text-primary"><i class="bi bi-trophy text-warning"></i> Top 5 Quán ăn được đánh giá cao nhất</h6>
+@* --- Dán đoạn Modal này vào tận cùng file Index.razor --- *@
+@if (showDetailModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-dark text-white border-0">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-bar-chart-fill me-2 text-warning"></i> Chi tiết lượt quét theo Quán</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="CloseScanDetail"></button>
                 </div>
-                <div class="card-body p-0">
-                    <table class="table table-hover align-middle mb-0">
+                <div class="modal-body p-0">
+                    <table class="table table-hover mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th class="ps-3">Hạng</th>
-                                <th>Tên Quán (POI)</th>
-                                <th>Điểm TB</th>
-                                <th>Số lượt đánh giá</th>
+                                <th class="ps-4">Tên Quán / Địa điểm</th>
+                                <th class="text-center">Số lượt quét</th>
+                                <th class="pe-4 text-end">Tỷ lệ</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @if (stats.TopPois != null && stats.TopPois.Any())
+                            @if (stats.PoiScanStats == null || !stats.PoiScanStats.Any())
                             {
-                                int rank = 1;
-                                @foreach (var poi in stats.TopPois)
-                                {
-                                    <tr>
-                                        <td class="ps-3 fw-bold text-muted">#@rank</td>
-                                        <td class="fw-bold text-dark">@poi.Name</td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <span class="fs-5 fw-bold text-warning me-2">@poi.AverageRating.ToString("0.0")</span>
-                                                <div>
-                                                    @for (int i = 1; i <= 5; i++)
-                                                    {
-                                                        if (i <= Math.Round(poi.AverageRating))
-                                                        {
-                                                            <i class="bi bi-star-fill text-warning"></i>
-                                                        }
-                                                        else
-                                                        {
-                                                            <i class="bi bi-star text-warning opacity-25"></i>
-                                                        }
-                                                    }
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td><span class="badge bg-secondary rounded-pill fs-6">@poi.ReviewCount lượt</span></td>
-                                    </tr>
-                                    rank++;
-                                }
+                                <tr><td colspan="3" class="text-center py-4 text-muted">Chưa có dữ liệu quét nào.</td></tr>
                             }
                             else
                             {
-                                <tr><td colspan="4" class="text-center py-4 text-muted">Chưa có dữ liệu đánh giá.</td></tr>
+                                @foreach (var item in stats.PoiScanStats)
+                                {
+                                    var percent = stats.TotalQrScans > 0 ? (item.ScanCount * 100 / stats.TotalQrScans) : 0;
+                                    <tr>
+                                        <td class="ps-4 fw-bold text-primary">@item.PoiName</td>
+                                        <td class="text-center"><span class="badge bg-secondary rounded-pill">@item.ScanCount</span></td>
+                                        <td class="pe-4 text-end text-muted small">@percent%</td>
+                                    </tr>
+                                }
                             }
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="card shadow-sm border-0 bg-primary text-white">
-                <div class="card-body">
-                    <h5 class="fw-bold"><i class="bi bi-lightbulb"></i> Mẹo quản trị</h5>
-                    <p class="mb-0 mt-3">Các quán ăn có điểm đánh giá cao sẽ được ưu tiên hiển thị trên Ứng dụng di động của du khách. Hãy nhắc nhở các quản lý nhà hàng (Manager) thường xuyên cập nhật Menu và hình ảnh để thu hút thêm khách nhé!</p>
+                <div class="modal-footer border-0 bg-light rounded-bottom-4">
+                    <button type="button" class="btn btn-secondary fw-bold px-4" @onclick="CloseScanDetail">Đóng</button>
                 </div>
             </div>
         </div>
     </div>
 }
+    </div>
+
+    <h6 class="text-muted fw-bold text-uppercase mb-3">Thống kê Dữ liệu Hệ thống</h6>
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 border-start border-primary border-3">
+                <div class="card-body py-2 d-flex justify-content-between align-items-center">
+                    <span class="text-muted fw-bold small"><i class="bi bi-geo-alt"></i> Địa điểm (POIs)</span>
+                    <span class="badge bg-primary rounded-pill fs-6">@stats.TotalPois</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 border-start border-success border-3">
+                <div class="card-body py-2 d-flex justify-content-between align-items-center">
+                    <span class="text-muted fw-bold small"><i class="bi bi-shop"></i> Quán ăn (Restaurants)</span>
+                    <span class="badge bg-success rounded-pill fs-6">@stats.TotalRestaurants</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 border-start border-info border-3">
+                <div class="card-body py-2 d-flex justify-content-between align-items-center">
+                    <span class="text-muted fw-bold small"><i class="bi bi-menu-button-wide"></i> Món ăn (Menu)</span>
+                    <span class="badge bg-info rounded-pill fs-6">@stats.TotalFoods</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+}
+
+<style>
+    .animate-pulse {
+        animation: pulse 2s infinite;
+    }
+    @@keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+</style>
 
 @code {
     private DashboardStatsDto stats = new();
     private bool isLoading = true;
+    private bool isPolling = false;
+    private System.Threading.Timer? _timer;
+
+    // 👇 THÊM CÁC BIẾN VÀ HÀM NÀY ĐỂ HẾT LỖI CS0103
+    private bool showDetailModal = false;
+
+    private void OpenScanDetail() => showDetailModal = true;
+    private void CloseScanDetail() => showDetailModal = false;
+    // 👆 ------------------------------------------
 
     protected override async Task OnInitializedAsync()
     {
-        stats = await DashboardService.GetStatsAsync();
+        await LoadData();
         isLoading = false;
+        
+        // Thiết lập bộ đếm giờ (Polling) mỗi 10 giây để lấy số người đang Online
+        _timer = new System.Threading.Timer(async _ =>
+        {
+            isPolling = true;
+            await InvokeAsync(StateHasChanged);
+
+            await LoadData();
+            
+            isPolling = false;
+            await InvokeAsync(StateHasChanged);
+
+        }, null, 10000, 10000); // Đợi 10s chạy lần đầu, sau đó lặp lại mỗi 10s
+    }
+
+    private async Task LoadData()
+    {
+        stats = await DashboardService.GetStatsAsync();
+    }
+
+    // Quan trọng: Phải giải phóng Timer khi rời khỏi trang để tránh Memory Leak
+    public void Dispose()
+    {
+        _timer?.Dispose();
     }
 }

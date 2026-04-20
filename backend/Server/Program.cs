@@ -47,6 +47,7 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(key)
     };
 
+    // Tìm đoạn này trong Program.cs (Mục 2. JWT AUTH)
     options.Events = new JwtBearerEvents
     {
         OnTokenValidated = async context =>
@@ -57,15 +58,16 @@ builder.Services.AddAuthentication(options =>
 
             if (int.TryParse(userIdClaim, out int userId))
             {
-                // Truy vấn DB để kiểm tra trạng thái khóa
+                // Truy vấn DB để kiểm tra tồn tại (bỏ IsLocked)
                 var user = await dbContext.Users
                     .AsNoTracking()
                     .FirstOrDefaultAsync(u => u.UserId == userId);
 
-                if (user == null || user.IsLocked)
+                // SỬA LẠI DÒNG NÀY: Chỉ check user == null
+                if (user == null)
                 {
-                    // Nếu bị khóa, đánh dấu là thất bại (trả về 401)
-                    context.Fail("Tài khoản này đã bị khóa hoặc không tồn tại.");
+                    // Nếu không tồn tại, đánh dấu là thất bại (trả về 401)
+                    context.Fail("Tài khoản này không tồn tại.");
                 }
             }
         }

@@ -10,14 +10,14 @@ namespace Server.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int GeofenceId { get; set; }
 
+        [Required]
         [ForeignKey("POI")]
-        public int? PoiId { get; set; }
+        public int PoiId { get; set; }
 
-        public double? Radius { get; set; } // Radius in meters
+        [Required]
+        public double Radius { get; set; }
 
-        // Navigation properties
+        // Navigation
         public virtual POI POI { get; set; }
-
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

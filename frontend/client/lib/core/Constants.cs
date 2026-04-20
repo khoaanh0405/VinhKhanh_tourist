@@ -6,7 +6,7 @@ namespace client.lib.core
 	{
 		public const string AppName = "Vĩnh Khánh Food Street";
 
-		public static readonly string BaseUrl = "YOUR_DEV_TUNNEL_KEY";
+		public static readonly string BaseUrl = "https://pf53w8l4-7284.asse.devtunnels.ms";
 
 		// 2. ApiBaseUrl sẽ kế thừa từ BaseUrl và thêm /api/
 		public static readonly string ApiBaseUrl = $"{BaseUrl}/api/";
