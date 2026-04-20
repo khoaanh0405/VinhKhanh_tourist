@@ -17,22 +17,7 @@ namespace client.lib.model
         [JsonPropertyName("text")]
         public string Text { get; set; } = string.Empty;
 
-        // ===== AUDIO FILE (Cloudinary) =====
-
-        [JsonPropertyName("audioUrl")]
-        public string? AudioUrl { get; set; }
-
-        [JsonPropertyName("audioPublicId")]
-        public string? AudioPublicId { get; set; } // [Thêm mới] Đồng bộ với Backend
-
-        [JsonPropertyName("durationSeconds")]
-        public int? DurationSeconds { get; set; }
-
-        [JsonPropertyName("useAudioFile")]
-        public bool UseAudioFile { get; set; }
-
         // ===== TTS CONFIG =====
-
         [JsonPropertyName("voiceName")]
         public string? VoiceName { get; set; }
 

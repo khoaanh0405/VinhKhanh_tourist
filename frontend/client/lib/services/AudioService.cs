@@ -1,24 +1,20 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Maui.Media;
-using Plugin.Maui.Audio;
 using System.Text.RegularExpressions;
 
 namespace client.lib.services
 {
     public partial class AudioService : ObservableObject
     {
-        private readonly IAudioManager _audioManager;
+        // 🔥 ĐÃ XÓA: IAudioManager, IAudioPlayer, HttpClient logic
 
         [ObservableProperty] private bool _isSpeaking;
         [ObservableProperty] private bool _isPaused;
         [ObservableProperty] private string _currentTrackTitle = string.Empty;
 
-        private IAudioPlayer? _audioPlayer;
         private CancellationTokenSource? _cts;
-
         private bool _isInitialized = false;
-        private bool _isUsingTts = false;
+        private Guid _currentSpeakSessionId;
 
         private List<string> _ttsSentences = new();
         private int _currentSentenceIndex = 0;
@@ -26,14 +22,13 @@ namespace client.lib.services
         private Locale? _cachedLocale;
         private string _cachedLocaleLanguage = string.Empty;
 
-        public AudioService(IAudioManager audioManager)
-        {
-            _audioManager = audioManager;
-        }
+        // Constructor trống, không cần inject thư viện bên ngoài nữa
+        public AudioService() { }
+
         public async Task InitializeAsync()
         {
             if (_isInitialized) return;
-            _isInitialized = true; // 🔥 FIX: Set TRƯỚC để tránh loop
+            _isInitialized = true;
 
             try
             {
@@ -43,69 +38,7 @@ namespace client.lib.services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[AudioService] Init error (sẽ dùng default locale): {ex.Message}");
-                // _cachedLocale = null → TTS sẽ dùng locale mặc định của thiết bị
-            }
-        }
-
-        public async Task<bool> PlayAudioFromUrlAsync(string url, string title)
-        {
-            try
-            {
-                Stop();
-                _isUsingTts = false;
-                CurrentTrackTitle = title;
-                IsSpeaking = true;
-                IsPaused = false;
-
-                Stream audioStream;
-
-                if (url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-                {
-                    // ═══════════════════════════════════════════════════════════════
-                    // 🔥 FIX #12: GIẢM TIMEOUT HTTP XUỐNG 3 GIÂY
-                    // ═══════════════════════════════════════════════════════════════
-                    // NGUYÊN NHÂN LỖI CŨ:
-                    //   - Timeout = 5s, nhưng khi server OFF mà internet ON:
-                    //     DNS resolve thành công → TCP connect HANG → đợi đủ 5s mới timeout
-                    //   - User phải đợi 5s mới nghe được TTS fallback
-                    //
-                    // FIX MỚI:
-                    //   - Giảm xuống 3s để phản hồi nhanh hơn
-                    //   - Kết hợp với kiểm tra mạng ở PlayNarrationAsync → HTTP call chỉ xảy ra khi có mạng
-                    // ═══════════════════════════════════════════════════════════════
-                    using var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
-                    audioStream = await Task.Run(() => httpClient.GetStreamAsync(url));
-                }
-                else
-                {
-                    if (!System.IO.File.Exists(url))
-                    {
-                        System.Diagnostics.Debug.WriteLine($"[AudioService] File không tồn tại: {url}");
-                        MainThread.BeginInvokeOnMainThread(() => IsSpeaking = false);
-                        return false;
-                    }
-                    audioStream = File.OpenRead(url);
-                }
-
-                _audioPlayer = _audioManager.CreatePlayer(audioStream);
-
-                _audioPlayer.PlaybackEnded += (s, e) =>
-                {
-                    MainThread.BeginInvokeOnMainThread(() =>
-                    {
-                        if (!IsPaused) IsSpeaking = false;
-                    });
-                };
-
-                _audioPlayer.Play();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[AudioService] ❌ PlayUrl error: {ex.Message}");
-                MainThread.BeginInvokeOnMainThread(() => IsSpeaking = false);
-                return false;
+                System.Diagnostics.Debug.WriteLine($"[AudioService] Init error: {ex.Message}");
             }
         }
 
@@ -113,13 +46,20 @@ namespace client.lib.services
         {
             if (string.IsNullOrWhiteSpace(text)) return;
 
-            if (!_isInitialized) await InitializeAsync();
+            Guid sessionId = Guid.NewGuid();
+            _currentSpeakSessionId = sessionId;
 
-            Stop();
+            if (!_isInitialized) await InitializeAsync();
 
             await EnsureLocaleAsync(languageCode);
 
-            _isUsingTts = true;
+            if (_currentSpeakSessionId != sessionId)
+            {
+                return;
+            }
+
+            Stop();
+
             CurrentTrackTitle = title;
             IsSpeaking = true;
             IsPaused = false;
@@ -138,17 +78,13 @@ namespace client.lib.services
 
             _currentSentenceIndex = 0;
 
-            System.Diagnostics.Debug.WriteLine(
-                $"[AudioService] 🔊 TTS bắt đầu: title='{title}' | lang='{languageCode}' | {_ttsSentences.Count} câu");
-
-            await PlayTtsLoopAsync();
+            _cts = new CancellationTokenSource();
+            await PlayTtsLoopAsync(_cts);
         }
 
-        private async Task PlayTtsLoopAsync()
+        // Đổi chữ ký hàm để nhận token từ bên ngoài
+        private async Task PlayTtsLoopAsync(CancellationTokenSource localCts)
         {
-            _cts = new CancellationTokenSource();
-            var localCts = _cts;
-
             try
             {
                 while (_currentSentenceIndex < _ttsSentences.Count)
@@ -157,18 +93,13 @@ namespace client.lib.services
 
                     string sentence = _ttsSentences[_currentSentenceIndex];
 
-                    // ═══════════════════════════════════════════════════════════════
-                    // 🔥 FIX #13: TTS SPEECHOPTIONS NULL-SAFE
-                    // ═══════════════════════════════════════════════════════════════
-                    // Nếu _cachedLocale = null (do InitializeAsync fail)
-                    // → SpeechOptions với Locale = null → TTS dùng locale mặc định của thiết bị
-                    // → Vẫn phát được tiếng (có thể không đúng ngôn ngữ nhưng KHÔNG crash)
-                    // ═══════════════════════════════════════════════════════════════
                     var settings = new SpeechOptions { Locale = _cachedLocale };
 
+                    // Dùng token đã được truyền vào
                     await TextToSpeech.Default.SpeakAsync(sentence, settings, cancelToken: localCts.Token);
 
-                    if (!IsPaused && _cts != null && !_cts.IsCancellationRequested)
+                    // Kiểm tra token lại một lần nữa trước khi qua câu tiếp theo
+                    if (!IsPaused && !localCts.IsCancellationRequested)
                         _currentSentenceIndex++;
                     else
                         break;
@@ -180,7 +111,8 @@ namespace client.lib.services
                 System.Diagnostics.Debug.WriteLine($"[AudioService] ❌ TTS error: {ex.Message}");
             }
 
-            if (_currentSentenceIndex >= _ttsSentences.Count && !IsPaused)
+            // Nếu đọc xong câu cuối mà không bị hủy
+            if (_currentSentenceIndex >= _ttsSentences.Count && !IsPaused && !localCts.IsCancellationRequested)
             {
                 MainThread.BeginInvokeOnMainThread(() => IsSpeaking = false);
             }
@@ -194,20 +126,13 @@ namespace client.lib.services
             try
             {
                 var locales = await TextToSpeech.Default.GetLocalesAsync();
-
                 _cachedLocale = locales
                     .FirstOrDefault(l => l.Language.StartsWith(languageCode, StringComparison.OrdinalIgnoreCase))
                     ?? locales.FirstOrDefault();
-
                 _cachedLocaleLanguage = languageCode;
-
-                System.Diagnostics.Debug.WriteLine(
-                    $"[AudioService] Locale set → {_cachedLocale?.Language ?? "default"} for langCode={languageCode}");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                System.Diagnostics.Debug.WriteLine($"[AudioService] EnsureLocale error: {ex.Message}");
-                // 🔥 FIX: Vẫn cập nhật _cachedLocaleLanguage để tránh gọi lại mỗi câu
                 _cachedLocaleLanguage = languageCode;
             }
         }
@@ -217,21 +142,15 @@ namespace client.lib.services
         {
             IsPaused = !IsPaused;
 
-            if (_isUsingTts)
+            if (IsPaused)
             {
-                if (IsPaused)
-                {
-                    _cts?.Cancel();
-                }
-                else
-                {
-                    _ = PlayTtsLoopAsync();
-                }
+                _cts?.Cancel();
             }
-            else if (_audioPlayer != null)
+            else
             {
-                if (IsPaused) _audioPlayer.Pause();
-                else _audioPlayer.Play();
+                // Khi phát tiếp, tạo Token mới và truyền vào
+                _cts = new CancellationTokenSource();
+                _ = PlayTtsLoopAsync(_cts);
             }
         }
 
@@ -241,28 +160,21 @@ namespace client.lib.services
             IsPaused = false;
             IsSpeaking = false;
 
-            if (_cts != null)
-            {
-                _cts.Cancel();
-                _cts.Dispose();
-                _cts = null;
-            }
+            // Lưu tham chiếu cục bộ để tránh bị thread khác cướp quyền (Race Condition)
+            var currentCts = _cts;
+            _cts = null; // Gán null lập tức để khóa cổng
 
-            _currentSentenceIndex = _ttsSentences.Count;
-
-            if (_audioPlayer != null)
+            if (currentCts != null)
             {
                 try
                 {
-                    if (_audioPlayer.IsPlaying) _audioPlayer.Stop();
-                    _audioPlayer.Dispose();
+                    currentCts.Cancel();
+                    currentCts.Dispose();
                 }
-                catch { /* Bỏ qua lỗi dispose */ }
-                finally
-                {
-                    _audioPlayer = null;
-                }
+                catch { /* Bỏ qua lỗi rác nếu có */ }
             }
+
+            _currentSentenceIndex = _ttsSentences.Count;
         }
     }
 }

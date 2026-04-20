@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace client.lib.model
 {
@@ -15,9 +12,6 @@ namespace client.lib.model
 
         [JsonPropertyName("price")]
         public double Price { get; set; }
-
-        [JsonPropertyName("description")]
-        public string? Description { get; set; }
 
         [JsonPropertyName("imageUrl")]
         public string? ImageUrl { get; set; }

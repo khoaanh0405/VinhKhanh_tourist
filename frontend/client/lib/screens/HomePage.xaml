@@ -5,26 +5,26 @@
     xmlns:models="clr-namespace:client.lib.model"
     xmlns:vm="clr-namespace:client.lib.screens.home"
     xmlns:widgets="clr-namespace:client.lib.widgets"
-    xmlns:loc="clr-namespace:client.lib.core" 
+    xmlns:loc="clr-namespace:client.lib.core"
     x:Class="client.lib.screens.HomePage"
     BackgroundColor="White"
     x:DataType="vm:HomeViewModel"
     Shell.NavBarIsVisible="False">
 
-    <Grid RowDefinitions="Auto, Auto, *">
+    <Grid RowDefinitions="Auto, *">
 
         <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto, Auto" Padding="20,52,20,16" BackgroundColor="White" ColumnSpacing="10">
-
-            <Border x:Name="ProfileIconBorder" Grid.Column="0" WidthRequest="46" HeightRequest="46" StrokeShape="RoundRectangle 23" StrokeThickness="0" BackgroundColor="#E8F8F5" VerticalOptions="Center">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnProfileIconTapped"/>
-                </Border.GestureRecognizers>
-                <Path x:Name="ProfileIconPath" Data="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" Fill="#1ABC9C" HorizontalOptions="Center" VerticalOptions="Center" Aspect="Uniform" HeightRequest="24" WidthRequest="24"/>
+            <Border x:Name="ProfileIconBorder" Grid.Column="0" WidthRequest="46" HeightRequest="46"
+                StrokeShape="RoundRectangle 23" StrokeThickness="0"
+                BackgroundColor="#2ECC71" VerticalOptions="Center">
+                <Path x:Name="ProfileIconPath"
+                      Data="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+                      Fill="White" HorizontalOptions="Center" VerticalOptions="Center" Aspect="Uniform" HeightRequest="24" WidthRequest="24"/>
             </Border>
 
             <VerticalStackLayout Grid.Column="1" Margin="12,0,0,0" VerticalOptions="Center" Spacing="2">
-                <Label Text="{Binding Path=[HomeGreeting], Source={x:Static loc:LocalizationResourceManager.Instance}}" FontSize="12" TextColor="#636E72"/>
-                <Label Text="{Binding Path=[ExploreTitle], Source={x:Static loc:LocalizationResourceManager.Instance}}" FontSize="17" FontAttributes="Bold" TextColor="#1A1A2E"/>
+                <Label Text="{loc:Translate HomeGreeting}" FontSize="12" TextColor="#636E72"/>
+                <Label Text="{loc:Translate ExploreTitle}" FontSize="17" FontAttributes="Bold" TextColor="#1A1A2E"/>
             </VerticalStackLayout>
 
             <Border Grid.Column="2" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 20" StrokeThickness="0" VerticalOptions="Center">
@@ -56,22 +56,7 @@
             </Border>
         </Grid>
 
-        <Border Grid.Row="1" Margin="20,14,20,10" HeightRequest="52" StrokeShape="RoundRectangle 26" StrokeThickness="1" Stroke="#EFEFEF" BackgroundColor="White">
-            <Border.Shadow>
-                <Shadow Brush="Black" Opacity="0.06" Radius="10" Offset="0,3"/>
-            </Border.Shadow>
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnSearchTapped"/>
-            </Border.GestureRecognizers>
-
-            <Grid ColumnDefinitions="Auto, *">
-                <Label Grid.Column="0" Text="🔍" FontSize="16" TextColor="#AAAAAA" VerticalOptions="Center" Margin="16,0,10,0"/>
-                <Label Grid.Column="1" Text="{Binding Path=[SearchPlaceholder], Source={x:Static loc:LocalizationResourceManager.Instance}}" 
-               TextColor="#BBBBBB" VerticalOptions="Center" FontSize="14"/>
-            </Grid>
-        </Border>
-
-        <CollectionView Grid.Row="2" ItemsSource="{Binding Pois}" SelectionMode="None">
+        <CollectionView Grid.Row="1" ItemsSource="{Binding Pois}" SelectionMode="None">
             <CollectionView.Margin>
                 <OnPlatform x:TypeArguments="Thickness">
                     <On Platform="iOS, Android" Value="0,0,0,0"/>
@@ -80,55 +65,33 @@
 
             <CollectionView.Header>
                 <VerticalStackLayout Padding="20,4,20,0" Spacing="0">
-
                     <Grid ColumnDefinitions="*, Auto" Margin="0,0,0,12">
-                        <Label Grid.Column="0" Text="{Binding Path=[TopFavorites], Source={x:Static loc:LocalizationResourceManager.Instance}}" FontSize="18" FontAttributes="Bold" TextColor="#1A1A2E" VerticalOptions="Center"/>
+                        <Label Grid.Column="0"
+                               Text="{loc:Translate TopFavorites}"
+                               FontSize="18" FontAttributes="Bold" TextColor="#1A1A2E" VerticalOptions="Center"/>
                     </Grid>
 
                     <CarouselView ItemsSource="{Binding FeaturedPois}" HeightRequest="290" HorizontalScrollBarVisibility="Never" Loop="False">
                         <CarouselView.ItemTemplate>
                             <DataTemplate x:DataType="models:POI">
-
                                 <Grid Padding="10,5,20,30">
-
-                                    <Border Padding="0" 
-                        StrokeShape="RoundRectangle 16" 
-                        StrokeThickness="0" 
-                        BackgroundColor="White">
-
+                                    <Border Padding="0" StrokeShape="RoundRectangle 16" StrokeThickness="0" BackgroundColor="White">
                                         <Border.Shadow>
                                             <Shadow Brush="Black" Opacity="0.15" Radius="15" Offset="0,8"/>
                                         </Border.Shadow>
-
                                         <Border.GestureRecognizers>
                                             <TapGestureRecognizer Tapped="OnNavigateToDetail" CommandParameter="{Binding .}"/>
                                         </Border.GestureRecognizers>
-
                                         <Grid RowDefinitions="*, Auto">
                                             <Border Grid.Row="0" StrokeShape="RoundRectangle 16,16,0,0" StrokeThickness="0" Margin="0">
                                                 <Image Source="{Binding ImageUrl}" Aspect="AspectFill"/>
                                             </Border>
-
                                             <VerticalStackLayout Grid.Row="1" Padding="12,12,12,14">
-                                                <Label Text="{Binding Name}" 
-                                   TextColor="#1A1A2E" 
-                                   FontAttributes="Bold" 
-                                   FontSize="16" 
-                                   MaxLines="1" 
-                                   LineBreakMode="TailTruncation" />
-
-                                                <HorizontalStackLayout Spacing="4" Margin="0,4,0,0">
-                                                    <Label Text="⭐" FontSize="12" VerticalOptions="Center"/>
-                                                    <Label Text="{Binding AverageRating, StringFormat='{0:F1}'}" FontSize="13" FontAttributes="Bold" TextColor="#E67E22" VerticalOptions="Center"/>
-                                                    <Label Text="•" TextColor="#AAAAAA" FontSize="12" VerticalOptions="Center" Margin="4,0"/>
-                                                    <Label Text="{Binding DistanceDisplay}" FontSize="12" TextColor="#636E72" VerticalOptions="Center" MaxLines="1" LineBreakMode="TailTruncation"/>
-                                                </HorizontalStackLayout>
+                                                <Label Text="{Binding Name}" TextColor="#1A1A2E" FontAttributes="Bold" FontSize="16" MaxLines="1" LineBreakMode="TailTruncation"/>
                                             </VerticalStackLayout>
                                         </Grid>
-
                                     </Border>
                                 </Grid>
-
                             </DataTemplate>
                         </CarouselView.ItemTemplate>
                     </CarouselView>
@@ -136,11 +99,11 @@
                     <Grid ColumnDefinitions="*, Auto" Margin="0,24,0,14">
                         <HorizontalStackLayout Grid.Column="0" Spacing="6" VerticalOptions="Center">
                             <Label Text="📍" FontSize="16" VerticalOptions="Center"/>
-                            <Label Text="{Binding Path=[AllLocations], Source={x:Static loc:LocalizationResourceManager.Instance}}" FontSize="18" FontAttributes="Bold" TextColor="#1A1A2E" VerticalOptions="Center"/>
+                            <Label Text="{loc:Translate AllLocations}"
+                                   FontSize="18" FontAttributes="Bold" TextColor="#1A1A2E" VerticalOptions="Center"/>
                         </HorizontalStackLayout>
-                        <Label Grid.Column="1" Text="{Binding Path=[HomeSort], Source={x:Static loc:LocalizationResourceManager.Instance}}" FontSize="13" TextColor="#1ABC9C" VerticalOptions="Center"/>
+                        <Label Grid.Column="1" Text="{loc:Translate HomeSort}" FontSize="13" TextColor="#1ABC9C" VerticalOptions="Center"/>
                     </Grid>
-
                 </VerticalStackLayout>
             </CollectionView.Header>
 
@@ -150,31 +113,12 @@
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnNavigateToDetail" CommandParameter="{Binding .}"/>
                         </Border.GestureRecognizers>
-
                         <Grid ColumnDefinitions="Auto, *">
                             <Border Grid.Column="0" WidthRequest="80" HeightRequest="80" StrokeShape="RoundRectangle 12" StrokeThickness="0" VerticalOptions="Center">
                                 <Image Source="{Binding ImageUrl}" Aspect="AspectFill"/>
                             </Border>
-
                             <VerticalStackLayout Grid.Column="1" Padding="12,0,0,0" Spacing="4" VerticalOptions="Center">
                                 <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="15" TextColor="#1A1A2E" MaxLines="1" LineBreakMode="TailTruncation"/>
-
-                                <HorizontalStackLayout Spacing="4">
-                                    <Label Text="📍" FontSize="11" VerticalOptions="Center"/>
-                                    <Label Text="{Binding DistanceDisplay}" FontSize="12" TextColor="#636E72" VerticalOptions="Center" MaxLines="1" LineBreakMode="TailTruncation"/>
-                                </HorizontalStackLayout>
-
-                                <HorizontalStackLayout Spacing="8" Margin="0,2,0,0">
-                                    <HorizontalStackLayout Spacing="3" VerticalOptions="Center">
-                                        <Label Text="⭐" FontSize="11" VerticalOptions="Center"/>
-                                        <Label Text="{Binding AverageRating, StringFormat='{0:F1}'}" FontSize="13" FontAttributes="Bold" TextColor="#E67E22" VerticalOptions="Center"/>
-                                    </HorizontalStackLayout>
-                                    <HorizontalStackLayout Spacing="3" VerticalOptions="Center">
-                                        <Label Text="·" TextColor="#AAAAAA" FontSize="12" FontAttributes="Bold"/>
-                                        <Label Text="{Binding ReviewCount}" TextColor="#AAAAAA" FontSize="12"/>
-                                        <Label Text="{Binding Path=[HomeReviews], Source={x:Static loc:LocalizationResourceManager.Instance}}" TextColor="#AAAAAA" FontSize="12"/>
-                                    </HorizontalStackLayout>
-                                </HorizontalStackLayout>
                             </VerticalStackLayout>
                         </Grid>
                     </Border>
@@ -186,54 +130,7 @@
             </CollectionView.Footer>
         </CollectionView>
 
-        <Grid Grid.Row="2" Opacity="0" InputTransparent="True">
-            <Grid.Triggers>
-                <DataTrigger TargetType="Grid" Binding="{Binding IsSearching}" Value="True">
-                    <Setter Property="Opacity" Value="1"/>
-                    <Setter Property="InputTransparent" Value="False"/>
-                </DataTrigger>
-            </Grid.Triggers>
-
-            <BoxView BackgroundColor="Black" Opacity="0.4" InputTransparent="True"/>
-
-            <Border BackgroundColor="#F5F6FA" VerticalOptions="Start" Margin="20,10,20,0" StrokeThickness="0" StrokeShape="RoundRectangle 18">
-                <Border.Shadow>
-                    <Shadow Brush="Black" Opacity="0.15" Radius="14" Offset="0,5"/>
-                </Border.Shadow>
-                <CollectionView ItemsSource="{Binding FilteredPois}" Margin="0" MaximumHeightRequest="440">
-                    <CollectionView.EmptyView>
-                        <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10" Margin="0,40,0,40">
-                            <Label Text="🔍" FontSize="36" HorizontalOptions="Center"/>
-                            <Label Text="{Binding Path=[NotFoundText], Source={x:Static loc:LocalizationResourceManager.Instance}}" TextColor="#636E72" FontSize="15" HorizontalOptions="Center"/>
-                        </VerticalStackLayout>
-                    </CollectionView.EmptyView>
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="models:POI">
-                            <Border Margin="12,10,12,0" Padding="0" HeightRequest="80" StrokeShape="RoundRectangle 14" StrokeThickness="1" Stroke="#EFEFEF" BackgroundColor="White">
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnNavigateToDetail" CommandParameter="{Binding .}"/>
-                                </Border.GestureRecognizers>
-                                <Grid ColumnDefinitions="80, *" IsClippedToBounds="True">
-                                    <Border Grid.Column="0" StrokeShape="RoundRectangle 14,0,0,14" StrokeThickness="0">
-                                        <Image Source="{Binding ImageUrl}" Aspect="AspectFill"/>
-                                    </Border>
-                                    <VerticalStackLayout Grid.Column="1" Padding="12,0,12,0" Spacing="4" VerticalOptions="Center">
-                                        <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="14" TextColor="#1A1A2E" MaxLines="1" LineBreakMode="TailTruncation"/>
-                                        <HorizontalStackLayout Spacing="4">
-                                            <Label Text="⭐" FontSize="11" TextColor="#FFB800" VerticalOptions="Center"/>
-                                            <Label Text="{Binding AverageRating, StringFormat='{0:F1}'}" FontSize="13" FontAttributes="Bold" TextColor="#1A1A2E" VerticalOptions="Center"/>
-                                            <Label Text="{Binding ReviewCount, StringFormat='({0})'}" FontSize="12" TextColor="#AAAAAA" VerticalOptions="Center"/>
-                                        </HorizontalStackLayout>
-                                    </VerticalStackLayout>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-            </Border>
-        </Grid>
-
-        <widgets:AudioPlayerMiniView Grid.Row="2" VerticalOptions="End" Margin="20,0,20,16"/>
+        <widgets:AudioPlayerMiniView Grid.Row="1" VerticalOptions="End" Margin="20,0,20,16"/>
 
     </Grid>
 </ContentPage>

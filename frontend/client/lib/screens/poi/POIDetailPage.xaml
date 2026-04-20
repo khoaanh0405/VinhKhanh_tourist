@@ -1,13 +1,4 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!--
-  POIDetailPage.xaml — Theme: Teal Explorer
-  🔥 NÂNG CẤP UI:
-    - Carousel hình ảnh (thay vì 1 ảnh)
-    - Rating + Review count
-    - Danh sách món ăn đầy đủ (giá + mô tả)
-    - Bố cục hiện đại, đồng bộ theme Teal Explorer
-    - Audio controls đẹp hơn
--->
 <ContentPage
     x:Class="client.lib.screens.poi.POIDetailPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -18,7 +9,6 @@
 
     <Grid RowDefinitions="*, Auto">
 
-        <!-- Loading Indicator -->
         <ActivityIndicator x:Name="LoadingIndicator"
                            IsVisible="False" IsRunning="False"
                            Color="#1ABC9C"
@@ -28,11 +18,10 @@
         <ScrollView x:Name="ContentScrollView" Grid.Row="0">
             <VerticalStackLayout Spacing="0">
 
-                <!-- ═══ HERO IMAGE với Carousel ═══ -->
+                <!-- ═══ HERO IMAGE ═══ -->
                 <Grid HeightRequest="300">
                     <Border StrokeShape="RoundRectangle 0" StrokeThickness="0">
-                        <CarouselView x:Name="ImgCarousel" Loop="False"
-                                      IndicatorView="IndicatorView">
+                        <CarouselView x:Name="ImgCarousel" Loop="False" IndicatorView="IndicatorView">
                             <CarouselView.ItemTemplate>
                                 <DataTemplate>
                                     <Image Source="{Binding .}" Aspect="AspectFill"
@@ -42,7 +31,6 @@
                         </CarouselView>
                     </Border>
 
-                    <!-- Gradient overlay dưới -->
                     <BoxView VerticalOptions="End" HeightRequest="160">
                         <BoxView.Background>
                             <LinearGradientBrush EndPoint="0,1">
@@ -52,7 +40,6 @@
                         </BoxView.Background>
                     </BoxView>
 
-                    <!-- Gradient overlay trên -->
                     <BoxView VerticalOptions="Start" HeightRequest="100">
                         <BoxView.Background>
                             <LinearGradientBrush EndPoint="0,1">
@@ -64,8 +51,7 @@
 
                     <!-- Nút Back -->
                     <Border WidthRequest="38" HeightRequest="38"
-                            StrokeShape="RoundRectangle 19"
-                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 19" StrokeThickness="0"
                             BackgroundColor="#44000000"
                             VerticalOptions="Start" HorizontalOptions="Start"
                             Margin="16,48,0,0">
@@ -76,7 +62,6 @@
                                HorizontalOptions="Center" VerticalOptions="Center"/>
                     </Border>
 
-                    <!-- Image Indicator -->
                     <IndicatorView x:Name="IndicatorView"
                                    IndicatorColor="#66FFFFFF"
                                    SelectedIndicatorColor="#1ABC9C"
@@ -97,95 +82,50 @@
                     </Border.Shadow>
                     <VerticalStackLayout Spacing="0">
 
-                        <!-- Drag handle -->
                         <BoxView WidthRequest="40" HeightRequest="4"
                                  CornerRadius="2" BackgroundColor="#E0E0E0"
                                  HorizontalOptions="Center" Margin="0,0,0,18"/>
 
-                        <!-- Tên quán -->
                         <Label x:Name="LblName"
                                FontSize="22" FontAttributes="Bold"
                                TextColor="#1A1A2E" Margin="0,0,0,10"/>
 
-                        <!-- Rating + Review count -->
-                        <HorizontalStackLayout Spacing="8" Margin="0,0,0,10">
-                            <Border HeightRequest="28" Padding="12,0"
-                                    StrokeShape="RoundRectangle 14"
-                                    StrokeThickness="0"
-                                    BackgroundColor="#FFF8E6"
-                                    VerticalOptions="Center">
-                                <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
-                                    <Label Text="⭐" FontSize="13"/>
-                                    <Label x:Name="LblRating"
-                                           FontSize="14" FontAttributes="Bold"
-                                           TextColor="#E67E22"/>
-                                </HorizontalStackLayout>
-                            </Border>
-                            <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
-                                <Label Text="·" TextColor="#AAAAAA" FontSize="13" FontAttributes="Bold"/>
-                                <Label x:Name="LblReviewCount"
-                                       TextColor="#AAAAAA" FontSize="13"/>
-                                <Label Text="đánh giá" TextColor="#AAAAAA" FontSize="13"/>
-                            </HorizontalStackLayout>
-                        </HorizontalStackLayout>
-
-                        <!-- Vị trí -->
-                        <HorizontalStackLayout Spacing="6" Margin="0,0,0,18">
-                            <Label Text="📍" FontSize="14" TextColor="#1ABC9C"
-                                   VerticalOptions="Center"/>
-                            <Label Text="Khu ẩm thực Vĩnh Khánh"
-                                   TextColor="#636E72" FontSize="14"
-                                   VerticalOptions="Center"/>
-                        </HorizontalStackLayout>
-
-                        <!-- Mô tả -->
                         <Label x:Name="LblDescription"
                                FontSize="14" TextColor="#636E72"
                                LineHeight="1.6" Margin="0,0,0,22"/>
 
                         <!-- ═══ AUDIO CONTROLS ═══ -->
                         <Border StrokeShape="RoundRectangle 16"
-                                StrokeThickness="1.5"
-                                Stroke="#E8F8F5"
+                                StrokeThickness="1.5" Stroke="#E8F8F5"
                                 BackgroundColor="#F0FBF8"
-                                Padding="16,14"
-                                Margin="0,0,0,22">
+                                Padding="16,14" Margin="0,0,0,22">
                             <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12">
-                                <!-- Icon loa -->
                                 <Border Grid.Column="0"
                                         WidthRequest="42" HeightRequest="42"
-                                        StrokeShape="RoundRectangle 21"
-                                        StrokeThickness="0"
-                                        BackgroundColor="#1ABC9C"
-                                        VerticalOptions="Center">
+                                        StrokeShape="RoundRectangle 21" StrokeThickness="0"
+                                        BackgroundColor="#1ABC9C" VerticalOptions="Center">
                                     <Label Text="🎧" FontSize="18"
-                                           HorizontalOptions="Center"
-                                           VerticalOptions="Center"/>
+                                           HorizontalOptions="Center" VerticalOptions="Center"/>
                                 </Border>
 
-                                <!-- Thông tin -->
                                 <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-
-                                    <Label Text="{Binding Path=[DetailAudioTitle], Source={x:Static loc:LocalizationResourceManager.Instance}}"
-           FontSize="14" FontAttributes="Bold"
-           TextColor="#1A1A2E"/>
-
+                                    <Label Text="{loc:Translate DetailAudioTitle}"
+                                           FontSize="14" FontAttributes="Bold" TextColor="#1A1A2E"/>
                                     <Label x:Name="LblAudioStatus"
-           Text="{Binding Path=[DetailAudioReady], Source={x:Static loc:LocalizationResourceManager.Instance}}"
-           FontSize="12" TextColor="#636E72"/>
-
+                                           Text="{loc:Translate DetailAudioReady}"
+                                           FontSize="12" TextColor="#636E72"/>
                                 </VerticalStackLayout>
 
                                 <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center">
                                     <Border WidthRequest="36" HeightRequest="36"
-            StrokeShape="RoundRectangle 18"
-            StrokeThickness="0"
-            BackgroundColor="#1ABC9C">
+                                            StrokeShape="RoundRectangle 18" StrokeThickness="0"
+                                            BackgroundColor="#1ABC9C">
                                         <Border.GestureRecognizers>
                                             <TapGestureRecognizer Tapped="OnMainAudioButtonClicked"/>
                                         </Border.GestureRecognizers>
                                         <Label x:Name="LblPlayIcon" Text="▶" FontSize="15"
-               TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                               TextColor="White"
+                                               HorizontalOptions="Center" VerticalOptions="Center"/>
                                     </Border>
                                 </HorizontalStackLayout>
                             </Grid>
@@ -194,122 +134,20 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- ═══ DANH SÁCH QUÁN ĂN + MÓN ĂN ═══ -->
+                <!-- ═══ MENU LIST ═══ -->
                 <VerticalStackLayout BackgroundColor="#F5F6FA"
-                                     Padding="22,20,22,20"
-                                     Spacing="14">
-
-                    <!-- Section header -->
+                                     Padding="22,20,22,20" Spacing="14">
                     <HorizontalStackLayout Spacing="8" Margin="0,0,0,4">
                         <Border WidthRequest="4" HeightRequest="22"
-                                StrokeShape="RoundRectangle 2"
-                                StrokeThickness="0"
-                                BackgroundColor="#1ABC9C"
-                                VerticalOptions="Center"/>
-                        <Label Text="Thực đơn"
-                               FontSize="18" FontAttributes="Bold"
-                               TextColor="#1A1A2E" VerticalOptions="Center"/>
+                                StrokeShape="RoundRectangle 2" StrokeThickness="0"
+                                BackgroundColor="#1ABC9C" VerticalOptions="Center"/>
+                        <Label Text="{loc:Translate Detail_MenuTitle}"
+                               FontSize="18" FontAttributes="Bold" TextColor="#1A1A2E" VerticalOptions="Center"/>
                     </HorizontalStackLayout>
 
-                    <!-- Danh sách món ăn (render bằng code-behind) -->
                     <StackLayout x:Name="FoodsContainer" Spacing="10"/>
-
                 </VerticalStackLayout>
 
-
-                <VerticalStackLayout BackgroundColor="#F5F6FA"
-                                     Padding="22,10,22,20"
-                                     Spacing="14">
-
-                    <HorizontalStackLayout Spacing="8" Margin="0,0,0,4">
-                        <Border WidthRequest="4" HeightRequest="22"
-                                StrokeShape="RoundRectangle 2"
-                                StrokeThickness="0"
-                                BackgroundColor="#1ABC9C"
-                                VerticalOptions="Center"/>
-                        <Label Text="Đánh giá &amp; Bình luận"
-                               FontSize="18" FontAttributes="Bold"
-                               TextColor="#1A1A2E" VerticalOptions="Center"/>
-                    </HorizontalStackLayout>
-
-                    <Border x:Name="BtnShowReviewInput"
-                            StrokeShape="RoundRectangle 12"
-                            StrokeThickness="0"
-                            BackgroundColor="#E8F8F5"
-                            Padding="0,12" Margin="0,0,0,10">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnShowReviewInputClicked"/>
-                        </Border.GestureRecognizers>
-                        <Label Text="✏️ Viết đánh giá của bạn" 
-                               TextColor="#1ABC9C" FontAttributes="Bold" 
-                               HorizontalOptions="Center"/>
-                    </Border>
-
-                    <Border x:Name="ReviewInputFrame"
-                            IsVisible="False"
-                            StrokeShape="RoundRectangle 12"
-                            StrokeThickness="1" Stroke="#E0E0E0"
-                            BackgroundColor="White"
-                            Padding="16" Margin="0,0,0,10">
-                        <VerticalStackLayout Spacing="12">
-                            <Label Text="Đánh giá của bạn" FontAttributes="Bold" TextColor="#1A1A2E"/>
-
-                            <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
-                                <Label x:Name="Star1" Text="☆" FontSize="32" TextColor="Gray">
-                                    <Label.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnStarTapped" CommandParameter="1"/>
-                                    </Label.GestureRecognizers>
-                                </Label>
-                                <Label x:Name="Star2" Text="☆" FontSize="32" TextColor="Gray">
-                                    <Label.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnStarTapped" CommandParameter="2"/>
-                                    </Label.GestureRecognizers>
-                                </Label>
-                                <Label x:Name="Star3" Text="☆" FontSize="32" TextColor="Gray">
-                                    <Label.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnStarTapped" CommandParameter="3"/>
-                                    </Label.GestureRecognizers>
-                                </Label>
-                                <Label x:Name="Star4" Text="☆" FontSize="32" TextColor="Gray">
-                                    <Label.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnStarTapped" CommandParameter="4"/>
-                                    </Label.GestureRecognizers>
-                                </Label>
-                                <Label x:Name="Star5" Text="☆" FontSize="32" TextColor="Gray">
-                                    <Label.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnStarTapped" CommandParameter="5"/>
-                                    </Label.GestureRecognizers>
-                                </Label>
-                            </HorizontalStackLayout>
-
-                            <Editor x:Name="CommentEditor" 
-                                    Placeholder="Chia sẻ trải nghiệm của bạn..." 
-                                    HeightRequest="80" 
-                                    BackgroundColor="#F5F6FA" 
-                                    TextColor="Black"/>
-
-                            <HorizontalStackLayout Spacing="10" HorizontalOptions="End">
-                                <Button Text="Hủy" BackgroundColor="Transparent" TextColor="Gray" Clicked="OnCancelReviewClicked"/>
-                                <Button Text="Gửi đánh giá" BackgroundColor="#1ABC9C" TextColor="White" CornerRadius="8" Clicked="OnSubmitReviewClicked"/>
-                            </HorizontalStackLayout>
-                        </VerticalStackLayout>
-                    </Border>
-
-                    <StackLayout x:Name="ListReviewsContainer" Spacing="10"/>
-                </VerticalStackLayout>
-
-                <VerticalStackLayout Padding="22,0,22,20" BackgroundColor="#F5F6FA">
-                    <Button x:Name="BtnFavorite" 
-                            Text="❤️ Thêm vào yêu thích" 
-                            BackgroundColor="#FF4757" 
-                            TextColor="White" 
-                            CornerRadius="25" 
-                            HeightRequest="50" 
-                            FontAttributes="Bold" 
-                            Clicked="OnFavoriteClicked"/>
-                </VerticalStackLayout>
-
-                <!-- Bottom spacing -->
                 <BoxView HeightRequest="30" BackgroundColor="Transparent"/>
 
             </VerticalStackLayout>

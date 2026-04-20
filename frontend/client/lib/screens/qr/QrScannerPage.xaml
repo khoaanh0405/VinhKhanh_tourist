@@ -1,25 +1,19 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!--
-  QrScannerPage.xaml  —  Theme: Teal Explorer
-  Code-behind: QrScannerPage.xaml.cs (KHÔNG THAY ĐỔI GÌ)
-  Thêm UI overlay: scanning frame, guide text, back button
--->
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.Maui.Controls"
+    xmlns:loc="clr-namespace:client.lib.core"
     x:Class="client.lib.screens.qr.QrScannerPage"
     BackgroundColor="Black"
     Shell.NavBarIsVisible="False">
 
     <Grid>
 
-        <!-- ─── CAMERA FEED (full screen) ─── -->
         <zxing:CameraBarcodeReaderView
             x:Name="BarcodeReader"
             BarcodesDetected="OnBarcodesDetected"/>
 
-        <!-- ─── DARK OVERLAY: top + sides + bottom (vignette) ─── -->
         <!-- Top vignette -->
         <BoxView VerticalOptions="Start" HeightRequest="160" Opacity="0.75">
             <BoxView.Background>
@@ -40,10 +34,9 @@
             </BoxView.Background>
         </BoxView>
 
-        <!-- ─── BACK BUTTON ─── -->
+        <!-- Back button -->
         <Border WidthRequest="38" HeightRequest="38"
-                StrokeShape="RoundRectangle 19"
-                StrokeThickness="0"
+                StrokeShape="RoundRectangle 19" StrokeThickness="0"
                 BackgroundColor="#44FFFFFF"
                 VerticalOptions="Start" HorizontalOptions="Start"
                 Margin="20,52,0,0">
@@ -55,99 +48,52 @@
         </Border>
 
         <!-- Page title -->
-        <Label Text="Quét mã QR"
-               TextColor="White"
-               FontSize="17" FontAttributes="Bold"
-               HorizontalOptions="Center"
-               VerticalOptions="Start"
+        <Label Text="{loc:Translate QrPageTitle}"
+               TextColor="White" FontSize="17" FontAttributes="Bold"
+               HorizontalOptions="Center" VerticalOptions="Start"
                Margin="0,56,0,0"/>
 
-        <!-- ─── SCANNING FRAME (center of screen) ─── -->
-        <VerticalStackLayout VerticalOptions="Center"
-                             HorizontalOptions="Center"
-                             Spacing="0">
-
-            <!-- Scanner box with corner decorations -->
+        <!-- Scanning frame -->
+        <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="0">
             <Grid WidthRequest="240" HeightRequest="240">
 
-                <!-- Semi-transparent fill -->
-                <Border StrokeShape="RoundRectangle 16"
-                        StrokeThickness="0"
-                        BackgroundColor="#0AFFFFFF"/>
+                <Border StrokeShape="RoundRectangle 16" StrokeThickness="0" BackgroundColor="#0AFFFFFF"/>
 
-                <!-- Teal border frame -->
                 <Border x:Name="ScannerOverlay"
-                        StrokeShape="RoundRectangle 16"
-                        StrokeThickness="2"
-                        Stroke="#1ABC9C"
-                        BackgroundColor="Transparent"/>
+                        StrokeShape="RoundRectangle 16" StrokeThickness="2"
+                        Stroke="#1ABC9C" BackgroundColor="Transparent"/>
 
                 <!-- Corner TL -->
-                <BoxView WidthRequest="28" HeightRequest="4"
-                         BackgroundColor="#1ABC9C" CornerRadius="2"
-                         VerticalOptions="Start" HorizontalOptions="Start"
-                         Margin="0,0,0,0"/>
-                <BoxView WidthRequest="4" HeightRequest="28"
-                         BackgroundColor="#1ABC9C" CornerRadius="2"
-                         VerticalOptions="Start" HorizontalOptions="Start"/>
-
+                <BoxView WidthRequest="28" HeightRequest="4" BackgroundColor="#1ABC9C" CornerRadius="2" VerticalOptions="Start" HorizontalOptions="Start"/>
+                <BoxView WidthRequest="4" HeightRequest="28" BackgroundColor="#1ABC9C" CornerRadius="2" VerticalOptions="Start" HorizontalOptions="Start"/>
                 <!-- Corner TR -->
-                <BoxView WidthRequest="28" HeightRequest="4"
-                         BackgroundColor="#1ABC9C" CornerRadius="2"
-                         VerticalOptions="Start" HorizontalOptions="End"/>
-                <BoxView WidthRequest="4" HeightRequest="28"
-                         BackgroundColor="#1ABC9C" CornerRadius="2"
-                         VerticalOptions="Start" HorizontalOptions="End"/>
-
+                <BoxView WidthRequest="28" HeightRequest="4" BackgroundColor="#1ABC9C" CornerRadius="2" VerticalOptions="Start" HorizontalOptions="End"/>
+                <BoxView WidthRequest="4" HeightRequest="28" BackgroundColor="#1ABC9C" CornerRadius="2" VerticalOptions="Start" HorizontalOptions="End"/>
                 <!-- Corner BL -->
-                <BoxView WidthRequest="28" HeightRequest="4"
-                         BackgroundColor="#1ABC9C" CornerRadius="2"
-                         VerticalOptions="End" HorizontalOptions="Start"/>
-                <BoxView WidthRequest="4" HeightRequest="28"
-                         BackgroundColor="#1ABC9C" CornerRadius="2"
-                         VerticalOptions="End" HorizontalOptions="Start"/>
-
+                <BoxView WidthRequest="28" HeightRequest="4" BackgroundColor="#1ABC9C" CornerRadius="2" VerticalOptions="End" HorizontalOptions="Start"/>
+                <BoxView WidthRequest="4" HeightRequest="28" BackgroundColor="#1ABC9C" CornerRadius="2" VerticalOptions="End" HorizontalOptions="Start"/>
                 <!-- Corner BR -->
-                <BoxView WidthRequest="28" HeightRequest="4"
-                         BackgroundColor="#1ABC9C" CornerRadius="2"
-                         VerticalOptions="End" HorizontalOptions="End"/>
-                <BoxView WidthRequest="4" HeightRequest="28"
-                         BackgroundColor="#1ABC9C" CornerRadius="2"
-                         VerticalOptions="End" HorizontalOptions="End"/>
+                <BoxView WidthRequest="28" HeightRequest="4" BackgroundColor="#1ABC9C" CornerRadius="2" VerticalOptions="End" HorizontalOptions="End"/>
+                <BoxView WidthRequest="4" HeightRequest="28" BackgroundColor="#1ABC9C" CornerRadius="2" VerticalOptions="End" HorizontalOptions="End"/>
 
-                <!-- Scanning line (decorative) -->
-                <BoxView HeightRequest="2"
-                         BackgroundColor="#881ABC9C"
-                         VerticalOptions="Center"
-                         HorizontalOptions="Fill"
-                         Margin="12,0"/>
-
+                <BoxView HeightRequest="2" BackgroundColor="#881ABC9C"
+                         VerticalOptions="Center" HorizontalOptions="Fill" Margin="12,0"/>
             </Grid>
         </VerticalStackLayout>
 
-        <!-- ─── BOTTOM GUIDE TEXT ─── -->
-        <VerticalStackLayout VerticalOptions="End"
-                             HorizontalOptions="Center"
-                             Spacing="10"
-                             Margin="0,0,0,80">
-
+        <!-- Bottom guide text -->
+        <VerticalStackLayout VerticalOptions="End" HorizontalOptions="Center"
+                             Spacing="10" Margin="0,0,0,80">
             <Border HeightRequest="36" Padding="16,0"
-                    StrokeShape="RoundRectangle 18"
-                    StrokeThickness="0"
-                    BackgroundColor="#331ABC9C"
-                    HorizontalOptions="Center">
-                <Label Text="📷  Đưa mã QR vào khung hình"
-                       TextColor="White"
-                       FontSize="14"
-                       FontAttributes="Bold"
+                    StrokeShape="RoundRectangle 18" StrokeThickness="0"
+                    BackgroundColor="#331ABC9C" HorizontalOptions="Center">
+                <Label Text="{loc:Translate QrGuideText}"
+                       TextColor="White" FontSize="14" FontAttributes="Bold"
                        VerticalOptions="Center"/>
             </Border>
 
-            <Label Text="Ứng dụng sẽ tự động nhận diện"
-                   TextColor="#AAAAAA"
-                   FontSize="13"
-                   HorizontalOptions="Center"/>
-
+            <Label Text="{loc:Translate QrAutoDetect}"
+                   TextColor="#AAAAAA" FontSize="13" HorizontalOptions="Center"/>
         </VerticalStackLayout>
 
     </Grid>

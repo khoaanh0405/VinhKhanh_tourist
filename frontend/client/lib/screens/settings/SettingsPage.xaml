@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:resources="clr-namespace:client.Resources.String;assembly=client"
              xmlns:loc="clr-namespace:client.lib.core"
              x:Class="client.lib.screens.settings.SettingsPage"
              BackgroundColor="#F5F6FA"
@@ -12,9 +11,9 @@
 
             <Grid Padding="20,52,20,20" BackgroundColor="White" ColumnDefinitions="*, Auto">
                 <VerticalStackLayout Grid.Column="0" Spacing="2">
-                    <Label Text="{Binding Path=[SettingsTitle], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                    <Label Text="{loc:Translate SettingsTitle}"
                            FontSize="24" FontAttributes="Bold" TextColor="#1A1A2E"/>
-                    <Label Text="{Binding Path=[SettingsSubtitle], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                    <Label Text="{loc:Translate SettingsSubtitle}"
                            FontSize="13" TextColor="#636E72"/>
                 </VerticalStackLayout>
                 <Border Grid.Column="1" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 20"
@@ -25,7 +24,7 @@
 
             <BoxView HeightRequest="12" BackgroundColor="Transparent"/>
 
-            <Label Text="{Binding Path=[SettingsSectionLanguage], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+            <Label Text="{loc:Translate SettingsSectionLanguage}"
                    FontSize="13" FontAttributes="Bold" TextColor="#AAAAAA" Margin="20,0,20,8" CharacterSpacing="0.5"/>
 
             <Border Margin="20,0,20,16" Padding="20" StrokeShape="RoundRectangle 20" StrokeThickness="0" BackgroundColor="White">
@@ -38,9 +37,9 @@
                             <Label Text="🌐" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
                         </Border>
                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                            <Label Text="{Binding Path=[SettingsLanguageTitle], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                            <Label Text="{loc:Translate SettingsLanguageTitle}"
                                    FontSize="15" FontAttributes="Bold" TextColor="#1A1A2E"/>
-                            <Label Text="{Binding Path=[SettingsLanguageDesc], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                            <Label Text="{loc:Translate SettingsLanguageDesc}"
                                    FontSize="12" TextColor="#AAAAAA"/>
                         </VerticalStackLayout>
                     </Grid>
@@ -48,19 +47,15 @@
                     <Border StrokeShape="RoundRectangle 14" StrokeThickness="1.5" Stroke="#E8F8F5" BackgroundColor="#F0FCF8" HeightRequest="50" Padding="12,0">
                         <Grid ColumnDefinitions="Auto, *">
                             <Label Grid.Column="0" Text="🗺️" FontSize="18" VerticalOptions="Center" Margin="0,0,8,0"/>
-                            <Picker x:Name="LanguagePicker" Grid.Column="1" TextColor="#1A1A2E" BackgroundColor="Transparent" VerticalOptions="Center" SelectedIndexChanged="OnLanguageSelected">
-                                <Picker.Items>
-                                    <x:String>🇻🇳 Tiếng Việt</x:String>
-                                    <x:String>🇬🇧 English</x:String>
-                                    <x:String>🇰🇷 한국어</x:String>
-                                </Picker.Items>
-                            </Picker>
+                            <Picker x:Name="LanguagePicker"
+                                    Grid.Column="1"
+                                    ItemDisplayBinding="{Binding LanguageName}" />
                         </Grid>
                     </Border>
                 </VerticalStackLayout>
             </Border>
 
-            <Label Text="{Binding Path=[SettingsSectionTools], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+            <Label Text="{loc:Translate SettingsSectionTools}"
                    FontSize="13" FontAttributes="Bold" TextColor="#AAAAAA" Margin="20,0,20,8" CharacterSpacing="0.5"/>
 
             <Border Margin="20,0,20,16" Padding="20" StrokeShape="RoundRectangle 20" StrokeThickness="0" BackgroundColor="White">
@@ -75,13 +70,13 @@
                         <Label Text="📷" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
                     </Border>
                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                        <Label Text="{Binding Path=[SettingsQrTitle], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                        <Label Text="{loc:Translate SettingsQrTitle}"
                                FontSize="15" FontAttributes="Bold" TextColor="#1A1A2E"/>
-                        <Label Text="{Binding Path=[SettingsQrDesc], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                        <Label Text="{loc:Translate SettingsQrDesc}"
                                FontSize="12" TextColor="#AAAAAA"/>
                     </VerticalStackLayout>
                     <Border Grid.Column="2" HeightRequest="28" Padding="10,0" StrokeShape="RoundRectangle 14" StrokeThickness="0" BackgroundColor="#E8F8F5" VerticalOptions="Center">
-                        <Label Text="{Binding Path=[SettingsQrOpen], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                        <Label Text="{loc:Translate SettingsQrOpen}"
                                FontSize="12" TextColor="#1ABC9C" FontAttributes="Bold"/>
                     </Border>
                 </Grid>
@@ -95,26 +90,23 @@
                     <Grid.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnSyncOfflineDataTapped"/>
                     </Grid.GestureRecognizers>
-
                     <Border Grid.Column="0" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 20" StrokeThickness="0" BackgroundColor="#EAF4FB">
                         <Label Text="☁️" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
                     </Border>
-
                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                        <Label Text="{Binding Path=[SettingsSyncTitle], Source={x:Static loc:LocalizationResourceManager.Instance}}" 
-           FontSize="15" FontAttributes="Bold" TextColor="#1A1A2E"/>
-                        <Label Text="{Binding Path=[SettingsSyncDesc], Source={x:Static loc:LocalizationResourceManager.Instance}}" 
-           FontSize="12" TextColor="#AAAAAA"/>
+                        <Label Text="{loc:Translate SettingsSyncTitle}"
+                               FontSize="15" FontAttributes="Bold" TextColor="#1A1A2E"/>
+                        <Label Text="{loc:Translate SettingsSyncDesc}"
+                               FontSize="12" TextColor="#AAAAAA"/>
                     </VerticalStackLayout>
-
                     <Border Grid.Column="2" HeightRequest="28" Padding="10,0" StrokeShape="RoundRectangle 14" StrokeThickness="0" BackgroundColor="#EAF4FB" VerticalOptions="Center">
-                        <Label Text="{Binding Path=[SettingsSyncAction], Source={x:Static loc:LocalizationResourceManager.Instance}}" 
-           FontSize="12" TextColor="#2980B9" FontAttributes="Bold"/>
+                        <Label Text="{loc:Translate SettingsSyncAction}"
+                               FontSize="12" TextColor="#2980B9" FontAttributes="Bold"/>
                     </Border>
                 </Grid>
             </Border>
 
-            <Label Text="{Binding Path=[SettingsSectionNotifications], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+            <Label Text="{loc:Translate SettingsSectionNotifications}"
                    FontSize="13" FontAttributes="Bold" TextColor="#AAAAAA" Margin="20,0,20,8" CharacterSpacing="0.5"/>
 
             <Border Margin="20,0,20,16" Padding="20" StrokeShape="RoundRectangle 20" StrokeThickness="0" BackgroundColor="White">
@@ -127,9 +119,9 @@
                             <Label Text="🔔" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
                         </Border>
                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                            <Label Text="{Binding Path=[SettingsPushTitle], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                            <Label Text="{loc:Translate SettingsPushTitle}"
                                    FontSize="15" FontAttributes="Bold" TextColor="#1A1A2E"/>
-                            <Label Text="{Binding Path=[SettingsPushDesc], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                            <Label Text="{loc:Translate SettingsPushDesc}"
                                    FontSize="12" TextColor="#AAAAAA"/>
                         </VerticalStackLayout>
                         <Switch Grid.Column="2" ThumbColor="White" OnColor="#1ABC9C" VerticalOptions="Center"/>
@@ -142,9 +134,9 @@
                             <Label Text="🔊" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
                         </Border>
                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                            <Label Text="{Binding Path=[SettingsSoundTitle], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                            <Label Text="{loc:Translate SettingsSoundTitle}"
                                    FontSize="15" FontAttributes="Bold" TextColor="#1A1A2E"/>
-                            <Label Text="{Binding Path=[SettingsSoundDesc], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                            <Label Text="{loc:Translate SettingsSoundDesc}"
                                    FontSize="12" TextColor="#AAAAAA"/>
                         </VerticalStackLayout>
                         <Switch Grid.Column="2" ThumbColor="White" OnColor="#1ABC9C" IsToggled="True" VerticalOptions="Center"/>
@@ -152,7 +144,7 @@
                 </VerticalStackLayout>
             </Border>
 
-            <Label Text="{Binding Path=[SettingsSectionInfo], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+            <Label Text="{loc:Translate SettingsSectionInfo}"
                    FontSize="13" FontAttributes="Bold" TextColor="#AAAAAA" Margin="20,0,20,8" CharacterSpacing="0.5"/>
 
             <Border Margin="20,0,20,16" Padding="20" StrokeShape="RoundRectangle 20" StrokeThickness="0" BackgroundColor="White">
@@ -168,9 +160,9 @@
                             <Label Text="ℹ️" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
                         </Border>
                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                            <Label Text="{Binding Path=[SettingsAboutTitle], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                            <Label Text="{loc:Translate SettingsAboutTitle}"
                                    FontSize="15" FontAttributes="Bold" TextColor="#1A1A2E"/>
-                            <Label Text="{Binding Path=[SettingsAboutDesc], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                            <Label Text="{loc:Translate SettingsAboutDesc}"
                                    FontSize="12" TextColor="#AAAAAA"/>
                         </VerticalStackLayout>
                         <Label Grid.Column="2" Text="›" FontSize="22" TextColor="#CCCCCC" VerticalOptions="Center"/>
@@ -183,9 +175,9 @@
                             <Label Text="⭐" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
                         </Border>
                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                            <Label Text="{Binding Path=[SettingsRateTitle], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                            <Label Text="{loc:Translate SettingsRateTitle}"
                                    FontSize="15" FontAttributes="Bold" TextColor="#1A1A2E"/>
-                            <Label Text="{Binding Path=[SettingsRateDesc], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                            <Label Text="{loc:Translate SettingsRateDesc}"
                                    FontSize="12" TextColor="#AAAAAA"/>
                         </VerticalStackLayout>
                         <Label Grid.Column="2" Text="›" FontSize="22" TextColor="#CCCCCC" VerticalOptions="Center"/>
@@ -197,9 +189,9 @@
                 <Border WidthRequest="48" HeightRequest="48" StrokeShape="RoundRectangle 24" StrokeThickness="0" BackgroundColor="#1ABC9C" HorizontalOptions="Center">
                     <Label Text="🍜" FontSize="24" HorizontalOptions="Center" VerticalOptions="Center"/>
                 </Border>
-                <Label Text="{Binding Path=[SettingsFooterTagline], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                <Label Text="{loc:Translate SettingsFooterTagline}"
                        FontSize="13" TextColor="#AAAAAA" HorizontalOptions="Center" Margin="0,6,0,0"/>
-                <Label Text="{Binding Path=[SettingsFooterVersion], Source={x:Static loc:LocalizationResourceManager.Instance}}"
+                <Label Text="{loc:Translate SettingsFooterVersion}"
                        FontSize="11" TextColor="#CCCCCC" HorizontalOptions="Center"/>
             </VerticalStackLayout>
 

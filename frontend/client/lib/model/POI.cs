@@ -13,24 +13,15 @@ namespace client.lib.model
         [JsonPropertyName("name")]
         public string Name { get; set; } = string.Empty;
 
-        [JsonPropertyName("description")]
-        public string? Description { get; set; }
-
         [JsonPropertyName("latitude")]
         public double Latitude { get; set; }
 
         [JsonPropertyName("longitude")]
         public double Longitude { get; set; }
-        [JsonPropertyName("averageRating")]
-        public double AverageRating { get; set; }
-
-        [JsonPropertyName("reviewCount")]
-        public int ReviewCount { get; set; }
 
         // Danh sách link ảnh từ API Cloudinary trả về
         [JsonPropertyName("imageUrls")]
         public List<string> ImageUrls { get; set; } = new();
-        public List<Review> Reviews { get; set; } = new();
 
         [JsonIgnore]
         public string ImageUrl
@@ -38,7 +29,7 @@ namespace client.lib.model
             get
             {
                 if (ImageUrls == null || !ImageUrls.Any())
-                    return "placeholder_img.webp"; 
+                    return "placeholder_img.webp";
 
                 return ImageUrls.First();
             }
@@ -68,6 +59,5 @@ namespace client.lib.model
 
         [JsonPropertyName("restaurants")]
         public List<Restaurant> Restaurants { get; set; } = new();
-
     }
 }

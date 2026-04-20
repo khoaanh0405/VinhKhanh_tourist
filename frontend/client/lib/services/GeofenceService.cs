@@ -8,6 +8,8 @@ namespace client.lib.services
     {
         private readonly AudioService _audioService;
 
+        private int? _lastPlayedPoiId = null;
+
         [ObservableProperty]
         private Location? _currentLocation;
 
@@ -23,6 +25,32 @@ namespace client.lib.services
         public GeofenceService(AudioService audioService)
         {
             _audioService = audioService;
+        }
+
+        // 🔥 2. THÊM HÀM NÀY: Tự động chạy khi biến CurrentActivePOI có sự thay đổi
+        partial void OnCurrentActivePOIChanged(POI? value)
+        {
+            if (value != null)
+            {
+                // Kiểm tra: Nếu ID quán mới trùng với quán đang đọc -> Đang đứng im một chỗ, KHÔNG phát lại
+                if (_lastPlayedPoiId == value.PoiId)
+                    return;
+
+                // Cập nhật cờ sang quán mới
+                _lastPlayedPoiId = value.PoiId;
+
+                // Dừng ngay âm thanh của quán trước đó (nếu lỡ đang phát)
+                _audioService.Stop();
+
+                // ❌ ĐÃ XÓA LỆNH PLAY TTS Ở ĐÂY.
+                // Giao lại quyền phát âm thanh cho HomeViewModel xử lý để nó kiểm tra được nút Bật/Tắt
+            }
+            else
+            {
+                // TRƯỜNG HỢP: Đã đi ra khỏi vùng quán (CurrentActivePOI bị gán bằng null)
+                _audioService.Stop();     // Tắt âm thanh
+                _lastPlayedPoiId = null;  // Xóa cờ để lần sau quay lại quán này nó đọc lại từ đầu
+            }
         }
 
         public void SetPois(List<POI> pois)
@@ -187,24 +215,28 @@ namespace client.lib.services
                     }
                 }
                 // 2. Logic khi ĐANG Ở TRONG MỘT QUÁN (Kiểm tra xem đã thực sự ra khỏi quán chưa)
+                // 2. Logic khi ĐANG Ở TRONG MỘT QUÁN (Kiểm tra xem đã thực sự ra khỏi quán chưa)
                 else
                 {
                     // Nếu quán gần nhất đo được vẫn là quán đang active
                     if (CurrentActivePOI.PoiId == nearestPoi.PoiId)
                     {
-                        if (distanceInMeters > 30) // Ngưỡng thoát: 30 mét (Tạo vùng đệm 10m chống nhiễu GPS)
+                        if (distanceInMeters > 30) // Ngưỡng thoát: 30 mét
                         {
-                            System.Diagnostics.Debug.WriteLine($"!!! ĐÃ ĐI RA KHỎI KHU VỰC QUÁN {CurrentActivePOI.Name} (Cách {distanceInMeters:F1}m) -> TẮT PLAYER");
-                            MainThread.BeginInvokeOnMainThread(() =>
-                            {
-                                CurrentActivePOI = null;
-                            });
+                            System.Diagnostics.Debug.WriteLine($"!!! ĐÃ ĐI RA KHỎI KHU VỰC QUÁN {CurrentActivePOI.Name}");
+                            MainThread.BeginInvokeOnMainThread(() => CurrentActivePOI = null);
                         }
                     }
                     // Trường hợp hệ thống nhận diện một quán MỚI nằm sát quán cũ (chuyển quán)
                     else
                     {
-                        if (distanceInMeters <= 20)
+                        // TÍNH KHOẢNG CÁCH CỦA QUÁN HIỆN TẠI ĐỂ LÀM MỐC SO SÁNH
+                        double currentActiveDist = Location.CalculateDistance(
+                            currentLoc.Latitude, currentLoc.Longitude,
+                            CurrentActivePOI.Latitude, CurrentActivePOI.Longitude, DistanceUnits.Kilometers) * 1000;
+
+                        // 🔥 VÙNG ĐỆM: Quán mới phải <= 20m VÀ phải gần hơn quán cũ ít nhất 3 mét mới cho đổi
+                        if (distanceInMeters <= 20 && distanceInMeters < (currentActiveDist - 3))
                         {
                             System.Diagnostics.Debug.WriteLine($"!!! CHUYỂN SANG VÙNG QUÁN KHÁC: {nearestPoi.Name} (Cách {distanceInMeters:F1}m)");
                             MainThread.BeginInvokeOnMainThread(() =>

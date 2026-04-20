@@ -1,102 +1,71 @@
-using client.lib.core;              // LocalizationResourceManager
+using client.lib.core;
 using client.lib.model;
-using client.lib.screens.home;     // HomeViewModel
-using client.lib.screens.qr;        // QrScannerPage
-using client.lib.services;          // AppViewModel
-using client.Resources.String;      // AppResources
+using client.lib.screens.home;
+using client.lib.screens.qr;
+using client.lib.services;
+using client.Resources.String;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using System.Globalization;
+using static client.lib.services.ApiService;
 
 namespace client.lib.screens.settings;
 
 public partial class SettingsPage : ContentPage
 {
-    private static readonly string[] LangCodes = { "vi", "en", "ko" };
-    private static readonly string[] LangNames = { "Tiếng Việt 🇻🇳", "English 🇬🇧", "한국어 🇰🇷" };
     private readonly ApiService _apiService = new ApiService();
     private readonly LocalDbService _localDb = new LocalDbService();
+    private List<AppLanguage> _availableLanguages = new();
 
     public SettingsPage()
     {
         InitializeComponent();
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
 
-        string saved = Preferences.Get("AppLanguage", "vi");
-        int idx = Array.IndexOf(LangCodes, saved);
+        // 1. Load danh sách ngôn ngữ từ API
+        _availableLanguages = await _apiService.GetAvailableLanguagesAsync();
+
         LanguagePicker.SelectedIndexChanged -= OnLanguageSelected;
-        LanguagePicker.SelectedIndex = idx >= 0 ? idx : 0;
+        LanguagePicker.ItemsSource = _availableLanguages;
+
+        // 2. Tìm ngôn ngữ đã lưu để chọn mặc định
+        string savedCode = Preferences.Get("AppLanguage", "vi");
+        var selectedLang = _availableLanguages.FirstOrDefault(l => l.LanguageCode == savedCode);
+
+        if (selectedLang != null) LanguagePicker.SelectedItem = selectedLang;
+        else if (_availableLanguages.Any()) LanguagePicker.SelectedIndex = 0;
+
         LanguagePicker.SelectedIndexChanged += OnLanguageSelected;
     }
 
     private async void OnLanguageSelected(object sender, EventArgs e)
     {
-        int pickerIdx = LanguagePicker.SelectedIndex;
-        if (pickerIdx < 0 || pickerIdx >= LangCodes.Length) return;
+        if (LanguagePicker.SelectedItem is not AppLanguage selectedLang) return;
 
-        string newCode = LangCodes[pickerIdx];
-        string newName = LangNames[pickerIdx];
-
+        string newCode = selectedLang.LanguageCode;
         if (Preferences.Get("AppLanguage", "vi") == newCode) return;
 
         try
         {
-            var services = Application.Current.Handler.MauiContext.Services;
-
-            // 🔥 GỌI AUDIOSERVICE ĐỂ DỪNG ĐỌC TRƯỚC KHI ĐỔI NGÔN NGỮ
-            var audioService = services.GetService<AudioService>();
-            audioService?.Stop();
-
+            // 1. Lưu tùy chọn ngôn ngữ vào máy
             Preferences.Set("AppLanguage", newCode);
-            var culture = new CultureInfo(newCode);
 
-            // --- Cập nhật luồng UI hiện tại ---
-            Thread.CurrentThread.CurrentCulture = culture;
-            Thread.CurrentThread.CurrentUICulture = culture;
-            AppResources.Culture = culture;
-            CultureInfo.DefaultThreadCurrentCulture = culture;
-            CultureInfo.DefaultThreadCurrentUICulture = culture;
+            // 2. Lấy bộ từ điển mới từ API
+            var translations = await _apiService.GetUITranslationsAsync(newCode);
 
-            LocalizationResourceManager.Instance.SetCulture(culture);
+            // 3. Nạp vào Resource Manager -> UI trên toàn ứng dụng sẽ tự động đổi chữ!
+            LocalizationResourceManager.Instance.SetTranslations(translations);
 
-            // Thêm một chút delay để UI kịp dọn dẹp thanh trạng thái và cập nhật
-            await Task.Delay(50);
-
-            // Cập nhật các ViewModel
-            var appViewModel = services.GetService<AppViewModel>();
-            var homeViewModel = services.GetService<HomeViewModel>();
-
-            appViewModel?.RefreshTranslations();
-
-            if (homeViewModel != null)
-            {
-                var matchedLang = homeViewModel.AvailableLanguages
-                    .FirstOrDefault(l => l.LanguageCode == newCode);
-
-                if (matchedLang != null)
-                {
-                    homeViewModel.SelectedLanguage = matchedLang;
-                }
-            }
-
-            // Hiện thông báo
-            string toastMessage = LocalizationResourceManager.Instance["SettingsLanguageChangedMsg"];
-            var toast = Toast.Make($"{toastMessage} {newName}", ToastDuration.Short, 14);
+            // Hiển thị thông báo thành công
+            var toast = Toast.Make($"Đã đổi ngôn ngữ: {selectedLang.LanguageName}", ToastDuration.Short, 14);
             await toast.Show();
         }
         catch (Exception ex)
         {
-            string fallback = Preferences.Get("AppLanguage", "vi");
-            int fallbackIdx = Array.IndexOf(LangCodes, fallback);
-
-            LanguagePicker.SelectedIndexChanged -= OnLanguageSelected;
-            LanguagePicker.SelectedIndex = fallbackIdx >= 0 ? fallbackIdx : 0;
-            LanguagePicker.SelectedIndexChanged += OnLanguageSelected;
-
             await DisplayAlert("Lỗi", $"Không thể đổi ngôn ngữ.\nChi tiết: {ex.Message}", "OK");
         }
     }
@@ -108,7 +77,6 @@ public partial class SettingsPage : ContentPage
 
     private async void OnAboutTapped(object sender, TappedEventArgs e)
     {
-        // Lấy chữ DisplayAlert bằng ngôn ngữ hiện tại
         string title = LocalizationResourceManager.Instance["SettingsAboutTitle"];
         string tagline = LocalizationResourceManager.Instance["SettingsFooterTagline"];
         string version = LocalizationResourceManager.Instance["SettingsFooterVersion"];
@@ -132,18 +100,14 @@ public partial class SettingsPage : ContentPage
 
             string lang = Preferences.Get("AppLanguage", "vi");
 
-            // 1. Kéo toàn bộ POI từ API
             var onlinePois = await _apiService.FetchPOIsAsync(lang);
 
             if (onlinePois != null && onlinePois.Any())
             {
-                // 2. Xóa sạch kho mini trong điện thoại để tránh rác
                 await _localDb.ClearAllDataAsync();
 
-                // 3. Lặp qua từng quán, tải chi tiết và cất vào SQLite
                 foreach (var apiPoi in onlinePois)
                 {
-                    // Lấy chi tiết quán bằng ngôn ngữ hiện tại (để lấy Name, Description chuẩn hiển thị)
                     var detailPoi = await _apiService.FetchPOIByIdAsync(apiPoi.PoiId, lang);
                     if (detailPoi == null) continue;
 
@@ -151,11 +115,8 @@ public partial class SettingsPage : ContentPage
                     {
                         PoiId = detailPoi.PoiId,
                         Name = detailPoi.Name,
-                        Description = detailPoi.Description,
                         Latitude = detailPoi.Latitude,
                         Longitude = detailPoi.Longitude,
-                        AverageRating = detailPoi.AverageRating,
-                        ReviewCount = detailPoi.ReviewCount,
                         ImageUrlsJoined = detailPoi.ImageUrls != null ? string.Join(",", detailPoi.ImageUrls) : ""
                     };
 
@@ -166,56 +127,17 @@ public partial class SettingsPage : ContentPage
                     {
                         foreach (var r in detailPoi.Restaurants)
                         {
-                            localRestaurants.Add(new RestaurantLocal { RestaurantId = r.RestaurantId, PoiId = localPoi.PoiId, Name = r.Name, Description = r.Description, Address = r.Address });
+                            localRestaurants.Add(new RestaurantLocal { RestaurantId = r.RestaurantId, PoiId = localPoi.PoiId, Name = r.Name, Address = r.Address });
                             if (r.Foods != null)
                             {
                                 foreach (var f in r.Foods)
-                                    localFoods.Add(new FoodLocal { FoodId = f.FoodId, RestaurantId = r.RestaurantId, Name = f.Name, Price = (double)f.Price, Description = f.Description });
+                                    localFoods.Add(new FoodLocal { FoodId = f.FoodId, RestaurantId = r.RestaurantId, Name = f.Name, Price = (double)f.Price });
                             }
                         }
                     }
 
-                    // 🔥 4. THÊM MAPPING NARRATIONS (CHO TẤT CẢ NGÔN NGỮ)
                     var localNarrations = new List<NarrationLocal>();
 
-                    // Lặp qua mảng các ngôn ngữ mà app hỗ trợ
-                    foreach (var lCode in LangCodes)
-                    {
-                        // Gọi API để lấy narration của từng ngôn ngữ
-                        var detailPoiForLang = await _apiService.FetchPOIByIdAsync(apiPoi.PoiId, lCode);
-
-                        if (detailPoiForLang?.Narrations != null)
-                        {
-                            foreach (var n in detailPoiForLang.Narrations)
-                            {
-                                // Tránh lưu trùng lặp nếu API lỡ trả về dữ liệu giống nhau
-                                if (!localNarrations.Any(ln => ln.LanguageCode == n.LanguageCode))
-                                {
-
-                                    string finalAudioUrl = n.AudioUrl;
-
-                                    // BỔ SUNG: Kiểm tra xem có dùng file âm thanh và là link Online không
-                                    if (n.UseAudioFile && !string.IsNullOrEmpty(n.AudioUrl))
-                                    {
-                                        // Thực hiện tải file ngầm và lấy đường dẫn lưu trên máy
-                                        finalAudioUrl = await DownloadAudioFileAsync(n.AudioUrl, n.NarrationId, n.LanguageCode);
-                                    }
-
-                                    localNarrations.Add(new NarrationLocal
-                                    {
-                                        PoiId = localPoi.PoiId,
-                                        NarrationId = n.NarrationId,
-                                        LanguageCode = n.LanguageCode,
-                                        Text = n.Text,
-                                        UseAudioFile = n.UseAudioFile,
-                                        AudioUrl = n.AudioUrl
-                                    });
-                                }
-                            }
-                        }
-                    }
-
-                    // 🔥 5. TRUYỀN ĐÚNG 4 BIẾN VÀO HÀM LƯU DB (Lúc này localNarrations đã chứa đủ vi, en, ko)
                     await _localDb.SavePoiDataAsync(localPoi, localRestaurants, localFoods, localNarrations);
                 }
 
@@ -226,44 +148,5 @@ public partial class SettingsPage : ContentPage
         {
             await DisplayAlert("Lỗi", $"Không thể đồng bộ: {ex.Message}", "OK");
         }
-    }
-
-    private async Task<string> DownloadAudioFileAsync(string url, int narrationId, string langCode)
-    {
-        // Nếu không có URL hoặc đã là file local rồi thì bỏ qua
-        if (string.IsNullOrEmpty(url) || !url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-            return url;
-
-        try
-        {
-            using var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync(url);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var fileBytes = await response.Content.ReadAsByteArrayAsync();
-
-                // Tạo tên file duy nhất dựa trên ID và Ngôn ngữ
-                string fileName = $"narration_{narrationId}_{langCode}.mp3";
-
-                // Đường dẫn an toàn trong bộ nhớ nội bộ của App
-                string localPath = Path.Combine(FileSystem.AppDataDirectory, fileName);
-
-                // Lưu file xuống máy
-                await File.WriteAllBytesAsync(localPath, fileBytes);
-
-                System.Diagnostics.Debug.WriteLine($"[Sync] Đã tải xong: {fileName}");
-
-                // Trả về đường dẫn cục bộ để lưu vào SQLite
-                return localPath;
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[Sync Error] Lỗi tải file âm thanh {url}: {ex.Message}");
-        }
-
-        // Nếu tải thất bại, trả về URL cũ làm fallback (để dùng online nếu có mạng)
-        return url;
     }
 }

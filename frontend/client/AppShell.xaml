@@ -34,12 +34,6 @@
             </ShellContent.Icon>
         </ShellContent>
 
-        <ShellContent Route="FavoritesPage" ContentTemplate="{DataTemplate screens:FavoritesPage}">
-            <ShellContent.Icon>
-                <FontImageSource Glyph="❤️" Size="28" />
-            </ShellContent.Icon>
-        </ShellContent>
-
         <ShellContent Route="SettingsPage" ContentTemplate="{DataTemplate settings:SettingsPage}">
             <ShellContent.Icon>
                 <FontImageSource Glyph="⚙️" Size="28" />

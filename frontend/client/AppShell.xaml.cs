@@ -1,5 +1,4 @@
-﻿using client.lib.screens.login;
-using System.Globalization;
+﻿using System.Globalization;
 
 namespace client;
 
@@ -9,9 +8,7 @@ public partial class AppShell : Shell
     {
         InitializeComponent();
 
-        Routing.RegisterRoute("LoginScreen", typeof(LoginScreen));
-        Routing.RegisterRoute("RegisterScreen", typeof(RegisterScreen));
-        Routing.RegisterRoute("ProfileScreen", typeof(ProfileScreen));
+        // Đã xóa Routing.RegisterRoute cho Login, Register, Profile
 
         string savedLang = Preferences.Get("AppLanguage", "vi");
 
@@ -21,23 +18,5 @@ public partial class AppShell : Shell
         client.Resources.String.AppResources.Culture = culture;
     }
 
-    // THÊM HÀM NÀY ĐỂ KIỂM TRA TRẠNG THÁI ĐĂNG NHẬP KHI MỞ APP
-    protected override void OnAppearing()
-    {
-        base.OnAppearing();
-
-        // Kiểm tra cờ IsLoggedIn đã lưu từ LoginScreen
-        bool isLoggedIn = Preferences.Get("IsLoggedIn", false);
-
-        if (isLoggedIn)
-        {
-            // Nếu đã đăng nhập, hệ thống sẽ tự động ở lại HomePage (hoặc Tab hiện tại)
-            // Bạn có thể không cần làm gì thêm ở đây, hoặc lấy thêm token nếu cần
-            System.Diagnostics.Debug.WriteLine("Người dùng đã đăng nhập từ phiên trước.");
-        }
-        else
-        {
-
-        }
-    }
+    // Đã xóa hoàn toàn hàm OnAppearing() vì không còn logic kiểm tra IsLoggedIn
 }

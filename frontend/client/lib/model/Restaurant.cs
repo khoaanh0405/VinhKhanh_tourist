@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace client.lib.model
@@ -15,11 +13,6 @@ namespace client.lib.model
 
         [JsonPropertyName("address")]
         public string? Address { get; set; }
-
-        [JsonPropertyName("description")]
-        public string? Description { get; set; }
-        [JsonPropertyName("IsLocked")]
-        public bool IsLocked { get; set; }
 
         [JsonPropertyName("foods")]
         public List<Food> Foods { get; set; } = new();

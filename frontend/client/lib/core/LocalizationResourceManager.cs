@@ -1,24 +1,34 @@
-﻿using System.ComponentModel;
-using System.Globalization;
-using client.Resources.String; // Trỏ đến file AppResources của bạn
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.Collections.Generic;
 
 namespace client.lib.core;
 
-public class LocalizationResourceManager : INotifyPropertyChanged
+public partial class LocalizationResourceManager : ObservableObject
 {
-    // Tạo Singleton để có thể truy cập từ mọi nơi
-    public static LocalizationResourceManager Instance { get; } = new();
+    public static readonly LocalizationResourceManager Instance = new();
+    private LocalizationResourceManager() { }
 
-    // Indexer để lấy chuỗi dịch thuật từ file AppResources
-    public string this[string resourceKey]
-        => AppResources.ResourceManager.GetString(resourceKey, AppResources.Culture) ?? string.Empty;
+    private Dictionary<string, string> _translations = new(StringComparer.OrdinalIgnoreCase);
 
-    public event PropertyChangedEventHandler? PropertyChanged;
+    public string this[string key]
+        => _translations.TryGetValue(key, out var value) ? value : $"[{key}]";
 
-    public void SetCulture(CultureInfo culture)
+    public void SetTranslations(Dictionary<string, string> translations)
     {
-        AppResources.Culture = culture;
-        // Tham số null có nghĩa là: "Tất cả các thuộc tính đều đã thay đổi, hãy cập nhật lại toàn bộ UI"
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
+        if (translations != null)
+        {
+            _translations = new Dictionary<string, string>(translations, StringComparer.OrdinalIgnoreCase);
+        }
+        else
+        {
+            _translations = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        // In ra log xem có lấy được bao nhiêu từ
+        System.Diagnostics.Debug.WriteLine($"[LANG] Đã nạp thành công {_translations.Count} từ khóa UI.");
+
+        OnPropertyChanged((string?)null);
     }
+
+    public bool ContainsKey(string key) => _translations.ContainsKey(key);
 }
