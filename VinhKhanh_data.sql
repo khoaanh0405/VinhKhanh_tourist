@@ -136,13 +136,44 @@ CREATE INDEX IX_Geofences_PoiId ON Geofences(PoiId);
 /* =========================
    10. QRCODES
 ========================= */
+CREATE TABLE Playlists (
+    PlaylistId INT IDENTITY(1,1) PRIMARY KEY,
+    Title NVARCHAR(200) NOT NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE()
+);
+
+/* =========================
+   10. PLAYLIST ITEMS (N-N)
+========================= */
+CREATE TABLE PlaylistItems (
+    PlaylistItemId INT IDENTITY(1,1) PRIMARY KEY,
+    PlaylistId INT NOT NULL,
+    PoiId INT NOT NULL,
+    DisplayOrder INT NOT NULL DEFAULT 0,
+    CONSTRAINT FK_PlaylistItems_Playlist FOREIGN KEY (PlaylistId) REFERENCES Playlists(PlaylistId) ON DELETE CASCADE,
+    CONSTRAINT FK_PlaylistItems_POI FOREIGN KEY (PoiId) REFERENCES POIs(PoiId) ON DELETE CASCADE,
+    CONSTRAINT UQ_PlaylistItem UNIQUE (PlaylistId, PoiId)
+);
+CREATE INDEX IX_PlaylistItems_PlaylistId ON PlaylistItems(PlaylistId);
+
+/* =========================
+   11. QRCODES (Đã hỗ trợ Playlist)
+========================= */
 CREATE TABLE QRCodes (
     QRCodeId INT IDENTITY(1,1) PRIMARY KEY,
-    PoiId INT NOT NULL,
+    PoiId INT NULL,
+    PlaylistId INT NULL,
     CodeValue NVARCHAR(200) NOT NULL UNIQUE,
-    FOREIGN KEY (PoiId) REFERENCES POIs(PoiId) ON DELETE CASCADE
+    CONSTRAINT FK_QRCodes_POIs FOREIGN KEY (PoiId) REFERENCES POIs(PoiId) ON DELETE CASCADE,
+    CONSTRAINT FK_QRCodes_Playlists FOREIGN KEY (PlaylistId) REFERENCES Playlists(PlaylistId) ON DELETE CASCADE,
+    -- Ràng buộc: Một mã QR chỉ được trỏ tới POI HOẶC Playlist, không được cả 2, cũng không được để trống cả 2
+    CONSTRAINT CK_QRCode_OneTarget CHECK (
+        (PoiId IS NOT NULL AND PlaylistId IS NULL) OR
+        (PoiId IS NULL AND PlaylistId IS NOT NULL)
+    )
 );
 CREATE INDEX IX_QRCodes_PoiId ON QRCodes(PoiId);
+CREATE INDEX IX_QRCodes_PlaylistId ON QRCodes(PlaylistId);
 
 /* =========================
    11. BẢNG DỊCH THUẬT DATA
@@ -172,18 +203,24 @@ CREATE TABLE ActiveSessions (
 -- Tạo index để truy vấn đếm user online nhanh hơn
 CREATE INDEX IX_ActiveSessions_LastSeen ON ActiveSessions(LastSeenAt);
 
--- 3. Bảng lịch sử quét QR (QR Scans)
+-- 3. Bảng lịch sử quét QR (QR Scans) - Đã cập nhật hỗ trợ Playlist
 CREATE TABLE QRScanLogs (
     LogId INT IDENTITY(1,1) PRIMARY KEY,
     DeviceId NVARCHAR(100) NOT NULL,
-    PoiId INT NOT NULL,
+    PoiId INT NULL,                      -- Cho phép NULL vì bạn bỏ quét từng quán
+    PlaylistId INT NULL,                 -- THÊM MỚI: Để lưu ID của Playlist khi quét
     ScannedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    
     FOREIGN KEY (DeviceId) REFERENCES Devices(DeviceId) ON DELETE CASCADE,
-    FOREIGN KEY (PoiId) REFERENCES POIs(PoiId) ON DELETE CASCADE
+    FOREIGN KEY (PoiId) REFERENCES POIs(PoiId) ON DELETE SET NULL,
+    CONSTRAINT FK_QRScanLogs_Playlists FOREIGN KEY (PlaylistId) REFERENCES Playlists(PlaylistId) ON DELETE CASCADE,
+    
+    -- Đảm bảo phải quét trúng 1 thứ (POI hoặc Playlist)
+    CONSTRAINT CK_ScanTarget CHECK (PoiId IS NOT NULL OR PlaylistId IS NOT NULL)
 );
--- Tạo index gom nhóm để check trùng lặp nhanh trong vòng 3 phút
-CREATE INDEX IX_QRScanLogs_CheckDuplicate ON QRScanLogs(DeviceId, PoiId, ScannedAt);
-GO
+
+-- Cập nhật Index để kiểm tra trùng lặp (chống spam) cho cả Playlist
+CREATE INDEX IX_QRScanLogs_CheckDuplicate ON QRScanLogs(DeviceId, PoiId, PlaylistId, ScannedAt);
 
 /* =========================================================================
    INSERT DỮ LIỆU MẪU
@@ -320,7 +357,14 @@ INSERT INTO UITranslations (LanguageCode, ResourceKey, ResourceValue) VALUES
 ('vi', 'Btn_TurnOn', N'Bật'),
 ('vi', 'Btn_TurnOff', N'Tắt'),
 ('vi', 'Btn_Cancel', N'Hủy'),
-('vi', 'Btn_Back', N'Quay lại');
+('vi', 'Btn_Back', N'Quay lại'),
+
+('vi', 'Playlist_Title', N'Danh Sách Phát'),
+('vi', 'Playlist_Loading', N'Đang tải danh sách...'),
+('vi', 'Playlist_Empty', N'Playlist này chưa có địa điểm nào.'),
+('vi', 'Playlist_Error', N'Không thể tải danh sách. Kiểm tra kết nối mạng.'),
+('vi', 'Playlist_ItemCount', N'{0} địa điểm'),
+('vi', 'Playlist_PlayingStatus', N'🔊 Đang phát thuyết minh...');
 GO
 
 -- 10. Thêm Admin
@@ -332,5 +376,3 @@ VALUES (
     '$2a$12$DtQn17/piuDv2TPjriFBc.H2KN9qMfzccwU140LSnf4GXuDeKBQIS', 
     'Admin'                       
 );
-
-select * from Narrations

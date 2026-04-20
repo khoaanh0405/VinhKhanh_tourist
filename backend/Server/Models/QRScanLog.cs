@@ -10,9 +10,8 @@ namespace Server.Models
 
         [MaxLength(100)]
         public string DeviceId { get; set; } = string.Empty;
-
-        public int PoiId { get; set; }
-
+        public int? PoiId { get; set; }
+        public int? PlaylistId { get; set; }
         public DateTime ScannedAt { get; set; } = DateTime.UtcNow;
 
         [ForeignKey("DeviceId")]

@@ -93,5 +93,32 @@ namespace client.lib.services
             }
             catch { }
         }
+
+        // 5. Gửi tín hiệu khi quét QR Playlist thành công
+        public async Task LogPlaylistScanAsync(int playlistId)
+        {
+            try
+            {
+                // Gửi cả DeviceId và PlaylistId lên Backend
+                var req = new
+                {
+                    DeviceId = GetDeviceId(),
+                    PlaylistId = playlistId,
+                    PoiId = (int?)null // Để trống PoiId vì ta đang quét Playlist
+                };
+
+                // Header vượt rào cho Dev Tunnel (nếu cần)
+                var response = await _http.PostAsJsonAsync($"{BaseApiUrl}/scan-qr", req);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[TRACKING OK] Đã ghi nhận quét Playlist #{playlistId}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[TRACKING ERROR] Lỗi log Playlist: {ex.Message}");
+            }
+        }
     }
 }

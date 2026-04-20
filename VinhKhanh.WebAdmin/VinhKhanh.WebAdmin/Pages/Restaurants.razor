@@ -121,9 +121,6 @@ else
                                                 <button class="btn btn-sm btn-info text-white fw-bold shadow-sm" @onclick="() => GoToMenu(r.RestaurantId)">
                                                     <i class="bi bi-card-list me-1"></i> Thực đơn
                                                 </button>
-                                                <button class="btn btn-sm btn-dark fw-bold shadow-sm" @onclick="() => GoToQR(r.RestaurantId)">
-                                                    <i class="bi bi-qr-code me-1"></i> Mã QR
-                                                </button>
                                                 <button class="btn btn-sm btn-primary fw-bold shadow-sm" @onclick="() => GoToEdit(r.RestaurantId)">
                                                     <i class="bi bi-pencil-square me-1"></i> Sửa
                                                 </button>
@@ -315,7 +312,6 @@ else
     }
 
     private void GoToMenu(int restaurantId) => Navigation.NavigateTo($"/restaurants/{restaurantId}/foods");
-    private void GoToQR(int restaurantId) => Navigation.NavigateTo($"/qrcodes?restaurantId={restaurantId}");
     private void GoToEdit(int restaurantId) => Navigation.NavigateTo($"/restaurants/edit/{restaurantId}");
 
     private void OpenAddModal()

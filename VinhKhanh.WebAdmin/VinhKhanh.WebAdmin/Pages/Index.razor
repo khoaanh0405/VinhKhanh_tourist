@@ -45,70 +45,14 @@ else
         </div>
 
         <div class="col-md-4">
-    <div class="card border-0 shadow-lg bg-gradient-warning text-dark h-100 rounded-4" style="background: linear-gradient(135deg, #ffc107, #fd7e14);">
-        <div class="card-body p-4 position-relative overflow-hidden">
-            <div class="d-flex justify-content-between align-items-start">
-                <h6 class="text-uppercase fw-bold opacity-75 mb-1"><i class="bi bi-qr-code-scan"></i> Tổng Lượt Quét QR</h6>
-    
-                <button class="btn btn-sm p-0 border-0 text-dark opacity-75" 
-                        style="z-index: 5; background: transparent; transform: translateY(-8px);" 
-                        @onclick="OpenScanDetail" 
-                        title="Xem chi tiết">
-                    <i class="bi bi-code fs-3"></i>
-                </button>
-            </div>
-            <div class="display-3 fw-bold mb-0">@stats.TotalQrScans <span class="fs-4 fw-normal opacity-75">lượt</span></div>
-            <i class="bi bi-qr-code position-absolute text-dark opacity-10" style="font-size: 6rem; bottom: -10px; right: 10px;"></i>
-        </div>
-    </div>
-</div>
-
-@* --- Dán đoạn Modal này vào tận cùng file Index.razor --- *@
-@if (showDetailModal)
-{
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg rounded-4">
-                <div class="modal-header bg-dark text-white border-0">
-                    <h5 class="modal-title fw-bold"><i class="bi bi-bar-chart-fill me-2 text-warning"></i> Chi tiết lượt quét theo Quán</h5>
-                    <button type="button" class="btn-close btn-close-white" @onclick="CloseScanDetail"></button>
-                </div>
-                <div class="modal-body p-0">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th class="ps-4">Tên Quán / Địa điểm</th>
-                                <th class="text-center">Số lượt quét</th>
-                                <th class="pe-4 text-end">Tỷ lệ</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (stats.PoiScanStats == null || !stats.PoiScanStats.Any())
-                            {
-                                <tr><td colspan="3" class="text-center py-4 text-muted">Chưa có dữ liệu quét nào.</td></tr>
-                            }
-                            else
-                            {
-                                @foreach (var item in stats.PoiScanStats)
-                                {
-                                    var percent = stats.TotalQrScans > 0 ? (item.ScanCount * 100 / stats.TotalQrScans) : 0;
-                                    <tr>
-                                        <td class="ps-4 fw-bold text-primary">@item.PoiName</td>
-                                        <td class="text-center"><span class="badge bg-secondary rounded-pill">@item.ScanCount</span></td>
-                                        <td class="pe-4 text-end text-muted small">@percent%</td>
-                                    </tr>
-                                }
-                            }
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer border-0 bg-light rounded-bottom-4">
-                    <button type="button" class="btn btn-secondary fw-bold px-4" @onclick="CloseScanDetail">Đóng</button>
+            <div class="card border-0 shadow-lg bg-gradient-warning text-dark h-100 rounded-4" style="background: linear-gradient(135deg, #ffc107, #fd7e14);">
+                <div class="card-body p-4 position-relative overflow-hidden">
+                    <h6 class="text-uppercase fw-bold opacity-75 mb-1"><i class="bi bi-qr-code-scan"></i> Tổng Lượt Quét QR</h6>
+                    <div class="display-3 fw-bold mb-0">@stats.TotalQrScans <span class="fs-4 fw-normal opacity-75">lượt</span></div>
+                    <i class="bi bi-qr-code position-absolute text-dark opacity-10" style="font-size: 6rem; bottom: -10px; right: 10px;"></i>
                 </div>
             </div>
         </div>
-    </div>
-}
     </div>
 
     <h6 class="text-muted fw-bold text-uppercase mb-3">Thống kê Dữ liệu Hệ thống</h6>
@@ -138,8 +82,6 @@ else
             </div>
         </div>
     </div>
-
-
 }
 
 <style>
@@ -158,13 +100,6 @@ else
     private bool isLoading = true;
     private bool isPolling = false;
     private System.Threading.Timer? _timer;
-
-    // 👇 THÊM CÁC BIẾN VÀ HÀM NÀY ĐỂ HẾT LỖI CS0103
-    private bool showDetailModal = false;
-
-    private void OpenScanDetail() => showDetailModal = true;
-    private void CloseScanDetail() => showDetailModal = false;
-    // 👆 ------------------------------------------
 
     protected override async Task OnInitializedAsync()
     {

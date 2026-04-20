@@ -1,24 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Server.Models
+﻿namespace Server.Models
 {
-    [Table("QRCodes")]
     public class QRCode
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int QRCodeId { get; set; }
+        public int? PoiId { get; set; }          // <-- ĐÃ ĐỔI THÀNH NULLABLE
+        public int? PlaylistId { get; set; }      // <-- MỚI
+        public string CodeValue { get; set; } = string.Empty;
 
-        [ForeignKey("POI")]
-        public int PoiId { get; set; }
-
-        [MaxLength(200)]
-        public string CodeValue { get; set; }
-
-        // Navigation properties
-        public virtual POI POI { get; set; }
-
-        //public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        // Navigation
+        public POI? POI { get; set; }
+        public Playlist? Playlist { get; set; }   // <-- MỚI
     }
-}    
+}

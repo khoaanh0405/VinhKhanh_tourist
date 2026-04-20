@@ -153,6 +153,8 @@ builder.Services.AddScoped<IAuthorizationHandler, ManagerRestaurantHandler>();
 // ============================
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 
+builder.Services.AddScoped<IPlaylistService, PlaylistService>();
+
 
 // ============================
 // 8. AUTHORIZATION POLICIES

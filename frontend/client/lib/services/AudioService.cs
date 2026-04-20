@@ -6,8 +6,6 @@ namespace client.lib.services
 {
     public partial class AudioService : ObservableObject
     {
-        // 🔥 ĐÃ XÓA: IAudioManager, IAudioPlayer, HttpClient logic
-
         [ObservableProperty] private bool _isSpeaking;
         [ObservableProperty] private bool _isPaused;
         [ObservableProperty] private string _currentTrackTitle = string.Empty;
@@ -22,7 +20,6 @@ namespace client.lib.services
         private Locale? _cachedLocale;
         private string _cachedLocaleLanguage = string.Empty;
 
-        // Constructor trống, không cần inject thư viện bên ngoài nữa
         public AudioService() { }
 
         public async Task InitializeAsync()
@@ -82,7 +79,16 @@ namespace client.lib.services
             await PlayTtsLoopAsync(_cts);
         }
 
-        // Đổi chữ ký hàm để nhận token từ bên ngoài
+        // Đã sửa lại lỗi ở hàm overload này: Tái sử dụng logic xịn ở trên thay vì viết lại
+        public async Task SpeakAsync(string text, Action? onCompleted = null)
+        {
+            // Gọi hàm SpeakAsync chính để tận dụng chia câu, pause/resume và quản lý state
+            await SpeakAsync(text, "Thuyết minh tự động", "vi");
+
+            // Invoke callback khi việc đọc (hoặc loop) đã hoàn tất
+            onCompleted?.Invoke();
+        }
+
         private async Task PlayTtsLoopAsync(CancellationTokenSource localCts)
         {
             try
@@ -95,10 +101,8 @@ namespace client.lib.services
 
                     var settings = new SpeechOptions { Locale = _cachedLocale };
 
-                    // Dùng token đã được truyền vào
                     await TextToSpeech.Default.SpeakAsync(sentence, settings, cancelToken: localCts.Token);
 
-                    // Kiểm tra token lại một lần nữa trước khi qua câu tiếp theo
                     if (!IsPaused && !localCts.IsCancellationRequested)
                         _currentSentenceIndex++;
                     else
@@ -111,7 +115,6 @@ namespace client.lib.services
                 System.Diagnostics.Debug.WriteLine($"[AudioService] ❌ TTS error: {ex.Message}");
             }
 
-            // Nếu đọc xong câu cuối mà không bị hủy
             if (_currentSentenceIndex >= _ttsSentences.Count && !IsPaused && !localCts.IsCancellationRequested)
             {
                 MainThread.BeginInvokeOnMainThread(() => IsSpeaking = false);
@@ -148,7 +151,6 @@ namespace client.lib.services
             }
             else
             {
-                // Khi phát tiếp, tạo Token mới và truyền vào
                 _cts = new CancellationTokenSource();
                 _ = PlayTtsLoopAsync(_cts);
             }
@@ -160,9 +162,8 @@ namespace client.lib.services
             IsPaused = false;
             IsSpeaking = false;
 
-            // Lưu tham chiếu cục bộ để tránh bị thread khác cướp quyền (Race Condition)
             var currentCts = _cts;
-            _cts = null; // Gán null lập tức để khóa cổng
+            _cts = null;
 
             if (currentCts != null)
             {

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="client.lib.screens.Playlist.PlaylistPage"
+    BackgroundColor="#F5F7FA"
+    Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <Grid Grid.Row="0" BackgroundColor="#1ABC9C" Padding="16,50,16,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="44"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" WidthRequest="38" HeightRequest="38"
+        StrokeShape="RoundRectangle 19" StrokeThickness="0"
+        BackgroundColor="#44000000" VerticalOptions="Center" HorizontalOptions="Start">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped"/>
+                </Border.GestureRecognizers>
+                <Label Text="←" FontSize="18" TextColor="White"
+           HorizontalOptions="Center" VerticalOptions="Center"/>
+            </Border>
+
+            <VerticalStackLayout Grid.Column="1" Padding="12,0,0,0" VerticalOptions="Center">
+                <Label x:Name="lblPlaylistTitle" Text="Danh Sách Phát" TextColor="White"
+                       FontSize="20" FontAttributes="Bold"/>
+                <Label x:Name="lblItemCount" Text="" TextColor="#D5F5F0" FontSize="13"/>
+            </VerticalStackLayout>
+        </Grid>
+
+        <Grid Grid.Row="1">
+
+            <VerticalStackLayout x:Name="LoadingView" IsVisible="True"
+                                 VerticalOptions="Center" HorizontalOptions="Center" Spacing="12">
+                <ActivityIndicator IsRunning="True" Color="#1ABC9C" WidthRequest="50" HeightRequest="50"/>
+                <Label x:Name="lblLoadingMsg" Text="Đang tải danh sách..." TextColor="#7F8C8D" FontSize="15"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout x:Name="EmptyView" IsVisible="False"
+                                 VerticalOptions="Center" HorizontalOptions="Center" Spacing="12">
+                <Label Text="😕" FontSize="48" HorizontalOptions="Center"/>
+                <Label x:Name="lblEmptyMsg" Text="Không tìm thấy địa điểm nào." 
+                       TextColor="#7F8C8D" FontSize="15" HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+
+            <CollectionView x:Name="PlaylistCollection" IsVisible="False" Margin="0,8,0,0" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Margin="16,6" BackgroundColor="White" StrokeShape="RoundRectangle 16" StrokeThickness="0">
+                            <Border.Shadow>
+                                <Shadow Brush="#20000000" Offset="0,3" Radius="10"/>
+                            </Border.Shadow>
+
+                            <Grid Padding="16" ColumnDefinitions="*,Auto">
+
+                                <VerticalStackLayout Grid.Column="0" VerticalOptions="Center" Spacing="4">
+                                    <Label>
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding DisplayOrder}" TextColor="#1ABC9C" FontAttributes="Bold" FontSize="15"/>
+                                                <Span Text=". " TextColor="#1ABC9C" FontSize="15"/>
+                                                <Span Text="{Binding PoiName}" TextColor="#1A252F" FontAttributes="Bold" FontSize="15"/>
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+
+                                    <Label Text="{Binding RestaurantName}" TextColor="#2ECC71" FontSize="13"
+                                           IsVisible="{Binding HasRestaurantName}"/>
+
+                                    <Label Text="{Binding PlayingStatusText}" TextColor="#E67E22" FontSize="12"
+                                           FontAttributes="Italic" IsVisible="{Binding IsPlaying}"/>
+                                </VerticalStackLayout>
+
+                                <Border Grid.Column="1" WidthRequest="52" HeightRequest="52"
+        VerticalOptions="Center" StrokeShape="RoundRectangle 26"
+        BackgroundColor="#1ABC9C" Stroke="Transparent">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnPlayTapped" CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+
+                                    <Label Text="{Binding PlayButtonIcon}" FontSize="22" TextColor="White"
+           HorizontalOptions="Center" VerticalOptions="Center"/>
+                                </Border>
+
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </Grid>
+    </Grid>
+</ContentPage>

@@ -115,5 +115,57 @@ namespace Server.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpGet("playlist/{playlistId}")]
+        public async Task<IActionResult> GetByPlaylistId(int playlistId)
+        {
+            var qr = await _context.QRCodes
+                .FirstOrDefaultAsync(q => q.PlaylistId == playlistId);
+
+            if (qr == null)
+            {
+                // Trả về HTTP 200 OK với object rỗng thay vì NotFound (404)
+                // Điều này giúp trình duyệt không báo lỗi đỏ, Frontend Deserialize vào class QRCodeDto 
+                // sẽ tự động nhận CodeValue = "" và QRCodeId = 0.
+                return Ok(new { QRCodeId = 0, CodeValue = "" });
+            }
+
+            return Ok(qr);
+        }
+
+        // POST: api/QRCode/generate-playlist/{playlistId}  -- Tự động tạo QR cho Playlist
+        [Authorize]
+        [HttpPost("generate-playlist/{playlistId}")]
+        public async Task<IActionResult> GenerateForPlaylist(int playlistId)
+        {
+            try
+            {
+                // Nếu đã có QR rồi thì trả luôn, không tạo thêm
+                var existing = await _context.QRCodes
+                    .FirstOrDefaultAsync(q => q.PlaylistId == playlistId);
+                if (existing != null) return Ok(existing);
+
+                var playlistExists = await _context.Playlists
+                    .AnyAsync(p => p.PlaylistId == playlistId);
+                if (!playlistExists)
+                    return NotFound(new { message = "Playlist không tồn tại." });
+
+                var newQr = new QRCode
+                {
+                    PoiId = null,                                            // KHÔNG gắn POI
+                    PlaylistId = playlistId,
+                    CodeValue = $"app://vinhkhanh/playlist/{playlistId}"    // Deep-link chuẩn
+                };
+
+                _context.QRCodes.Add(newQr);
+                await _context.SaveChangesAsync();
+                return Ok(newQr);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("LỖI SINH QR PLAYLIST: " + ex.Message);
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

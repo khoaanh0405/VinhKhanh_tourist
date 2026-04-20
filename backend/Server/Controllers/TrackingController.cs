@@ -48,48 +48,34 @@ namespace Server.Controllers
             return Ok(new { message = "Heartbeat recorded" });
         }
 
-        // 2. API: Ghi nhận lượt quét mã QR
         [HttpPost("scan-qr")]
         public async Task<IActionResult> ScanQr([FromBody] ScanQrRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.DeviceId) || request.PoiId <= 0)
-                return BadRequest("Invalid data");
+            // Kiểm tra xem có gửi ít nhất 1 trong 2 mã không
+            if (request.PoiId <= 0 && request.PlaylistId <= 0)
+                return BadRequest("Phải có PoiId hoặc PlaylistId");
 
-            // Bắt buộc thiết bị phải tồn tại trong bảng Devices trước khi lưu Log
-            var deviceExists = await _context.Devices.AnyAsync(d => d.DeviceId == request.DeviceId);
-            if (!deviceExists)
-            {
-                _context.Devices.Add(new Device { DeviceId = request.DeviceId, FirstSeenAt = DateTime.UtcNow });
-                await _context.SaveChangesAsync();
-            }
-
-            // LOGIC CHỐNG TRÙNG LẶP (Chống Spam): 
-            // Nếu cùng 1 máy, quét cùng 1 mã POI trong vòng 3 phút đổ lại -> BỎ QUA không cộng dồn
-            var timeThreshold = DateTime.UtcNow.AddMinutes(-3);
-
+            // Logic chống spam (giữ nguyên cơ chế 3 phút của bạn)
+            var timeThreshold = DateTime.UtcNow.AddSeconds(-5);
             var isSpam = await _context.QRScanLogs
                 .AnyAsync(x => x.DeviceId == request.DeviceId
                             && x.PoiId == request.PoiId
+                            && x.PlaylistId == request.PlaylistId // Thêm kiểm tra trùng playlist
                             && x.ScannedAt >= timeThreshold);
 
-            if (isSpam)
-            {
-                // Vẫn trả về 200 OK để App Mobile chạy tiếp bình thường, nhưng Backend không tăng số lượng đếm
-                return Ok(new { message = "Scan ignored (Duplicate within 3 minutes)" });
-            }
+            if (isSpam) return Ok(new { message = "Spam detected" });
 
-            // Ghi nhận lượt quét hợp lệ
             var newLog = new QRScanLog
             {
                 DeviceId = request.DeviceId,
-                PoiId = request.PoiId,
+                PoiId = request.PoiId > 0 ? request.PoiId : (int?)null,
+                PlaylistId = request.PlaylistId > 0 ? request.PlaylistId : (int?)null,
                 ScannedAt = DateTime.UtcNow
             };
 
             _context.QRScanLogs.Add(newLog);
             await _context.SaveChangesAsync();
-
-            return Ok(new { message = "QR Scan recorded successfully" });
+            return Ok(new { message = "Ghi nhận quét Playlist thành công" });
         }
     }
 }

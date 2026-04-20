@@ -1,0 +1,315 @@
+﻿@page "/playlists"
+@attribute [Authorize(Roles = "Admin")]
+@inject HttpClient Http
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="text-primary fw-bold">
+        <i class="bi bi-collection-play me-2"></i>Quản lý Danh Sách Phát
+    </h3>
+    <button class="btn btn-primary fw-bold shadow-sm" @onclick="OpenCreateModal">
+        <i class="bi bi-plus-circle me-1"></i> Tạo mới
+    </button>
+</div>
+
+@if (_playlists == null)
+{
+    <div class="text-center mt-5 p-5">
+        <div class="spinner-border text-primary" role="status" style="width:3rem;height:3rem;"></div>
+        <p class="mt-3 fw-bold text-muted">Đang tải dữ liệu...</p>
+    </div>
+}
+else if (!_playlists.Any())
+{
+    <div class="alert alert-info text-center shadow-sm">
+        <i class="bi bi-info-circle me-2 fs-5"></i>
+        Chưa có tour nào. Hãy tạo mới!
+    </div>
+}
+else
+{
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-4">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:80px;" class="text-center">ID</th>
+                            <th>Tên tour</th>
+                            <th class="text-center">Số địa điểm</th>
+                            <th class="text-center">Ngày tạo</th>
+                            <th class="text-end" style="min-width:220px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in _playlists)
+                        {
+                            <tr style="border-bottom:1px solid #eee;">
+                                <td class="text-center fw-bold text-secondary">#@p.PlaylistId</td>
+                                <td>
+                                    <span class="fw-bold fs-6">@p.Title</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-primary rounded-pill px-3 py-2">
+                                        <i class="bi bi-geo-alt me-1"></i>@p.ItemCount điểm
+                                    </span>
+                                </td>
+                                <td class="text-center text-muted small">
+                                    @p.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-flex gap-2 justify-content-end">
+                                        <button class="btn btn-sm btn-dark fw-bold shadow-sm"
+                                                @onclick="() => GoToQR(p.PlaylistId)">
+                                            <i class="bi bi-qr-code me-1"></i> Mã QR
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-primary fw-bold shadow-sm"
+                                                @onclick="() => OpenEditModal(p)">
+                                            <i class="bi bi-pencil-square me-1"></i> Sửa
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger fw-bold"
+                                                @onclick="() => DeletePlaylist(p.PlaylistId, p.Title)">
+                                            <i class="bi bi-trash3-fill me-1"></i> Xóa
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@* ── MODAL TẠO PLAYLIST MỚI ── *@
+@if (_showCreateModal)
+{
+    <div class="modal fade show d-block" tabindex="-1"
+         style="background-color:rgba(0,0,0,0.6);backdrop-filter:blur(3px);">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content shadow-lg border-0 rounded-4">
+
+                <div class="modal-header bg-primary text-white border-0 rounded-top-4">
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi bi-collection-play me-2"></i>
+                        @(_isEditMode ? "Cập nhật" : "Tạo Mới")
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white"
+                            @onclick="CloseCreateModal"></button>
+                </div>
+
+                <div class="modal-body p-4">
+                    @* Tên Playlist *@
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Tên Danh Sách Phát</label>
+                        <input class="form-control form-control-lg"
+                               placeholder="VD: Hành trình ẩm thực Vĩnh Khánh"
+                               @bind="_newTitle" />
+                    </div>
+
+                    @* Danh sách POI có checkbox *@
+                    <div class="mb-3">
+                        <label class="form-label fw-bold mb-3">
+                            Chọn địa điểm (<span class="text-primary">@_selectedPoiIds.Count</span> đã chọn)
+                        </label>
+
+                        @if (_allPois == null)
+                        {
+                            <div class="text-center py-3">
+                                <div class="spinner-border spinner-border-sm text-primary"></div>
+                                <span class="ms-2 text-muted">Đang tải địa điểm...</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="border rounded-3 p-3" style="max-height:320px;overflow-y:auto;">
+                                @foreach (var poi in _allPois)
+                                {
+                                    <div class="form-check py-2 border-bottom d-flex align-items-center gap-3">
+                                        <input class="form-check-input" type="checkbox"
+                                               id="poi_@poi.PoiId"
+                                               checked="@_selectedPoiIds.Contains(poi.PoiId)"
+                                               @onchange="e => TogglePoi(poi.PoiId, (bool)e.Value!)" />
+                                        <label class="form-check-label w-100" for="poi_@poi.PoiId">
+                                            <span class="fw-bold">@poi.Name</span>
+                                            <span class="badge bg-light text-secondary border ms-2">
+                                                POI #@poi.PoiId
+                                            </span>
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(_errorMsg))
+                    {
+                        <div class="alert alert-danger py-2 fw-bold text-center">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>@_errorMsg
+                        </div>
+                    }
+                </div>
+
+                <div class="modal-footer border-0 pt-0 px-4 pb-4">
+                    <button class="btn btn-light border fw-bold px-4"
+                            @onclick="CloseCreateModal">
+                        Hủy
+                    </button>
+                    <button class="btn btn-primary fw-bold px-5 shadow-sm"
+                            @onclick="SubmitCreate"
+                            disabled="@_isSaving">
+                        @if (_isSaving)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                        }
+                        <i class="bi bi-check-circle-fill me-1"></i> @(_isEditMode ? "Cập nhật" : "Lưu")
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<PlaylistSummaryDto>? _playlists;
+    private List<PoiDto>? _allPois;
+    private bool _showCreateModal = false;
+    private string _newTitle = "";
+    private HashSet<int> _selectedPoiIds = new();
+    private bool _isSaving = false;
+    private string _errorMsg = "";
+
+    // Thêm 2 biến trạng thái cho chế độ Sửa
+    private bool _isEditMode = false;
+    private int _editingPlaylistId = 0;
+
+    protected override async Task OnInitializedAsync()
+        => await LoadPlaylists();
+
+    private async Task LoadPlaylists()
+        => _playlists = await Http.GetFromJsonAsync<List<PlaylistSummaryDto>>("api/Playlist");
+
+    private void GoToQR(int playlistId)
+        => Nav.NavigateTo($"/playlist-qr?playlistId={playlistId}");
+
+    // Cập nhật hàm mở Modal tạo mới
+    private async Task OpenCreateModal()
+    {
+        _isEditMode = false;
+        _editingPlaylistId = 0;
+        _newTitle = "";
+        _selectedPoiIds = new HashSet<int>();
+        _errorMsg = "";
+
+        if (_allPois == null)
+            _allPois = await Http.GetFromJsonAsync<List<PoiDto>>("api/POIs");
+            
+        _showCreateModal = true;
+    }
+
+    // THÊM HÀM MỚI: Mở Modal Sửa
+    private async Task OpenEditModal(PlaylistSummaryDto p)
+    {
+        _isEditMode = true;
+        _editingPlaylistId = p.PlaylistId;
+        _newTitle = p.Title;
+        _selectedPoiIds = new HashSet<int>();
+        _errorMsg = "";
+
+        // Tải danh sách tất cả POI nếu chưa có
+        if (_allPois == null)
+            _allPois = await Http.GetFromJsonAsync<List<PoiDto>>("api/POIs");
+
+        // Gọi API lấy các POI đang có trong Playlist này để tick sẵn checkbox
+        try
+        {
+            var items = await Http.GetFromJsonAsync<List<PlaylistItemDto>>($"api/Playlist/{p.PlaylistId}/items");
+            if (items != null)
+            {
+                foreach (var item in items)
+                {
+                    _selectedPoiIds.Add(item.PoiId);
+                }
+            }
+        }
+        catch
+        {
+            _errorMsg = "Không thể tải chi tiết các địa điểm.";
+        }
+
+        _showCreateModal = true;
+    }
+
+    private void CloseCreateModal() => _showCreateModal = false;
+
+    private void TogglePoi(int poiId, bool isChecked)
+    {
+        if (isChecked) _selectedPoiIds.Add(poiId);
+        else _selectedPoiIds.Remove(poiId);
+    }
+
+    // Cập nhật hàm Submit để gọi PUT nếu đang sửa
+    private async Task SubmitCreate()
+    {
+        _errorMsg = "";
+        if (string.IsNullOrWhiteSpace(_newTitle))
+        {
+            _errorMsg = "Vui lòng nhập tên tour.";
+            return;
+        }
+        if (_selectedPoiIds.Count == 0)
+        {
+            _errorMsg = "Vui lòng chọn ít nhất một địa điểm.";
+            return;
+        }
+
+        _isSaving = true;
+        var payload = new { Title = _newTitle.Trim(), PoiIds = _selectedPoiIds.ToList() };
+        HttpResponseMessage response;
+
+        // Tách nhánh POST và PUT
+        if (_isEditMode)
+        {
+            response = await Http.PutAsJsonAsync($"api/Playlist/{_editingPlaylistId}", payload);
+        }
+        else
+        {
+            response = await Http.PostAsJsonAsync("api/Playlist", payload);
+        }
+
+        if (response.IsSuccessStatusCode)
+        {
+            _showCreateModal = false;
+            await LoadPlaylists();
+        }
+        else
+        {
+            var err = await response.Content.ReadFromJsonAsync<ErrorDto>();
+            _errorMsg = err?.Message ?? "Lưu thất bại, vui lòng thử lại.";
+        }
+        _isSaving = false;
+    }
+
+    private async Task DeletePlaylist(int id, string title)
+    {
+        if (!await JS.InvokeAsync<bool>("confirm", $"Xóa'{title}'? Mã QR liên kết sẽ bị mất."))
+            return;
+
+        var res = await Http.DeleteAsync($"api/Playlist/{id}");
+        if (res.IsSuccessStatusCode)
+            await LoadPlaylists();
+        else
+            await JS.InvokeVoidAsync("alert", "Xóa thất bại!");
+    }
+
+    // DTOs
+    public record PlaylistSummaryDto(int PlaylistId, string Title, int ItemCount, DateTime CreatedAt);
+    public record PoiDto(int PoiId, string Name);
+    public record ErrorDto(string Message);
+    
+    // THÊM DTO NÀY ĐỂ MAP DỮ LIỆU TỪ API /items
+    public record PlaylistItemDto(int PoiId, string PoiName);
+}

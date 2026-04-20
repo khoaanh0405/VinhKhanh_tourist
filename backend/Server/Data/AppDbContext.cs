@@ -28,6 +28,8 @@ namespace Server.Data
         public DbSet<ActiveSession> ActiveSessions { get; set; }
         public DbSet<QRScanLog> QRScanLogs { get; set; }
         public DbSet<FoodTranslation> FoodTranslations { get; set; }
+        public DbSet<Playlist> Playlists { get; set; }
+        public DbSet<PlaylistItem> PlaylistItems { get; set; }
 
         // 👇 THÊM MỚI
         public DbSet<UITranslation> UITranslations { get; set; }
@@ -105,6 +107,29 @@ namespace Server.Data
                 .HasIndex(u => new { u.LanguageCode, u.ResourceKey })
                 .IsUnique();
             // 👆================================================👆
+
+            modelBuilder.Entity<PlaylistItem>()
+       .HasOne(pi => pi.Playlist)
+       .WithMany(p => p.Items)
+       .HasForeignKey(pi => pi.PlaylistId)
+       .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PlaylistItem>()
+                .HasOne(pi => pi.POI)
+                .WithMany()
+                .HasForeignKey(pi => pi.PoiId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PlaylistItem>()
+                .HasIndex(pi => new { pi.PlaylistId, pi.PoiId })
+                .IsUnique();
+
+            // Cập nhật QRCode để PoiId nullable
+            modelBuilder.Entity<QRCode>()
+                .HasOne(q => q.Playlist)
+                .WithMany(p => p.QRCodes)
+                .HasForeignKey(q => q.PlaylistId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }
